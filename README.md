@@ -2,6 +2,30 @@
 
 > Deterministic quality gates for stochastic gradient descent behavior from LLM agents
 
+---
+
+## 📄 Academic Paper (WORKING DRAFT)
+
+**⚠️ DRAFT STATUS: Not peer-reviewed. Novel claims await empirical validation.**
+
+The theoretical foundations of this work are documented in a LaTeX paper:
+
+- **[paper/quality-gate-sgd.tex](paper/quality-gate-sgd.tex)** — Full academic treatment
+
+The paper covers:
+- Quality Geometry (formal framework)
+- Convergence Theorem (proof of finite expected convergence)
+- Discrete Differentiability (target-space gradients)
+- Metric Topology (classification by SGD suitability)
+- Empirical Validation Plan (research questions RQ1-RQ6)
+
+**Claim Status**: All claims are explicitly inventoried in [docs/theory/CLAIMS.md](docs/theory/CLAIMS.md) with markers:
+- `[MATH]` — Mathematical definitions (self-supporting)
+- `[NOVEL]` — Our contributions (require experimental validation)
+- `[CITED]` — Established results (citations being compiled)
+
+---
+
 ## The Core Insight
 
 **The way to get deterministic results from a stochastic work unit (like an LLM) is to make the exit gate on the process (more) deterministic.**

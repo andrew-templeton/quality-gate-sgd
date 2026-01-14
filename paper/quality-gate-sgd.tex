@@ -1,0 +1,447 @@
+\documentclass[11pt,a4paper]{article}
+
+% ============================================================================
+% DRAFT WATERMARK - PROMINENT LABELING
+% ============================================================================
+\usepackage{draftwatermark}
+\SetWatermarkText{WORKING DRAFT}
+\SetWatermarkScale{0.5}
+\SetWatermarkColor[gray]{0.85}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+% Draft notice box
+\usepackage{tcolorbox}
+\newtcolorbox{draftnotice}{
+  colback=red!5!white,
+  colframe=red!75!black,
+  fonttitle=\bfseries,
+  title=WORKING DRAFT
+}
+
+% Theorem environments
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{corollary}[theorem]{Corollary}
+
+% Code listings
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  language=Python
+}
+
+\title{Quality-Guided Descent: Deterministic Gates for\\Stochastic LLM Agents}
+
+\author{
+  Andrew Templeton\\
+  \texttt{github.com/andrew-templeton/quality-gate-sgd}
+}
+
+\date{Working Draft --- \today}
+
+\begin{document}
+
+\maketitle
+
+% ============================================================================
+% PROMINENT DRAFT NOTICE
+% ============================================================================
+\begin{draftnotice}
+This document is a \textbf{working draft} of preliminary theoretical work.
+\begin{itemize}
+  \item Claims marked \textbf{[NOVEL]} await empirical validation
+  \item Citations marked \textbf{[PENDING]} are being compiled
+  \item This work has \textbf{not been peer-reviewed}
+\end{itemize}
+See the companion repository for the latest version and claim status:\\
+\url{https://github.com/andrew-templeton/quality-gate-sgd}
+\end{draftnotice}
+
+\begin{abstract}
+We present a theoretical framework for understanding how deterministic quality gates create gradient descent-like optimization behavior when LLM agents iterate against them. We formalize the required properties of quality functions (quantitative measurement, determinism, local continuity), prove a convergence theorem under a ``biased proposer'' assumption, and introduce \emph{discrete differentiability}---a method for computing target-space gradients over enumerable code locations. This enables optimization guidance that specifies not just \emph{which} metric to improve, but \emph{where} in the codebase to make changes. We classify common software quality metrics by their suitability for this framework and propose empirically testable hypotheses about convergence rates under different feedback granularities.
+
+\medskip
+\noindent\textbf{Status:} Working draft. Novel claims require experimental validation.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% ============================================================================
+\section{Introduction}
+% ============================================================================
+
+Large Language Models (LLMs) have demonstrated remarkable capability in code generation and modification tasks. However, their outputs are inherently stochastic---the same prompt may yield different code across invocations. This stochasticity poses challenges for software engineering workflows that require deterministic, reproducible quality outcomes.
+
+We propose that the path to deterministic results from stochastic agents lies not in constraining the agent, but in making the \emph{exit gate} deterministic. When an LLM agent iterates against a deterministic quality function, rejecting outputs that fail to meet quality thresholds, the system exhibits behavior analogous to stochastic gradient descent (SGD):
+
+\begin{itemize}
+  \item The quality function provides the \emph{descent direction} (what to improve)
+  \item The LLM's stochasticity provides \emph{exploration} (diverse fix attempts)
+  \item Gate rejection creates \emph{optimization pressure} (improve or fail)
+\end{itemize}
+
+This paper formalizes this intuition, establishing conditions under which convergence is guaranteed and introducing computational methods for fine-grained optimization guidance.
+
+% ============================================================================
+\section{Quality Geometry}
+\label{sec:geometry}
+% ============================================================================
+
+\subsection{The Quality Space}
+
+\begin{definition}[Quality Function]
+Let $\mathcal{C}$ be the space of all syntactically valid code states for a project. A \textbf{quality function} is a mapping:
+\[
+Q: \mathcal{C} \to \mathbb{R}^n
+\]
+where each dimension $q_i$ represents a measurable quality attribute (e.g., test coverage, bug count, cyclomatic complexity).
+\end{definition}
+
+\subsection{Required Properties}
+
+For $Q$ to support gradient-like optimization, it should satisfy three properties:
+
+\begin{definition}[Quantitative Measurement]
+$Q(c) \in \mathbb{R}^n$ for all $c \in \mathcal{C}$. Each dimension must produce a real number with a clear optimization direction.
+\end{definition}
+
+\begin{definition}[Determinism]
+$Q(c_1) = Q(c_2)$ whenever $c_1 = c_2$. The same code state must always produce the same quality vector.
+\end{definition}
+
+\begin{definition}[Local Continuity]
+For all $\varepsilon > 0$, there exists $\delta > 0$ such that:
+\[
+d(c_1, c_2) < \delta \implies \|Q(c_1) - Q(c_2)\| < \varepsilon
+\]
+where $d$ is a distance metric on code space (e.g., edit distance).
+\end{definition}
+
+\subsection{The Descent Condition}
+
+When these properties hold, a quality space admits \emph{descent}: there exist transformation sequences that monotonically improve $Q$.
+
+\begin{theorem}[Descent Existence, Informal]
+If $Q$ satisfies Properties 1--3, then for most code states $c$ where $Q(c)$ is not at a local minimum, there exists a neighborhood $N(c)$ containing states $c'$ with $Q(c') \prec Q(c)$ (where $\prec$ denotes improvement).
+\end{theorem}
+
+% ============================================================================
+\section{Convergence Theory}
+\label{sec:convergence}
+% ============================================================================
+
+\subsection{The Agent Model}
+
+\begin{definition}[Feedback Function]
+Given current measurements $Q(c)$, the feedback function $F$ identifies constraint violations:
+\[
+F: \mathcal{M} \to \text{Feedback}
+\]
+where $\mathcal{M} \subseteq \mathbb{R}^n$ is the measurement space. This function is deterministic.
+\end{definition}
+
+\begin{definition}[LLM Agent as Stochastic Proposer]
+An LLM agent $A$ takes current code and feedback, proposing a modification:
+\[
+A: \mathcal{C} \times \text{Feedback} \to \text{Distribution}(\mathcal{C})
+\]
+Given $(c, F(Q(c)))$, the agent samples $c' \sim A(c, F(Q(c)))$.
+\end{definition}
+
+\subsection{The Biased Proposer Property}
+
+\begin{definition}[Biased Proposer]
+\label{def:biased-proposer}
+An agent $A$ is a \textbf{biased proposer} with parameter $p > 0.5$ if:
+\[
+P(Q(c') \succ Q(c) \mid c' \sim A(c, F(Q(c)))) \geq p
+\]
+That is, given feedback about failing metrics, the agent proposes improvements with probability at least $p$.
+\end{definition}
+
+\textbf{Claim [NOVEL]:} Modern LLMs (GPT-4, Claude) are biased proposers for code quality tasks. This is empirically testable.
+
+\subsection{The Convergence Theorem}
+
+\begin{theorem}[Finite Expected Convergence]
+\label{thm:convergence}
+Let:
+\begin{itemize}
+  \item $Q: \mathcal{C} \to \mathcal{M}$ be a quality function with finite $|\mathcal{M}|$
+  \item $T \subseteq \mathcal{M}$ be a non-empty target set (satisfying all constraints)
+  \item $A$ be a biased proposer with parameter $p > 0.5$
+  \item The quality ordering $\prec$ have no infinite descending chains in $\mathcal{M} \setminus T$
+\end{itemize}
+
+Then starting from any $c_0$ with $Q(c_0) \notin T$:
+\[
+\mathbb{E}[\tau] < \infty
+\]
+where $\tau = \inf\{t : Q(c_t) \in T\}$ is the stopping time.
+\end{theorem}
+
+\begin{proof}[Proof Sketch]
+\begin{enumerate}
+  \item $\mathcal{M}$ is finite and $\prec$ has no infinite descending chains, so there exists a maximum distance $d_{\max}$ from any $m \in \mathcal{M}$ to $T$.
+  \item At each step, with probability $\geq p > 0.5$, we improve (move closer to $T$).
+  \item This is a random walk with drift toward an absorbing set.
+  \item By standard results on biased random walks [PENDING: Feller, Ross], absorption occurs in finite expected time.
+  \item Expected proposals per accepted step is $1/p$ (geometric distribution).
+  \item Therefore $\mathbb{E}[\tau] \leq d_{\max}/p < \infty$. \qedhere
+\end{enumerate}
+\end{proof}
+
+\begin{corollary}[Convergence Rate]
+If $d_{\max}$ is the maximum distance from any $m \in \mathcal{M} \setminus T$ to $T$, then:
+\[
+\mathbb{E}[\tau] \leq \frac{d_{\max}}{p}
+\]
+\end{corollary}
+
+% ============================================================================
+\section{Discrete Differentiability}
+\label{sec:differentiability}
+% ============================================================================
+
+\subsection{The Problem: Gradient Degeneracy}
+
+The standard quality gradient operates in \emph{dimension-space}:
+\[
+\nabla Q = \left[\frac{\partial Q}{\partial q_1}, \frac{\partial Q}{\partial q_2}, \ldots, \frac{\partial Q}{\partial q_n}\right]
+\]
+
+This tells us \emph{which} dimension to improve but not \emph{where} in the codebase to make changes. In discrete spaces, this degenerates to priority ordering over dimensions.
+
+\subsection{The Insight: Location Data Exists}
+
+Quality measurement tools already extract precise location information:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Source} & \textbf{Location Data} & \textbf{Current Usage} \\
+\midrule
+coverage-final.json & file, line, branch, function & Aggregated to \% \\
+TypeScript errors & file:line:column & Counted only \\
+ESLint issues & file:line:column:ruleId & Counted only \\
+SonarQube issues & file:line:rule:severity & Counted only \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Key realization:} We have the data to compute gradients over code-space. We discard it during aggregation.
+
+\subsection{Target-Space Gradients}
+
+\begin{definition}[Optimization Target]
+Let $\mathcal{T} = \{t_1, t_2, \ldots, t_m\}$ be the set of enumerable optimization targets, where each target is a tuple:
+\[
+t = (\text{file}, \text{symbol}?, \text{line\_range}?, \text{issue\_cluster})
+\]
+\end{definition}
+
+\begin{definition}[Target-Space Gradient]
+The \textbf{target-space gradient} is:
+\[
+\nabla_t Q = \left[\frac{\partial Q}{\partial t_1}, \frac{\partial Q}{\partial t_2}, \ldots, \frac{\partial Q}{\partial t_m}\right]
+\]
+where $\partial Q / \partial t_i$ represents the expected change in fitness if all issues at target $t_i$ are resolved.
+\end{definition}
+
+\subsection{Computing $\Delta Q$}
+
+For a target $t$ with issues affecting dimensions $D = \{d_1, d_2, \ldots, d_k\}$:
+
+\begin{equation}
+\Delta Q(t) = \sum_{j \in D} w_j \cdot \delta_j(t)
+\label{eq:delta-q}
+\end{equation}
+
+where:
+\begin{itemize}
+  \item $w_j$ is the weight for dimension $j$
+  \item $\delta_j(t)$ is the normalized impact on dimension $j$ from fixing issues at target $t$
+\end{itemize}
+
+\subsection{Cross-Dimension Correlation}
+
+A target affecting multiple dimensions simultaneously is more valuable than one addressing a single dimension.
+
+\begin{example}
+Consider two targets with similar coverage gaps:
+\begin{center}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Target} & \textbf{Coverage $\Delta Q$} & \textbf{TS Errors $\Delta Q$} & \textbf{Smells $\Delta Q$} & \textbf{Total $\Delta Q$} \\
+\midrule
+\texttt{processPayment()} & +0.35 & +0.25 & +0.10 & \textbf{0.70} \\
+\texttt{formatDate()} & +0.07 & 0 & 0 & \textbf{0.07} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The first target is \textbf{10$\times$ more valuable} because it addresses three dimensions. Dimension-level gradients cannot see this correlation.
+\end{example}
+
+\subsection{Granularity and Convergence}
+
+\begin{conjecture}[Granularity-Convergence Relationship]
+\label{conj:granularity}
+Let $\tau_{\text{dim}}$, $\tau_{\text{file}}$, $\tau_{\text{symbol}}$ be expected iterations to convergence for dimension-level, file-level, and symbol-level feedback respectively. Then:
+\[
+\tau_{\text{symbol}} < \tau_{\text{file}} < \tau_{\text{dim}}
+\]
+\end{conjecture}
+
+\textbf{Rationale:} Finer-grained feedback reduces agent search space:
+\begin{itemize}
+  \item ``Improve coverage'' $\to$ agent searches entire codebase
+  \item ``Fix \texttt{src/payment.ts}'' $\to$ agent focuses on one file
+  \item ``Fix \texttt{processPayment()}'' $\to$ agent focuses on one function
+\end{itemize}
+
+This conjecture is empirically testable.
+
+% ============================================================================
+\section{Metric Topology}
+\label{sec:topology}
+% ============================================================================
+
+\subsection{Metric Classification}
+
+We classify metrics by their suitability for the SGD framework:
+
+\begin{center}
+\begin{tabular}{lcccl}
+\toprule
+\textbf{Metric} & \textbf{Quant.} & \textbf{Determ.} & \textbf{Contin.} & \textbf{Grade} \\
+\midrule
+coverage.lines & $\checkmark$ & $\checkmark$ & $\checkmark\checkmark$ & A \\
+coverage.branches & $\checkmark$ & $\checkmark$ & $\checkmark$ & B+ \\
+duplications \% & $\checkmark$ & $\checkmark$ & $\checkmark$ & B+ \\
+sonarqube.codeSmells & $\checkmark$ & $\checkmark$ & $\triangle$ & B- \\
+sonarqube.bugs & $\checkmark$ & $\checkmark$ & $\times$ & C- \\
+sonarqube.blocker & $\checkmark$ & $\checkmark$ & $\times$ & D- \\
+typescript.errors & $\checkmark$ & $\triangle^*$ & $\times$ & D \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+$^*$TypeScript errors can be non-deterministic with incremental compilation.
+
+\subsection{Design Principles}
+
+Based on this analysis, we recommend:
+
+\begin{enumerate}
+  \item \textbf{Smooth objectives}: Use percentage-based metrics (coverage) as optimization targets
+  \item \textbf{Discrete constraints}: Use count metrics (blockers, criticals) as ceilings, not objectives
+  \item \textbf{Normalization}: Transform counts to per-kSLOC densities for improved continuity
+  \item \textbf{Weighting}: Use dependency analysis to focus effort on high-impact code
+\end{enumerate}
+
+% ============================================================================
+\section{Related Work}
+\label{sec:related}
+% ============================================================================
+
+\textbf{[PENDING: Citations to be compiled]}
+
+\begin{itemize}
+  \item \textbf{RLHF and LLM Alignment}: InstructGPT, Constitutional AI
+  \item \textbf{LLM Code Generation}: Codex, HumanEval benchmark
+  \item \textbf{Random Walk Convergence}: Feller, Ross
+  \item \textbf{Software Quality Metrics}: ISO/IEC 25010, SonarQube validation studies
+  \item \textbf{Multi-objective Optimization}: Pareto optimality literature
+\end{itemize}
+
+% ============================================================================
+\section{Empirical Validation Plan}
+\label{sec:validation}
+% ============================================================================
+
+\subsection{Research Questions}
+
+\begin{description}
+  \item[RQ1: Convergence] Do LLM agents with quality gates converge faster than agents without?
+  \item[RQ2: Success Rate] Do quality gates improve task completion rate?
+  \item[RQ3: Quality Ceiling] Do quality gates improve final code quality beyond ``just passing''?
+  \item[RQ4: Topology Design] Which metric combinations create the smoothest descent?
+  \item[RQ5: Target Granularity] Does file-level or symbol-level targeting improve convergence?
+  \item[RQ6: Cross-Dimension Value] Do multi-dimension targets converge faster?
+\end{description}
+
+\subsection{Biased Proposer Validation}
+
+\textbf{Protocol:}
+\begin{enumerate}
+  \item Collect $N$ code states with known quality issues
+  \item For each state $c_i$, generate feedback $F(Q(c_i))$
+  \item Ask LLM to propose fix $c'_i$
+  \item Measure: did $Q(c'_i) \succ Q(c_i)$?
+  \item Compute $\hat{p} = (\text{\# improvements}) / N$
+\end{enumerate}
+
+\textbf{Hypothesis:} $\hat{p} > 0.5$ with statistical significance.
+
+\textbf{Required sample size:} $N \approx 100$ for 95\% confidence.
+
+% ============================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+% ============================================================================
+
+We have presented a theoretical framework for understanding how deterministic quality gates create optimization behavior in stochastic LLM agents. Key contributions:
+
+\begin{enumerate}
+  \item \textbf{Quality Geometry}: Formalization of the required properties (quantitative, deterministic, continuous)
+  \item \textbf{Convergence Theorem}: Proof of finite expected convergence under the biased proposer assumption
+  \item \textbf{Discrete Differentiability}: Method for computing target-space gradients over code locations
+  \item \textbf{Metric Topology}: Classification of common metrics by SGD suitability
+\end{enumerate}
+
+The framework provides both theoretical grounding and practical guidance for designing quality-gated LLM coding workflows. All novel claims are explicitly marked for empirical validation.
+
+% ============================================================================
+\section*{Acknowledgments}
+% ============================================================================
+
+This is a working draft. The author welcomes feedback and collaboration on empirical validation.
+
+% ============================================================================
+\appendix
+\section{Claim Inventory}
+\label{app:claims}
+% ============================================================================
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Claim} & \textbf{Type} & \textbf{Status} \\
+\midrule
+Quality functions map code to finite $\mathcal{M}$ & MATH & Self-supporting \\
+Finite granularity induces equivalence classes & MATH & Self-supporting \\
+LLMs are biased proposers ($p > 0.5$) & NOVEL & Requires validation \\
+Convergence in finite expected time & NOVEL & Theorem~\ref{thm:convergence} \\
+Target-space gradients improve guidance & NOVEL & Requires validation \\
+Finer granularity $\to$ faster convergence & NOVEL & Conjecture~\ref{conj:granularity} \\
+Random walks with drift converge & CITED & PENDING \\
+RLHF improves LLM behavior & CITED & PENDING \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\end{document}
