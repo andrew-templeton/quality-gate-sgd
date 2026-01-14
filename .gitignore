@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Cache files
+.quality-gate-cache.json
+
+# Coverage reports
+coverage/
+coverage-lambda/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+.sonarqube-token
+*.token
+
+# Internal development notes (not for public)
+.internal-*.md
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test output
+.scannerwork/

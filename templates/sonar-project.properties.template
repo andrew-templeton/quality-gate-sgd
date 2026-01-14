@@ -1,0 +1,28 @@
+# SonarQube Project Configuration Template
+# Copy this to your project root as sonar-project.properties
+# and customize for your project.
+
+# Required: Project identification
+sonar.projectKey=my-project
+sonar.projectName=My Project
+sonar.projectVersion=1.0.0
+
+# Source code location
+sonar.sources=src
+sonar.tests=tests
+
+# TypeScript/JavaScript configuration
+sonar.typescript.lcov.reportPaths=coverage/lcov.info
+sonar.javascript.lcov.reportPaths=coverage/lcov.info
+
+# Exclusions (files to skip)
+sonar.exclusions=**/*.test.ts,**/*.spec.ts,**/node_modules/**,**/dist/**
+
+# Test file patterns
+sonar.test.inclusions=**/*.test.ts,**/*.spec.ts
+
+# Encoding
+sonar.sourceEncoding=UTF-8
+
+# Optional: Quality Gate
+# sonar.qualitygate.wait=true

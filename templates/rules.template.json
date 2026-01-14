@@ -1,0 +1,39 @@
+{
+  "version": "1.0.0",
+  "description": "Quality Gate Rules Template - Customize for your project",
+  "rules": {
+    "floors": {
+      "coverage.unit.branches": 50,
+      "coverage.unit.statements": 60
+    },
+    "ceilings": {
+      "sonarqube.blocker": 0,
+      "sonarqube.critical": 0,
+      "sonarqube.major": 10,
+      "sonarqube.minor": 50
+    },
+    "monotonic": [
+      {
+        "direction": "up",
+        "metrics": [
+          "coverage.unit.branches",
+          "coverage.unit.statements",
+          "coverage.unit.lines"
+        ]
+      },
+      {
+        "direction": "down",
+        "metrics": [
+          "sonarqube.bugs",
+          "sonarqube.vulnerabilities",
+          "sonarqube.codeSmells",
+          "sonarqube.blocker",
+          "sonarqube.critical",
+          "sonarqube.major",
+          "sonarqube.minor"
+        ]
+      }
+    ],
+    "requiredScripts": ["test", "lint"]
+  }
+}

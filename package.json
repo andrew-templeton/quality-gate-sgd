@@ -1,0 +1,54 @@
+{
+  "name": "quality-gate-sgd",
+  "version": "0.1.0",
+  "description": "Deterministic quality gates for stochastic gradient descent behavior from LLM agents",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "quality-gate": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build",
+    "quality-gate": "tsx src/cli.ts",
+    "list-issues": "tsx src/list-issues.ts"
+  },
+  "keywords": [
+    "quality",
+    "gate",
+    "sonarqube",
+    "coverage",
+    "llm",
+    "ai",
+    "sgd",
+    "gradient-descent",
+    "code-quality",
+    "ci",
+    "testing"
+  ],
+  "author": "",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/quality-gate-sgd.git"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist",
+    "templates",
+    "scripts",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.25.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  }
+}

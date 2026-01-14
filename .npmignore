@@ -1,0 +1,20 @@
+# Source files (dist is published)
+src/
+
+# Development files
+.gitignore
+tsconfig.json
+.quality-gate-cache.json
+
+# IDE
+.idea/
+.vscode/
+
+# Test/coverage
+coverage/
+coverage-lambda/
+.scannerwork/
+
+# Secrets
+.sonarqube-token
+*.token

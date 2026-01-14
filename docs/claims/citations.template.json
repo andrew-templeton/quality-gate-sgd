@@ -1,0 +1,16 @@
+{
+  "bib_example_2024": {
+    "id": "bib_example_2024",
+    "kind": "citation",
+    "title": "Example Paper Title",
+    "authors": "Doe, J.; Smith, A.",
+    "year": 2024,
+    "venue": "ExampleConf",
+    "summary": "Short human-written summary of the cited work.",
+    "abstract": "Optional abstract text for LLM scoring.",
+    "keyClaims": [
+      "Key claim 1 in the cited work.",
+      "Key claim 2 in the cited work."
+    ]
+  }
+}

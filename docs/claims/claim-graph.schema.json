@@ -1,0 +1,140 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Claim Graph",
+  "type": "object",
+  "required": ["version", "claims"],
+  "properties": {
+    "version": { "type": "string" },
+    "generatedAt": { "type": "string" },
+    "sources": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/source" }
+    },
+    "claims": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/claim" }
+    },
+    "edges": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/edge" }
+    },
+    "references": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/reference" }
+    },
+    "analysis": { "type": "object" }
+  },
+  "definitions": {
+    "source": {
+      "type": "object",
+      "required": ["id", "path", "hash"],
+      "properties": {
+        "id": { "type": "string" },
+        "path": { "type": "string" },
+        "hash": { "type": "string" },
+        "kind": { "type": "string" }
+      }
+    },
+    "claim": {
+      "type": "object",
+      "required": ["id", "text", "status"],
+      "properties": {
+        "id": { "type": "string" },
+        "text": { "type": "string" },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "definition",
+            "assumption",
+            "claim",
+            "theorem",
+            "lemma",
+            "observation",
+            "result"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["proven", "cited", "novel", "pending", "hypothesis"]
+        },
+        "role": {
+          "type": "string",
+          "enum": ["core", "supporting", "optional"]
+        },
+        "confidence": { "type": "number" },
+        "categoryPath": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "source": { "$ref": "#/definitions/location" },
+        "dependsOn": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "evidence": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/evidence" }
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "location": {
+      "type": "object",
+      "properties": {
+        "path": { "type": "string" },
+        "lineStart": { "type": "integer" },
+        "lineEnd": { "type": "integer" },
+        "sectionPath": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["kind", "refId"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["citation", "proof", "experiment", "argument"]
+        },
+        "refId": { "type": "string" },
+        "supportScore": { "type": "number" },
+        "coverageScore": { "type": "number" },
+        "notes": { "type": "string" }
+      }
+    },
+    "edge": {
+      "type": "object",
+      "required": ["from", "to", "type"],
+      "properties": {
+        "from": { "type": "string" },
+        "to": { "type": "string" },
+        "type": {
+          "type": "string",
+          "enum": ["depends_on", "supports", "contradicts", "refines"]
+        },
+        "weight": { "type": "number" }
+      }
+    },
+    "reference": {
+      "type": "object",
+      "required": ["id", "kind"],
+      "properties": {
+        "id": { "type": "string" },
+        "kind": {
+          "type": "string",
+          "enum": ["citation", "dataset", "artifact"]
+        },
+        "title": { "type": "string" },
+        "authors": { "type": "string" },
+        "year": { "type": "integer" },
+        "venue": { "type": "string" },
+        "summary": { "type": "string" }
+      }
+    }
+  }
+}
