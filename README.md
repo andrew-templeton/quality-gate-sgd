@@ -2,30 +2,6 @@
 
 > Deterministic quality gates for stochastic gradient descent behavior from LLM agents
 
---
-
-## 📄 Academic Paper (WORKING DRAFT)
-
-**⚠️ DRAFT STATUS: Not peer-reviewed. Novel claims await empirical validation.**
-
-The theoretical foundations of this work are documented in a LaTeX paper:
-
-- **[paper/quality-gate-sgd.tex](paper/quality-gate-sgd.tex)** - Full academic treatment
-
-The paper covers:
-- Quality Geometry (formal framework)
-- Convergence Theorem (proof of finite expected convergence)
-- Discrete Differentiability (target-space gradients)
-- Metric Topology (classification by SGD suitability)
-- Empirical Validation Plan (research questions RQ1-RQ6)
-
-**Claim Status**: All claims are explicitly inventoried in [docs/theory/CLAIMS.md](docs/theory/CLAIMS.md) with markers:
-- `[MATH]` - Mathematical definitions (self-supporting)
-- `[NOVEL]` - Our contributions (require experimental validation)
-- `[CITED]` - Established results (citations being compiled)
-
---
-
 ## The Core Insight
 
 **The way to get deterministic results from a stochastic work unit (like an LLM) is to make the exit gate on the process (more) deterministic.**
@@ -281,6 +257,18 @@ If you're building an LLM coding agent, this package provides:
 The key insight: *Your agent's inherent stochasticity provides exploration; our gates provide the descent direction.*
 
 See [docs/CONCEPT.md](docs/CONCEPT.md) for the full mathematical framework.
+
+---
+
+## Academic Paper (WORKING DRAFT)
+
+The theoretical foundations are documented in a LaTeX paper: **[paper/quality-gate-sgd.tex](paper/quality-gate-sgd.tex)**
+
+⚠️ **Draft status**: Not peer-reviewed. Novel claims await empirical validation.
+
+Covers: Quality Geometry, Convergence Theorem, Discrete Differentiability, Metric Topology, Empirical Validation Plan (RQ1-RQ6).
+
+Claim inventory: [docs/theory/CLAIMS.md](docs/theory/CLAIMS.md)
 
 ## License
 
