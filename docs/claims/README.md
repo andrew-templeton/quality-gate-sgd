@@ -36,19 +36,19 @@ Examples:
 
 ```bash
 # Extract from existing claims table
-npx tsx scripts/claim-graph.ts extract --claims-md docs/theory/CLAIMS.md --out docs/claims/claim-graph.json
+npx tsx scripts/claim-graph.ts extract -claims-md docs/theory/CLAIMS.md -out docs/claims/claim-graph.json
 
 # Extract from prose using an LLM (OpenAI or Anthropic)
-npx tsx scripts/claim-graph.ts extract --input docs/CONCEPT.md --provider openai --model gpt-5.2 --out docs/claims/claim-graph.json
+npx tsx scripts/claim-graph.ts extract -input docs/CONCEPT.md -provider openai -model gpt-5.2 -out docs/claims/claim-graph.json
 
 # Merge claims table + prose into one graph
-npx tsx scripts/claim-graph.ts extract --claims-md docs/theory/CLAIMS.md --input docs/CONCEPT.md --provider openai --model gpt-5.2 --out docs/claims/claim-graph.json
+npx tsx scripts/claim-graph.ts extract -claims-md docs/theory/CLAIMS.md -input docs/CONCEPT.md -provider openai -model gpt-5.2 -out docs/claims/claim-graph.json
 
 # Analyze and score gaps
-npx tsx scripts/claim-graph.ts analyze --graph docs/claims/claim-graph.json --out docs/claims/claim-graph.analysis.json
+npx tsx scripts/claim-graph.ts analyze -graph docs/claims/claim-graph.json -out docs/claims/claim-graph.analysis.json
 
 # Score citation support (requires citations metadata)
-npx tsx scripts/claim-graph.ts score-citations --graph docs/claims/claim-graph.json --citations docs/claims/citations.json --provider anthropic --model opus-4.5 --out docs/claims/claim-graph.scored.json
+npx tsx scripts/claim-graph.ts score-citations -graph docs/claims/claim-graph.json -citations docs/claims/citations.json -provider anthropic -model opus-4.5 -out docs/claims/claim-graph.scored.json
 ```
 
 ## JSON Guarantees

@@ -1,6 +1,6 @@
 # Quality Geometry: A Theoretical Framework
 
-> **Working Draft** — This document presents preliminary theoretical work. Claims marked `[NOVEL]` await empirical validation. Citations marked `[PENDING]` are being compiled. See [CLAIMS.md](./CLAIMS.md) for full status.
+> **Working Draft** - This document presents preliminary theoretical work. Claims marked `[NOVEL]` await empirical validation. Citations marked `[PENDING]` are being compiled. See [CLAIMS.md](./CLAIMS.md) for full status.
 
 > The abstract structure of quality measurement spaces and their optimization properties
 
@@ -8,7 +8,7 @@
 
 This document presents **Quality Geometry** as a theoretical framework, independent of any specific tooling or metric implementation. The core claim is:
 
-> Quality measurements on code form a structured space with geometric properties that can be exploited by optimization algorithms—including stochastic agents like LLMs.
+> Quality measurements on code form a structured space with geometric properties that can be exploited by optimization algorithms-including stochastic agents like LLMs.
 
 This is distinct from choosing *which* metrics to use (the **topology**). The geometry describes the abstract structure; the topology is a concrete instantiation.
 
@@ -44,7 +44,7 @@ The same code state must always produce the same quality vector. This is the "pu
 ```
 ∀ε > 0, ∃δ > 0: d(c₁, c₂) < δ ⟹ ||Q(c₁) - Q(c₂)|| < ε
 ```
-Small changes in code should produce small changes in quality. This requires defining a distance metric on code space—typically edit distance or AST difference.
+Small changes in code should produce small changes in quality. This requires defining a distance metric on code space-typically edit distance or AST difference.
 
 ### 2.3 The Descent Condition
 
@@ -78,7 +78,7 @@ cₜ₊₁ ~ A(cₜ, feedback(Q(cₜ)))
 
 The correspondence:
 | SGD Component | Quality Descent Analog |
-|---------------|------------------------|
+|--------|------------|
 | Parameter θ | Code state c |
 | Loss L | Quality function Q |
 | Gradient ∇L | Quality feedback (which metrics fail) |
@@ -158,10 +158,10 @@ This transforms priority ordering into actual gradient computation over discrete
 
 The geometry framework suggests principles for choosing specific metrics:
 
-1. **Use smooth dimensions as objectives** — They provide useful gradients
-2. **Use discrete dimensions as constraints** — They define boundaries, not directions
-3. **Normalize to improve continuity** — Per-SLOC metrics are smoother than raw counts
-4. **Consider correlation** — Avoid negatively correlated objectives in the same optimization
+1. **Use smooth dimensions as objectives** - They provide useful gradients
+2. **Use discrete dimensions as constraints** - They define boundaries, not directions
+3. **Normalize to improve continuity** - Per-SLOC metrics are smoother than raw counts
+4. **Consider correlation** - Avoid negatively correlated objectives in the same optimization
 
 ## 6. Open Questions
 
@@ -181,12 +181,12 @@ Quality Geometry provides a tool-agnostic framework for understanding why determ
 
 The key insight: **The structure exists independent of our measurement choices.** We are discovering properties of the quality space, not inventing them.
 
----
+--
 
 ## Further Reading
 
-- **[DIFFERENTIABILITY.md](./DIFFERENTIABILITY.md)** — Target-space gradients and discrete differentiability
-- **[TOPOLOGY.md](./TOPOLOGY.md)** — Our specific metric instantiation
-- **[CONVERGENCE.md](./CONVERGENCE.md)** — Formal convergence theorem and proofs
-- **[CLAIMS.md](./CLAIMS.md)** — Citation inventory and validation requirements
-- **[../CONCEPT.md](../CONCEPT.md)** — Practical application guide
+- **[DIFFERENTIABILITY.md](./DIFFERENTIABILITY.md)** - Target-space gradients and discrete differentiability
+- **[TOPOLOGY.md](./TOPOLOGY.md)** - Our specific metric instantiation
+- **[CONVERGENCE.md](./CONVERGENCE.md)** - Formal convergence theorem and proofs
+- **[CLAIMS.md](./CLAIMS.md)** - Citation inventory and validation requirements
+- **[../CONCEPT.md](../CONCEPT.md)** - Practical application guide

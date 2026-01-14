@@ -70,17 +70,17 @@ In practice, this means:
 Not all measurements participate equally in the gradient:
 
 | Type | Role | Examples |
-|------|------|----------|
+|---|---|-----|
 | **Objective** | Creates gradient | coverage, bugs, smells |
 | **Weighting** | Focuses gradient | impact, degree, severity |
 
-**Objective metrics** define *what* to optimize—they form the loss function L(code).
+**Objective metrics** define *what* to optimize-they form the loss function L(code).
 
-**Weighting metrics** define *where* to optimize—they create a importance distribution over files.
+**Weighting metrics** define *where* to optimize-they create a importance distribution over files.
 
 ### 3.2 Smoothness Analysis
 
-Metrics vary in their "gradient smoothness"—how continuously they respond to code changes:
+Metrics vary in their "gradient smoothness"-how continuously they respond to code changes:
 
 ```
 Smoothness ≈ 1 / (Δmetric per atomic change)
@@ -105,7 +105,7 @@ Smoothness ≈ 1 / (Δmetric per atomic change)
 How well do common metrics satisfy the three required properties?
 
 | Metric | Quantitative | Deterministic | Continuous | SGD Grade | Notes |
-|--------|:------------:|:-------------:|:----------:|:---------:|-------|
+|----|:------:|:-------:|:-----:|:-----:|----|
 | **coverage.lines** | ✓ % | ✓ | ✓✓ (N≈3000) | **A** | Excellent smoothness |
 | **coverage.statements** | ✓ % | ✓ | ✓✓ (N≈3000) | **A** | Excellent smoothness |
 | **coverage.branches** | ✓ % | ✓ | ✓ (N≈200) | **B+** | Good granularity |
@@ -151,7 +151,7 @@ P(file, violations) = Σᵢ wᵢ × gᵢ
 Where:
 
 | Dimension | Formula | Interpretation |
-|-----------|---------|----------------|
+|------|-----|--------|
 | `coverageGap` | 1 - coverage | Needs more tests |
 | `easeOfTesting` | 1 / (1 + degree) | Simpler to test (leaf node) |
 | `importance` | dependents / max | Critical code, cascading failures |
@@ -188,7 +188,7 @@ Files can be categorized by impact × ease:
             High Degree ←──────→ Low Degree
 ```
 
-**Critical Foundation** (high impact, low degree): These are leaf nodes that many files depend on. Test them first—they're easy to test and failures cascade widely.
+**Critical Foundation** (high impact, low degree): These are leaf nodes that many files depend on. Test them first-they're easy to test and failures cascade widely.
 
 ## 5. The SGD Analogy in Detail
 
@@ -225,7 +225,7 @@ Where:
 
 ### 5.3 Why This Works
 
-1. **Gradient from Gates**: The quality function Q provides ordering—Q(code_A) < Q(code_B) means B is better. This ordering defines the descent direction.
+1. **Gradient from Gates**: The quality function Q provides ordering-Q(code_A) < Q(code_B) means B is better. This ordering defines the descent direction.
 
 2. **Stochasticity from LLM**: The LLM generates diverse code modifications. This provides the exploration that prevents getting stuck in local minima.
 
@@ -236,7 +236,7 @@ Where:
 The analogy has limitations, though some have been addressed:
 
 | SGD Property | Quality Gates | Status |
-|--------------|---------------|--------|
+|-------|--------|----|
 | Continuous space | Discrete code space | Inherent |
 | Differentiable loss | Non-differentiable metrics | Inherent |
 | Gradient computation | Priority ordering | **Extended** |
@@ -321,7 +321,7 @@ Quality is inherently multi-objective:
 
 ### 6.3 The Pareto Frontier
 
-With multiple metrics, the optimal solution lies on the Pareto frontier—the set of solutions where no metric can improve without another degrading.
+With multiple metrics, the optimal solution lies on the Pareto frontier-the set of solutions where no metric can improve without another degrading.
 
 Quality gates with floors approximate this by:
 1. Ensuring all metrics meet minimum thresholds
@@ -331,9 +331,9 @@ Quality gates with floors approximate this by:
 
 Deterministic quality gates create gradient descent-like behavior for LLM agents when:
 
-1. **Metrics are quantitative** — Numbers with optimization directions
-2. **Measurements are deterministic** — Same code → same results
-3. **Changes are continuous** — Small edits → small metric changes
+1. **Metrics are quantitative** - Numbers with optimization directions
+2. **Measurements are deterministic** - Same code → same results
+3. **Changes are continuous** - Small edits → small metric changes
 
 The priority function combines objective metrics (what to optimize) with weighting metrics (where to focus) to guide agents through the quality landscape.
 
@@ -344,17 +344,17 @@ While not mathematically identical to SGD, this framework provides the key intui
 
 The result: LLM agents that iteratively improve code quality, converging toward solutions that satisfy all quality constraints.
 
----
+--
 
 ## Further Reading
 
 This document presents the practical framework. For deeper theoretical treatment:
 
-- **[theory/GEOMETRY.md](./theory/GEOMETRY.md)** — The abstract quality geometry framework (tool-agnostic)
-- **[theory/TOPOLOGY.md](./theory/TOPOLOGY.md)** — Our specific metric instantiation and rationale
-- **[theory/CONVERGENCE.md](./theory/CONVERGENCE.md)** — Formal convergence theorem with proofs
-- **[theory/CLAIMS.md](./theory/CLAIMS.md)** — Citation inventory and validation requirements
+- **[theory/GEOMETRY.md](./theory/GEOMETRY.md)** - The abstract quality geometry framework (tool-agnostic)
+- **[theory/TOPOLOGY.md](./theory/TOPOLOGY.md)** - Our specific metric instantiation and rationale
+- **[theory/CONVERGENCE.md](./theory/CONVERGENCE.md)** - Formal convergence theorem with proofs
+- **[theory/CLAIMS.md](./theory/CLAIMS.md)** - Citation inventory and validation requirements
 
 The key distinction: **geometry** describes the abstract structure of quality spaces; **topology** is our specific choice of metrics. The geometry exists independent of tooling; the topology is a design decision open to empirical optimization.
 
-**The convergence theorem** establishes that quality-guided iteration converges in finite expected time under the "biased proposer" assumption — that LLMs given quality feedback propose improvements more often than regressions. This is empirically testable.
+**The convergence theorem** establishes that quality-guided iteration converges in finite expected time under the "biased proposer" assumption - that LLMs given quality feedback propose improvements more often than regressions. This is empirically testable.

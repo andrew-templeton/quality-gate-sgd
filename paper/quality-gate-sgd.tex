@@ -50,7 +50,7 @@
   \texttt{github.com/andrew-templeton/quality-gate-sgd}
 }
 
-\date{Working Draft --- \today}
+\date{Working Draft -- \today}
 
 \begin{document}
 
@@ -71,7 +71,7 @@ See the companion repository for the latest version and claim status:\\
 \end{draftnotice}
 
 \begin{abstract}
-We present a theoretical framework for understanding how deterministic quality gates create gradient descent-like optimization behavior when LLM agents iterate against them. We formalize the required properties of quality functions (quantitative measurement, determinism, local continuity), prove a convergence theorem under a ``biased proposer'' assumption, and introduce \emph{discrete differentiability}---a method for computing target-space gradients over enumerable code locations. This enables optimization guidance that specifies not just \emph{which} metric to improve, but \emph{where} in the codebase to make changes. We classify common software quality metrics by their suitability for this framework and propose empirically testable hypotheses about convergence rates under different feedback granularities.
+We present a theoretical framework for understanding how deterministic quality gates create gradient descent-like optimization behavior when LLM agents iterate against them. We formalize the required properties of quality functions (quantitative measurement, determinism, local continuity), prove a convergence theorem under a ``biased proposer'' assumption, and introduce \emph{discrete differentiability}--a method for computing target-space gradients over enumerable code locations. This enables optimization guidance that specifies not just \emph{which} metric to improve, but \emph{where} in the codebase to make changes. We classify common software quality metrics by their suitability for this framework and propose empirically testable hypotheses about convergence rates under different feedback granularities.
 
 \medskip
 \noindent\textbf{Status:} Working draft. Novel claims require experimental validation.
@@ -84,7 +84,7 @@ We present a theoretical framework for understanding how deterministic quality g
 \section{Introduction}
 % ============================================================================
 
-Large Language Models (LLMs) have demonstrated remarkable capability in code generation and modification tasks. However, their outputs are inherently stochastic---the same prompt may yield different code across invocations. This stochasticity poses challenges for software engineering workflows that require deterministic, reproducible quality outcomes.
+Large Language Models (LLMs) have demonstrated remarkable capability in code generation and modification tasks. However, their outputs are inherently stochastic--the same prompt may yield different code across invocations. This stochasticity poses challenges for software engineering workflows that require deterministic, reproducible quality outcomes.
 
 We propose that the path to deterministic results from stochastic agents lies not in constraining the agent, but in making the \emph{exit gate} deterministic. When an LLM agent iterates against a deterministic quality function, rejecting outputs that fail to meet quality thresholds, the system exhibits behavior analogous to stochastic gradient descent (SGD):
 
@@ -136,7 +136,7 @@ where $d$ is a distance metric on code space (e.g., edit distance).
 When these properties hold, a quality space admits \emph{descent}: there exist transformation sequences that monotonically improve $Q$.
 
 \begin{theorem}[Descent Existence, Informal]
-If $Q$ satisfies Properties 1--3, then for most code states $c$ where $Q(c)$ is not at a local minimum, there exists a neighborhood $N(c)$ containing states $c'$ with $Q(c') \prec Q(c)$ (where $\prec$ denotes improvement).
+If $Q$ satisfies Properties 1-3, then for most code states $c$ where $Q(c)$ is not at a local minimum, there exists a neighborhood $N(c)$ containing states $c'$ with $Q(c') \prec Q(c)$ (where $\prec$ denotes improvement).
 \end{theorem}
 
 % ============================================================================

@@ -71,7 +71,7 @@ For each task T:
 
 ### Conditions
 | Condition | Quality Feedback | Max Iterations |
-|-----------|------------------|----------------|
+|------|---------|--------|
 | Baseline | None | 50 |
 | Treatment | quality-gate-sgd | 50 |
 
@@ -83,19 +83,19 @@ For each task T:
 ## Paper Outline
 
 1. **Abstract**
-2. **Introduction** — Problem: LLM code quality is stochastic
-3. **Related Work** — RLHF, LLM agents, software quality
-4. **Quality Geometry** — The theoretical framework (Section 3 of paper = theory/GEOMETRY.md)
-5. **A Concrete Topology** — Our instantiation (Section 4 = theory/TOPOLOGY.md)
-6. **Experiments** — SWE-bench evaluation
-7. **Results** — RQ1-RQ6 findings
-8. **Discussion** — Limitations, future topologies
+2. **Introduction** - Problem: LLM code quality is stochastic
+3. **Related Work** - RLHF, LLM agents, software quality
+4. **Quality Geometry** - The theoretical framework (Section 3 of paper = theory/GEOMETRY.md)
+5. **A Concrete Topology** - Our instantiation (Section 4 = theory/TOPOLOGY.md)
+6. **Experiments** - SWE-bench evaluation
+7. **Results** - RQ1-RQ6 findings
+8. **Discussion** - Limitations, future topologies
 9. **Conclusion**
 
 ## Timeline
 
 | Phase | Duration | Deliverable |
-|-------|----------|-------------|
+|----|-----|-------|
 | Framework (current) | 1-2 weeks | v0.2.0 release |
 | Experiment setup | 1 week | Harness + pilot |
 | Data collection | 2-3 weeks | Raw trajectories |
@@ -104,11 +104,11 @@ For each task T:
 
 ## Target Venues
 
-1. **Arxiv** — Immediate, establishes priority
-2. **NeurIPS LLM Agents Workshop** — If timing aligns
-3. **ICSE/FSE** — Longer timeline, higher bar
+1. **Arxiv** - Immediate, establishes priority
+2. **NeurIPS LLM Agents Workshop** - If timing aligns
+3. **ICSE/FSE** - Longer timeline, higher bar
 
----
+--
 
 *See [CHANGELOG.md](./CHANGELOG.md) for timestamped development history.*
 *See [theory/GEOMETRY.md](./theory/GEOMETRY.md) for theoretical foundation.*

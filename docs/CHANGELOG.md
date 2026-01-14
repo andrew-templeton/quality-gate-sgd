@@ -4,9 +4,9 @@
 
 This document serves as a pre-registration mechanism. By recording hypotheses, design decisions, and rationale *before* running experiments, we establish that our conclusions follow from a priori reasoning rather than post-hoc rationalization.
 
----
+--
 
-## 2025-01-14 — Initial Framework
+## 2025-01-14 - Initial Framework
 
 ### Package Creation
 - Created `quality-gate-sgd` npm package from portable quality gate infrastructure
@@ -22,7 +22,7 @@ This document serves as a pre-registration mechanism. By recording hypotheses, d
 Before running any experiments, we classify metrics by SGD suitability:
 
 | Metric | SGD Grade | Rationale |
-|--------|-----------|-----------|
+|----|------|------|
 | coverage.lines | A | Smooth (N≈3000) |
 | coverage.branches | B+ | Good granularity (N≈200) |
 | sonarqube.codeSmells | B- | Moderate (N≈100) |
@@ -38,18 +38,18 @@ We hypothesize that normalizing discrete counts to per-kSLOC densities will impr
 
 ### Topology Selection Rationale
 Our chosen topology prioritizes:
-1. **Coverage.branches** — Primary objective (smoothest available)
-2. **SonarQube severity counts** — Constraints via ceilings (not objectives)
-3. **Dependency impact** — Weighting metric (focuses effort)
+1. **Coverage.branches** - Primary objective (smoothest available)
+2. **SonarQube severity counts** - Constraints via ceilings (not objectives)
+3. **Dependency impact** - Weighting metric (focuses effort)
 
 This is a *design choice*, not a claim of optimality. We explicitly note that alternative topologies may perform better and warrant future investigation.
 
----
+--
 
 ## Format for Future Entries
 
 ```markdown
-## YYYY-MM-DD — Title
+## YYYY-MM-DD - Title
 
 ### What Changed
 - Description of change
@@ -65,6 +65,6 @@ What we predict will happen, stated before experiments.
 What we actually observed. Clearly marked as after-the-fact.
 ```
 
----
+--
 
 *This changelog is part of our commitment to open science and pre-registration.*

@@ -1,19 +1,19 @@
 # Quality Topology: Our Instantiation
 
-> **Working Draft** — This document presents preliminary theoretical work. Claims marked `[NOVEL]` await empirical validation. Citations marked `[PENDING]` are being compiled. See [CLAIMS.md](./CLAIMS.md) for full status.
+> **Working Draft** - This document presents preliminary theoretical work. Claims marked `[NOVEL]` await empirical validation. Citations marked `[PENDING]` are being compiled. See [CLAIMS.md](./CLAIMS.md) for full status.
 
 > The specific metric choices and rationale for quality-gate-sgd
 
 ## 1. Overview
 
-This document describes our **topology**—the specific instantiation of the quality geometry framework. These are engineering choices, not theoretical claims. Alternative topologies may perform better for different contexts.
+This document describes our **topology**-the specific instantiation of the quality geometry framework. These are engineering choices, not theoretical claims. Alternative topologies may perform better for different contexts.
 
 ## 2. Design Principles
 
 Based on the geometry framework, we apply these principles:
 
 | Principle | Application |
-|-----------|-------------|
+|------|-------|
 | Smooth objectives | Coverage % as primary optimization target |
 | Discrete constraints | Severity counts as ceilings, not objectives |
 | Normalization | Per-kSLOC for count metrics |
@@ -26,7 +26,7 @@ Based on the geometry framework, we apply these principles:
 These create the descent direction:
 
 | Metric | Type | Smoothness | Role |
-|--------|------|------------|------|
+|----|---|------|---|
 | `coverage.branches` | % | High (N≈200) | Primary objective |
 | `coverage.statements` | % | High (N≈3000) | Secondary objective |
 | `coverage.lines` | % | High (N≈3000) | Secondary objective |
@@ -39,7 +39,7 @@ These create the descent direction:
 These define feasible regions via ceilings:
 
 | Metric | Type | Smoothness | Role |
-|--------|------|------------|------|
+|----|---|------|---|
 | `sonarqube.blocker` | count | Low (N≈0-3) | Hard ceiling (0) |
 | `sonarqube.critical` | count | Low (N≈5) | Hard ceiling (0) |
 | `sonarqube.major` | count | Medium (N≈20) | Soft ceiling |
@@ -61,10 +61,10 @@ vulnerabilities_per_ksloc = vulnerabilities / (sloc / 1000)
 
 ### 3.4 Weighting Metrics (Focus, Not Gradient)
 
-These don't create gradients—they focus optimization effort:
+These don't create gradients-they focus optimization effort:
 
 | Metric | Formula | Effect |
-|--------|---------|--------|
+|----|-----|----|
 | `impact` | indirectDependents / max | Prioritize critical code |
 | `ease` | 1 / (1 + degree) | Prioritize testable code |
 | `severity` | weighted sum | Prioritize severe violations |
@@ -138,22 +138,22 @@ Where:
 Our topology supports three target granularity levels:
 
 | Mode | CLI Flag | Default | Information Density |
-|------|----------|---------|---------------------|
-| Dimension | `--quick` | No | "improve coverage.branches" |
+|---|-----|-----|-----------|
+| Dimension | `-quick` | No | "improve coverage.branches" |
 | File | (default) | Yes | "fix src/payment.ts (+0.73 ΔQ)" |
-| Symbol | `--deep` | No | "fix processPayment() at line 45" |
+| Symbol | `-deep` | No | "fix processPayment() at line 45" |
 
 **Usage**:
 ```bash
 npx quality-gate-sgd suggest                 # File-level (default)
-npx quality-gate-sgd suggest --quick         # Dimension-level
-npx quality-gate-sgd suggest --deep          # Symbol-level
+npx quality-gate-sgd suggest -quick         # Dimension-level
+npx quality-gate-sgd suggest -deep          # Symbol-level
 ```
 
 **Trade-offs**:
 
 | Granularity | Pros | Cons |
-|-------------|------|------|
+|-------|---|---|
 | Dimension | Fast, low overhead | Less specific guidance |
 | File | Good balance | May miss intra-file priorities |
 | Symbol | Most specific | Higher computation, may fragment |
@@ -178,7 +178,7 @@ How well does this topology satisfy the geometry requirements?
 ### 6.1 Property Matrix
 
 | Metric | Quantitative | Deterministic | Continuous | Grade |
-|--------|:------------:|:-------------:|:----------:|:-----:|
+|----|:------:|:-------:|:-----:|:---:|
 | coverage.lines | ✓ | ✓ | ✓✓ | **A** |
 | coverage.branches | ✓ | ✓ | ✓ | **B+** |
 | duplications | ✓ | ✓ | ✓ | **B+** |
@@ -223,13 +223,13 @@ This topology is not claimed to be optimal. Alternatives worth investigating:
 
 This topology represents our best current understanding of how to instantiate quality geometry for general-purpose TypeScript/JavaScript projects. It prioritizes:
 
-1. **Smoothness** — Coverage % as primary objective
-2. **Practicality** — Widely available tools (SonarQube, Jest/Vitest)
-3. **Safety** — Hard constraints on severe issues
+1. **Smoothness** - Coverage % as primary objective
+2. **Practicality** - Widely available tools (SonarQube, Jest/Vitest)
+3. **Safety** - Hard constraints on severe issues
 
 We explicitly acknowledge this is a design choice open to empirical validation and improvement.
 
----
+--
 
 *See [GEOMETRY.md](./GEOMETRY.md) for the abstract framework.*
 *See [../CHANGELOG.md](../CHANGELOG.md) for design decision history.*

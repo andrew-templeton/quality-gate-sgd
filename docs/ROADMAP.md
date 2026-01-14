@@ -11,7 +11,7 @@ Package complete with core functionality:
 - Dependency graph analysis
 - Priority-based file ranking
 
-### v0.1.1 — Discrete Differentiability ✓
+### v0.1.1 - Discrete Differentiability ✓
 
 **Goal**: Move beyond priority ordering to actual gradient computation.
 
@@ -19,17 +19,17 @@ Package complete with core functionality:
 - [x] Cross-dimension value aggregation
 - [x] Location-aware issue extraction from all sources
 - [x] Granularity tiers: dimension, file, symbol
-- [x] `--quick`, default, `--deep` CLI modes
+- [x] `-quick`, default, `-deep` CLI modes
 - [x] Academic documentation (theory/DIFFERENTIABILITY.md)
 
 ### Files Added
-- `src/targets/types.ts` — LocatedIssue, OptimizationTarget types
-- `src/targets/extract.ts` — Issue extraction with locations
-- `src/targets/aggregate.ts` — ΔQ computation algorithm
-- `src/targets/format.ts` — Output formatting
-- `docs/theory/DIFFERENTIABILITY.md` — Theoretical foundation
+- `src/targets/types.ts` - LocatedIssue, OptimizationTarget types
+- `src/targets/extract.ts` - Issue extraction with locations
+- `src/targets/aggregate.ts` - ΔQ computation algorithm
+- `src/targets/format.ts` - Output formatting
+- `docs/theory/DIFFERENTIABILITY.md` - Theoretical foundation
 
-## v0.2.0 — Trajectory Analysis
+## v0.2.0 - Trajectory Analysis
 
 **Goal**: Prove descent behavior through cache analysis.
 
@@ -41,10 +41,10 @@ Package complete with core functionality:
 - [ ] `npx quality-gate-sgd trajectory` command
 
 ### Files
-- `src/trajectory.ts` — Trajectory building and analysis
-- `src/metrics.ts` — Add SLOC extraction, normalization
+- `src/trajectory.ts` - Trajectory building and analysis
+- `src/metrics.ts` - Add SLOC extraction, normalization
 
-## v0.3.0 — Practical Adoption
+## v0.3.0 - Practical Adoption
 
 **Goal**: Lower adoption barriers.
 
@@ -54,7 +54,7 @@ Package complete with core functionality:
 - [ ] GitHub Action (`action.yml`)
 - [ ] Visual CLI output (progress bars, sparklines)
 
-## v1.0.0 — Research Release
+## v1.0.0 - Research Release
 
 **Goal**: Stable release for academic reproducibility.
 
@@ -64,7 +64,7 @@ Package complete with core functionality:
 - [ ] SWE-bench experiment harness
 - [ ] Paper-ready documentation
 
----
+--
 
 ## Design Decisions Log
 
@@ -79,12 +79,12 @@ Package complete with core functionality:
 
 ### 2026-01-14: Discrete Differentiability
 - Extended from dimension-space to target-space gradients
-- Location data already extracted by tools—we just stopped discarding it during aggregation
+- Location data already extracted by tools-we just stopped discarding it during aggregation
 - Cross-dimension correlation: targets affecting multiple dimensions get multiplicative value
 - Three granularity tiers to balance specificity vs computational cost
 - Addresses key limitation: gradient computation, not just priority ordering
 
----
+--
 
 *See [RESEARCH.md](./RESEARCH.md) for academic direction.*
 *See [theory/GEOMETRY.md](./theory/GEOMETRY.md) for theoretical framework.*

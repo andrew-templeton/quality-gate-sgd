@@ -1,6 +1,6 @@
 # Convergence Theory: Formal Foundations
 
-> **Working Draft** — This document presents preliminary theoretical work. Claims marked `[NOVEL]` await empirical validation. Citations marked `[PENDING]` are being compiled. See [CLAIMS.md](./CLAIMS.md) for full status.
+> **Working Draft** - This document presents preliminary theoretical work. Claims marked `[NOVEL]` await empirical validation. Citations marked `[PENDING]` are being compiled. See [CLAIMS.md](./CLAIMS.md) for full status.
 
 > Rigorous treatment of why quality-guided iteration converges
 
@@ -56,7 +56,7 @@ T = { m ∈ M : m satisfies all floors, ceilings, and constraints }
 
 **Goal**: Starting from Q(c₀) ∉ T, reach some c* such that Q(c*) ∈ T.
 
----
+--
 
 ## 2. The Agent Model
 
@@ -102,7 +102,7 @@ That is: given feedback about failing metrics, the agent proposes improvements w
 
 This is empirically testable (see Section 5).
 
----
+--
 
 ## 3. The Convergence Theorem
 
@@ -173,7 +173,7 @@ E[τ] ≤ d_max · (1 + (1-p)/p) = d_max / p
 The feedback function F can operate at different granularities:
 
 | Granularity | Feedback Example | Information Content |
-|-------------|------------------|---------------------|
+|-------|---------|-----------|
 | Dimension | "improve coverage" | Low (entire codebase) |
 | File | "fix src/payment.ts" | Medium (one file) |
 | Symbol | "fix processPayment()" | High (one function) |
@@ -192,7 +192,7 @@ If true, this implies: τ_symbol < τ_file < τ_dim (faster convergence with fin
 
 **See [DIFFERENTIABILITY.md](./DIFFERENTIABILITY.md)** for the mathematical framework of target-space gradients.
 
----
+--
 
 ## 4. Local Continuity and Root-Cause Measurement
 
@@ -243,7 +243,7 @@ For SonarQube:
 - Group by (file, rule, affected_symbol)
 - Cascading issues share the same affected_symbol
 
----
+--
 
 ## 5. Empirical Validation Design
 
@@ -278,14 +278,14 @@ For SonarQube:
 - Success rate at iteration cap
 - Trajectory smoothness (monotonicity ratio)
 
----
+--
 
 ## 6. Relationship to Classical Optimization
 
 ### 6.1 What This IS
 
 | SGD Property | Our Analog |
-|--------------|------------|
+|-------|------|
 | Loss function L | Quality function Q |
 | Gradient ∇L | Feedback F (priority ordering) |
 | Step θ := θ - η∇L | Agent proposal c' ~ A(c, F) |
@@ -307,14 +307,14 @@ Both SGD and quality-guided iteration share:
 
 The analogy is valid for **behavioral properties**, not computational implementation.
 
----
+--
 
 ## 7. Formal Assumptions Summary
 
 For the convergence theorem to hold, we assume:
 
 | Assumption | Justification | Testable? |
-|------------|---------------|-----------|
+|------|--------|------|
 | Finite |M| | Metric precision is bounded | Trivially true |
 | Non-empty T | Achievable quality targets | By construction |
 | Biased proposer (p > 0.5) | LLMs understand feedback | Yes (Section 5.1) |
@@ -322,7 +322,7 @@ For the convergence theorem to hold, we assume:
 
 All assumptions are either trivially satisfied or empirically testable.
 
----
+--
 
 ## 8. References
 
@@ -334,11 +334,11 @@ All assumptions are either trivially satisfied or empirically testable.
 - Code quality metrics: ISO/IEC 25010, SonarQube documentation
 - LLM code generation: Chen et al., "Evaluating Large Language Models Trained on Code"
 
----
+--
 
 ## 9. Conclusion
 
-Quality-guided iteration converges in finite expected time under the biased proposer assumption. This is not merely an analogy to SGD — it's a formally equivalent random walk with drift, applied to discrete code space through finite-granularity quality measurements.
+Quality-guided iteration converges in finite expected time under the biased proposer assumption. This is not merely an analogy to SGD - it's a formally equivalent random walk with drift, applied to discrete code space through finite-granularity quality measurements.
 
 The key contributions:
 1. **Formal convergence theorem** with stated assumptions

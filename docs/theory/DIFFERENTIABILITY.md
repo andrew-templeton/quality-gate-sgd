@@ -1,6 +1,6 @@
 # Discrete Differentiability: Target-Space Gradients
 
-> **Working Draft** — This document presents preliminary theoretical work. Claims marked `[NOVEL]` await empirical validation. Citations marked `[PENDING]` are being compiled. See [CLAIMS.md](./CLAIMS.md) for full status.
+> **Working Draft** - This document presents preliminary theoretical work. Claims marked `[NOVEL]` await empirical validation. Citations marked `[PENDING]` are being compiled. See [CLAIMS.md](./CLAIMS.md) for full status.
 
 > Computing expected fitness change for enumerable optimization moves
 
@@ -24,14 +24,14 @@ This is a **dimension-space gradient**. It answers "what metric should I improve
 
 This observation is correct for dimension-space gradients. However, we can do better.
 
----
+--
 
 ## 2. The Insight: Location Data Already Exists
 
 Quality measurement tools already extract precise location information:
 
 | Source | Location Data | Current Usage |
-|--------|---------------|---------------|
+|----|--------|--------|
 | coverage-final.json | file, line, branch, function | Aggregated to % |
 | TypeScript errors | file:line:column | Counted only |
 | ESLint issues | file:line:column:ruleId | Counted only |
@@ -41,7 +41,7 @@ Quality measurement tools already extract precise location information:
 
 The key realization: instead of computing ∂Q/∂dimension, we can compute ∂Q/∂target where target is a code location.
 
----
+--
 
 ## 3. Target-Space Gradients
 
@@ -93,7 +93,7 @@ This is **discrete differentiability**: we can compute "if I fix target X, I exp
 
 Unlike continuous gradients that require infinitesimal perturbations, discrete gradients enumerate finite moves and compute their expected effects.
 
----
+--
 
 ## 4. Cross-Dimension Correlation
 
@@ -103,7 +103,7 @@ A target that addresses multiple dimensions simultaneously is more valuable than
 
 **Example**:
 | Target | Coverage ΔQ | TS Errors ΔQ | Smells ΔQ | **Total ΔQ** |
-|--------|-------------|--------------|-----------|--------------|
+|----|-------|-------|------|-------|
 | `processPayment()` | +0.35 | +0.25 | +0.10 | **0.70** |
 | `formatDate()` | +0.07 | 0 | 0 | **0.07** |
 
@@ -125,7 +125,7 @@ Target-space gradients compute total ΔQ across all affected dimensions, natural
 
 This is a weighted sum across all affected dimensions, not a maximum or priority selection.
 
----
+--
 
 ## 5. Granularity Tiers
 
@@ -139,7 +139,7 @@ Finer granularity provides more specific guidance but may incur costs:
 ### 5.2 Three Tiers
 
 | Tier | Granularity | Target Definition | Use Case |
-|------|-------------|-------------------|----------|
+|---|-------|----------|-----|
 | Quick | Dimension | "improve coverage.branches" | Fast triage |
 | Standard | File | "fix src/services/payment.ts" | Default workflow |
 | Deep | Symbol | "fix processPayment() at line 45" | Precise guidance |
@@ -160,7 +160,7 @@ H(G_dim) < H(G_file) < H(G_symbol)
 
 Where H is the entropy of the target ranking distribution.
 
----
+--
 
 ## 6. Connection to Convergence
 
@@ -187,7 +187,7 @@ This is empirically testable by comparing convergence rates across granularity m
 - Very fine granularity may fragment related issues
 - Agent may not effectively use fine-grained guidance
 
----
+--
 
 ## 7. Implementation
 
@@ -255,7 +255,7 @@ function computeTargetDeltaQ(issues: LocatedIssue[]): number {
 }
 ```
 
----
+--
 
 ## 8. Relationship to Existing Theory
 
@@ -275,11 +275,11 @@ Discrete differentiability suggests a refinement: the convergence rate may depen
 ### 8.3 Topology Extension
 
 Our topology (TOPOLOGY.md) now includes granularity configuration:
-- `--quick`: dimension-level (original behavior)
+- `-quick`: dimension-level (original behavior)
 - default: file-level (new default)
-- `--deep`: symbol-level (most specific)
+- `-deep`: symbol-level (most specific)
 
----
+--
 
 ## 9. Open Questions
 
@@ -293,7 +293,7 @@ Our topology (TOPOLOGY.md) now includes granularity configuration:
 
 5. **Cross-project transfer**: Do optimal granularity choices transfer across projects?
 
----
+--
 
 ## 10. Conclusion
 
@@ -304,13 +304,13 @@ By computing target-space gradients, we:
 2. Surface high-value targets with cross-dimension impact
 3. Enable granularity selection based on workflow needs
 
-This is not merely priority ordering—it is actual gradient computation over discrete enumerable moves in code-space.
+This is not merely priority ordering-it is actual gradient computation over discrete enumerable moves in code-space.
 
----
+--
 
 ## Further Reading
 
-- **[GEOMETRY.md](./GEOMETRY.md)** — Abstract quality geometry framework
-- **[CONVERGENCE.md](./CONVERGENCE.md)** — Formal convergence theorem
-- **[TOPOLOGY.md](./TOPOLOGY.md)** — Our metric instantiation
-- **[CLAIMS.md](./CLAIMS.md)** — Citation inventory including discrete differentiability claims
+- **[GEOMETRY.md](./GEOMETRY.md)** - Abstract quality geometry framework
+- **[CONVERGENCE.md](./CONVERGENCE.md)** - Formal convergence theorem
+- **[TOPOLOGY.md](./TOPOLOGY.md)** - Our metric instantiation
+- **[CLAIMS.md](./CLAIMS.md)** - Citation inventory including discrete differentiability claims

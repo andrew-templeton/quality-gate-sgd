@@ -2,7 +2,7 @@
 
 > Deterministic quality gates for stochastic gradient descent behavior from LLM agents
 
----
+--
 
 ## 📄 Academic Paper (WORKING DRAFT)
 
@@ -10,7 +10,7 @@
 
 The theoretical foundations of this work are documented in a LaTeX paper:
 
-- **[paper/quality-gate-sgd.tex](paper/quality-gate-sgd.tex)** — Full academic treatment
+- **[paper/quality-gate-sgd.tex](paper/quality-gate-sgd.tex)** - Full academic treatment
 
 The paper covers:
 - Quality Geometry (formal framework)
@@ -20,35 +20,35 @@ The paper covers:
 - Empirical Validation Plan (research questions RQ1-RQ6)
 
 **Claim Status**: All claims are explicitly inventoried in [docs/theory/CLAIMS.md](docs/theory/CLAIMS.md) with markers:
-- `[MATH]` — Mathematical definitions (self-supporting)
-- `[NOVEL]` — Our contributions (require experimental validation)
-- `[CITED]` — Established results (citations being compiled)
+- `[MATH]` - Mathematical definitions (self-supporting)
+- `[NOVEL]` - Our contributions (require experimental validation)
+- `[CITED]` - Established results (citations being compiled)
 
----
+--
 
 ## The Core Insight
 
 **The way to get deterministic results from a stochastic work unit (like an LLM) is to make the exit gate on the process (more) deterministic.**
 
-This package provides quality gates that create **gradient descent-like behavior** for LLM coding agents. When an agent iteratively fixes code to pass quality gates, it naturally descends toward higher quality solutions—without explicit optimization algorithms.
+This package provides quality gates that create **gradient descent-like behavior** for LLM coding agents. When an agent iteratively fixes code to pass quality gates, it naturally descends toward higher quality solutions-without explicit optimization algorithms.
 
 ## Why This Works
 
 For gradient descent behavior to emerge from deterministic gates, three properties must hold:
 
-1. **Quantitative Measurement** — Metrics must be numeric with a clear "good" direction
+1. **Quantitative Measurement** - Metrics must be numeric with a clear "good" direction
    - Coverage: higher is better
    - Bug count: lower is better
 
-2. **Pure Function** — Same code state → same metric values
+2. **Pure Function** - Same code state → same metric values
    - No randomness in measurement
    - Reproducible results
 
-3. **Local Continuity** — Small code changes → small metric changes
+3. **Local Continuity** - Small code changes → small metric changes
    - No discontinuous cliffs
    - Following feedback improves scores
 
-When these properties hold, an LLM agent iterating against quality gates exhibits **stochastic gradient descent** behavior—the agent's inherent randomness provides exploration, while the deterministic gates provide the descent direction.
+When these properties hold, an LLM agent iterating against quality gates exhibits **stochastic gradient descent** behavior-the agent's inherent randomness provides exploration, while the deterministic gates provide the descent direction.
 
 ## Installation
 
@@ -97,7 +97,7 @@ npx quality-gate-sgd
 ### 3. View SonarQube Issues
 
 ```bash
-npx quality-gate-sgd list-issues --severity=MAJOR
+npx quality-gate-sgd list-issues -severity=MAJOR
 ```
 
 ## Rule Types
@@ -139,9 +139,9 @@ npm scripts that must pass:
 ## Available Metrics
 
 ### Coverage Metrics
-- `coverage.unit.*` — Unit test coverage
-- `coverage.lambda.*` — Integration/Lambda test coverage
-- `coverage.union.*` — Merged coverage from all suites
+- `coverage.unit.*` - Unit test coverage
+- `coverage.lambda.*` - Integration/Lambda test coverage
+- `coverage.union.*` - Merged coverage from all suites
 
 Each suite has: `branches`, `statements`, `functions`, `lines`
 
@@ -161,20 +161,20 @@ Each suite has: `branches`, `statements`, `functions`, `lines`
 Not all metrics are equal for gradient descent. We classify them by their role:
 
 | Category | Creates Gradient? | Examples |
-|----------|-------------------|----------|
+|-----|----------|-----|
 | **Objective Metrics** | Yes | coverage, bugs, codeSmells |
 | **Weighting Metrics** | No | impact, degree, severity |
 
-**Objective metrics** are what you optimize—they form the loss function.
+**Objective metrics** are what you optimize-they form the loss function.
 
-**Weighting metrics** focus the optimization—they tell you *where* to optimize first.
+**Weighting metrics** focus the optimization-they tell you *where* to optimize first.
 
 ### Smoothness Ranking
 
 Metrics with higher granularity create smoother gradients:
 
 | Tier | Metric | Why |
-|------|--------|-----|
+|---|----|---|
 | 1 | `coverage.lines` | N=thousands, ~0.03% per line |
 | 1 | `duplications %` | Gradual refactoring |
 | 2 | `coverage.branches` | N=hundreds, ~0.5% per branch |
@@ -230,7 +230,7 @@ console.log(prioritized[0].priority);  // Priority score
 ### Environment Variables
 
 | Variable | Default | Description |
-|----------|---------|-------------|
+|-----|-----|-------|
 | `SONARQUBE_URL` | `http://localhost:9000` | SonarQube server |
 | `SONARQUBE_PROJECT_KEY` | Auto-detected | Project key |
 | `QUALITY_RULES_FILE` | `rules.json` | Rules file path |
