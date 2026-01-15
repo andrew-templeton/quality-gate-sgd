@@ -2,6 +2,10 @@
 
 > Academic investigation of quality-guided descent for LLM coding agents
 
+**Pre-registration**: See `docs/PREREG.md` for committed and considered designs.
+
+**Transparency plan**: We will pre-register designs, log deviations with rationale, and publish\nraw trajectories/configs so readers can audit decisions and guard against p-hacking.
+
 ## Thesis
 
 Deterministic quality gates create gradient descent-like optimization behavior when LLM agents iterate against them. This emerges from three properties of the quality function: quantitative measurement, determinism, and local continuity.

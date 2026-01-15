@@ -6,6 +6,8 @@ analysis on the paper itself.
 
 ## Files
 - `claim-graph.schema.json` - JSON Schema for the claim graph
+- `PROJECTION.md` - Design notes for citation projection scoring
+- `FORMALISM.md` - Notes on variable formalism and descent on proof graphs
 
 ## Core Concepts
 - **Claim node**: a single statement that requires proof, citation, or validation
@@ -16,6 +18,13 @@ analysis on the paper itself.
 1) Extract or curate claims into a `claim-graph.json` file
 2) Run the analysis script to compute coverage and priority
 3) Iterate: add proofs/citations/experiments to reduce gaps
+
+## Lean Guardrail Workflow (Recommended)
+Use this as a lightweight check rather than full formalization:
+1) Maintain a plain claim graph (core/supporting only)
+2) Ensure every core claim has *some* evidence path (proof sketch or citation)
+3) Use `analyze` to highlight unsupported cores and top priorities
+4) Defer projection or deep proof tooling until after initial experiments
 
 ## Status Semantics
 - `proven`: fully proven in-text (proof exists in the paper)
