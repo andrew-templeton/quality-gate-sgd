@@ -134,7 +134,6 @@ async function callClaude(prompt) {
     // Fall back to API if key exists
     if (checkAnthropicKey()) {
         // Use curl for simplicity (avoids adding SDK dependency)
-        const escapedPrompt = prompt.replace(/"/g, '\\"').replace(/\n/g, '\\n');
         const result = spawnSync('curl', [
             '-s',
             '-X', 'POST',
@@ -280,7 +279,7 @@ function collectCalibrationMetrics(projectRoot, testCommand, hasTypeScript) {
     console.error('\nCollecting current metrics for calibration...');
     // Run tests with coverage
     console.error('  Running tests with coverage...');
-    const testResult = spawnSync('npm', ['run', testCommand, '--', '--coverage'], {
+    spawnSync('npm', ['run', testCommand, '--', '--coverage'], {
         cwd: projectRoot,
         encoding: 'utf-8',
         timeout: 300000,

@@ -56,15 +56,25 @@ import {
 import {
   extractLocatedIssues,
   aggregateToTargets,
+  aggregateToSymbolsWithOptions,
   formatTargetList,
   formatTargetsForJson,
+  formatSymbolIssuesList,
+  formatSymbolIssuesForJson,
   type TargetGranularity,
 } from './targets/index.js';
+import {
+  extractSymbols,
+  getSymbolTableStats,
+  computeAddressFitness,
+  formatAddressFitness,
+} from './symbols/index.js';
 import {
   buildDimension,
   appendToConfigFile,
 } from './dimensions/index.js';
 import { runMcpServer } from './mcp/index.js';
+import { estimateFixability as runFixabilityEstimation } from './fixability/index.js';
 import * as readline from 'readline';
 
 function log(message: string): void {
@@ -525,10 +535,16 @@ async function runScore(args: string[]): Promise<void> {
 /**
  * Suggest next fixes based on gradient.
  *
- * Supports three granularity levels:
+ * Supports four granularity levels:
  * - --quick: Dimension-level suggestions (which metric to improve)
  * - (default): File-level targets (which file to fix, with cross-dimension analysis)
  * - --deep: Symbol-level targets (which function/class, most precise)
+ * - --symbols: Unified symbol-level with normalized metrics (issue density, coverage gap)
+ *
+ * Graph weighting (enabled by default):
+ * - Targets are weighted by their position in the dependency graph
+ * - Files with more dependents get higher priority (cascade effect)
+ * - Use --no-graph to disable
  */
 async function runSuggest(args: string[]): Promise<void> {
   const skipSonarQube = args.includes('--coverage-only') ||
@@ -539,17 +555,41 @@ async function runSuggest(args: string[]): Promise<void> {
   const jsonFlag = args.includes('--json');
   const quickMode = args.includes('--quick');
   const deepMode = args.includes('--deep');
+  const symbolsMode = args.includes('--symbols');
+  const callGraphMode = args.includes('--call-graph');
+  const noGraph = args.includes('--no-graph');
+  const estimateFixability = args.includes('--estimate-fixability');
 
   // Determine granularity
   const granularity: TargetGranularity = deepMode ? 'symbol' : 'file';
 
+  const includeCallGraphWeights = symbolsMode && callGraphMode;
+  // Graph weighting is enabled by default (unless --no-graph or --quick)
+  // Call graph weighting is opt-in for symbols mode
+  const includeGraphWeights = !noGraph && !quickMode && !includeCallGraphWeights;
+
   if (!jsonFlag) {
-    const modeLabel = quickMode ? 'Dimension-Level' : (deepMode ? 'Symbol-Level' : 'File-Level');
-    log(`Quality Gate SGD - Suggested Fixes (${modeLabel})`);
+    const modeLabel = quickMode ? 'Dimension-Level'
+      : symbolsMode ? 'Unified Symbol-Level'
+      : (deepMode ? 'Symbol-Level' : 'File-Level');
+    const graphLabel = includeGraphWeights ? ' + Graph-Weighted' : '';
+    log(`Quality Gate SGD - Suggested Fixes (${modeLabel}${graphLabel})`);
     log('='.repeat(50) + '\n');
 
     if (skipSonarQube) {
       log('(coverage-only mode - SonarQube skipped)\n');
+    }
+    if (includeGraphWeights) {
+      log('(graph weighting enabled - files with more dependents prioritized)\n');
+    }
+    if (includeCallGraphWeights) {
+      log('(symbol call-graph weighting enabled - symbols with more callers prioritized)\n');
+    }
+    if (callGraphMode && !symbolsMode) {
+      log('(call-graph weighting only applies with --symbols; ignoring)\n');
+    }
+    if (symbolsMode) {
+      log('(unified symbol mode - normalized issue density across all axes)\n');
     }
   }
 
@@ -599,6 +639,91 @@ async function runSuggest(args: string[]): Promise<void> {
     return;
   }
 
+  // Unified symbol mode: extract symbols first, then enrich issues
+  if (symbolsMode) {
+    if (!jsonFlag) {
+      log('Extracting symbols from codebase...\n');
+    }
+
+    const symbolTable = extractSymbols({
+      rootDir: process.cwd(),
+      include: ['src/**/*.ts', 'src/**/*.tsx'],
+      exclude: ['**/node_modules/**', '**/*.d.ts', '**/dist/**', '**/*.test.ts', '**/*.spec.ts'],
+    });
+
+    const stats = getSymbolTableStats(symbolTable);
+
+    if (!jsonFlag) {
+      log(`Found ${stats.totalSymbols} symbols across ${stats.fileCount} files`);
+      log(`  Classes: ${stats.byKind.class}, Methods: ${stats.byKind.method}`);
+      log(`  Functions: ${stats.byKind.function}, Arrow functions: ${stats.byKind['arrow-function']}\n`);
+      log('Extracting located issues with symbol enrichment...\n');
+    }
+
+    const extractedIssues = extractLocatedIssues({
+      skipSonarQube,
+      skipTypescript: false,
+      skipEslint: false,
+      symbolTable,
+    });
+
+    const addressFitness = computeAddressFitness(symbolTable, extractedIssues, {
+      includeCallGraph: true,
+    });
+
+    if (!jsonFlag) {
+      log(`Found ${extractedIssues.totalCount} issues:`);
+      log(`  Coverage: ${extractedIssues.summary.coverage} uncovered branches/functions`);
+      log(`  TypeScript: ${extractedIssues.summary.typescript} errors`);
+      log(`  ESLint: ${extractedIssues.summary.eslint} issues`);
+      log(`  SonarQube: ${extractedIssues.summary.sonarqube} issues\n`);
+      log(`${formatAddressFitness(addressFitness)}\n`);
+    }
+
+    // Aggregate to unified symbol representation
+    const symbolIssues = aggregateToSymbolsWithOptions(extractedIssues, symbolTable, {
+      limit: estimateFixability ? limit * 2 : limit, // Get more for fixability estimation
+      includeGraphWeights,
+      includeCallGraphWeights,
+    });
+
+    // Run LLM fixability estimation if requested
+    if (estimateFixability && symbolIssues.length > 0) {
+      if (!jsonFlag) {
+        log('Estimating fixability with LLM...\n');
+      }
+      await runFixabilityEstimation(symbolIssues, {
+        maxSymbols: limit,
+      });
+      // Trim to limit after re-sort
+      symbolIssues.splice(limit);
+    }
+
+    if (jsonFlag) {
+      console.log(JSON.stringify({
+        mode: 'unified-symbols',
+        currentScore,
+        fixabilityEstimated: estimateFixability,
+        addressFitness,
+        ...formatSymbolIssuesForJson(symbolIssues),
+      }, null, 2));
+      return;
+    }
+
+    log(`Current Fitness: ${formatFitnessScore(currentScore)}\n`);
+
+    if (symbolIssues.length === 0) {
+      log('No symbols with issues found. All code is optimal!');
+      return;
+    }
+
+    log(formatSymbolIssuesList(symbolIssues, {
+      title: `Top ${symbolIssues.length} Unified Symbol Optimization Targets`,
+      showTotal: true,
+    }));
+    return;
+  }
+
   // File-level or symbol-level: extract located issues and aggregate
   if (!jsonFlag) {
     log('Extracting located issues...\n');
@@ -622,6 +747,7 @@ async function runSuggest(args: string[]): Promise<void> {
   const targets = aggregateToTargets(extractedIssues, {
     granularity,
     limit,
+    includeGraphWeights,
   });
 
   if (jsonFlag) {
@@ -816,10 +942,37 @@ OPTIONS for 'score':
 OPTIONS for 'suggest':
   --quick             Dimension-level suggestions only (fastest, least specific)
   --deep              Symbol-level targets with cross-dimension analysis (most specific)
+  --symbols           Unified symbol-level with normalized metrics (issue density, coverage gap)
   (default)           File-level targets - balances specificity and token cost
+  --no-graph          Disable dependency graph weighting (pure ΔQ ranking)
+  --call-graph        Use symbol call graph weighting (only with --symbols)
   --coverage-only     Skip SonarQube, only use coverage/TS/ESLint metrics
   --limit=N           Number of suggestions to show (default: 5)
   --json              Output as JSON for programmatic use
+  --estimate-fixability  Use LLM to estimate what % of issues can be fixed in one pass
+                         (requires OPENAI_API_KEY, works with --symbols)
+
+  Graph Weighting (enabled by default for file/symbol modes):
+    Targets are weighted by position in the dependency graph. Files with
+    more dependents get higher priority because fixing them has cascading
+    benefits across the codebase. Use --no-graph to disable.
+
+  Symbol Call Graph Weighting (--call-graph):
+    Uses a static symbol call graph to prioritize symbols with more callers.
+    This is a symbol-level alternative to file dependency weighting and only
+    applies to unified symbol mode (--symbols).
+
+  Fixability Estimation (--estimate-fixability):
+    Uses GPT-5-nano to pre-read each code segment and estimate what fraction
+    of issues can realistically be fixed in one edit session. The ΔQ is then
+    adjusted by this fixability score, prioritizing actionable suggestions.
+
+  Unified Symbol Mode (--symbols):
+    Uses TypeScript AST parsing to extract symbols (functions, classes, methods)
+    and maps ALL issues from all axes to their containing symbols. This enables:
+    - Normalized issue density (issues/SLOC within symbol)
+    - Cross-axis analysis (same function has coverage gaps AND TS errors)
+    - Fair comparison across symbols of different sizes
 
 OPTIONS for 'add-dimension':
   <command>           Command or script to analyze (can be interactive if omitted)
@@ -859,6 +1012,7 @@ EXAMPLES:
   npx quality-gate-sgd suggest                      # File-level targets (default)
   npx quality-gate-sgd suggest --quick              # Dimension-level only (fast)
   npx quality-gate-sgd suggest --deep --limit=3     # Symbol-level targets (precise)
+  npx quality-gate-sgd suggest --symbols            # Unified symbol-level (normalized)
   npx quality-gate-sgd add-dimension                # Interactive dimension builder
   npx quality-gate-sgd add-dimension "npx madge --circular --json src/" -y
   npx quality-gate-sgd mcp                          # Start MCP server for Claude

@@ -13,7 +13,7 @@ import { execSync, spawnSync } from 'child_process';
 import { existsSync, readFileSync, writeFileSync, appendFileSync } from 'fs';
 import { resolve } from 'path';
 import { getValidPaths } from './registry.js';
-import type { CustomDimensionConfig, ScriptExtractor } from './custom.js';
+import type { CustomDimensionConfig } from './custom.js';
 
 // =============================================================================
 // Types

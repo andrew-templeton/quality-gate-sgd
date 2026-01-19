@@ -4,7 +4,7 @@
  * Implements the resource handlers for the MCP server.
  */
 
-import { getAllDimensions, generateDimensionsDoc } from '../dimensions/index.js';
+import { getAllDimensions } from '../dimensions/index.js';
 import { loadRules } from '../rules.js';
 import { getDefaultFitnessConfig } from '../fitness.js';
 
@@ -88,7 +88,7 @@ export function handleRulesResource(): {
         text: JSON.stringify(rules, null, 2),
       }],
     };
-  } catch (error) {
+  } catch {
     return {
       contents: [{
         uri: 'quality://rules',

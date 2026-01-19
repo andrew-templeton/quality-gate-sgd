@@ -250,7 +250,9 @@ The analogy has limitations, though some have been addressed:
 ∇ₜQ = [∂Q/∂target₁, ∂Q/∂target₂, ...]
 ```
 
-Where each target is a (file, symbol) tuple with computable expected ΔQ. This provides actual gradient computation over discrete code-space locations, not just priority ordering.
+Where each target is an addressable unit from the shared address space (address_id, span) with computable expected ΔQ. This provides actual gradient computation over discrete code-space locations, not just priority ordering.
+
+This requires a **shared addressing scheme** so all axes map into the same target space. For TypeScript we use the compiler symbol graph (qualified symbol names, plus edges for calls/imports/extends) because it is stable under line churn and supports cross-axis aggregation. File:line addressing remains a fallback when a symbol cannot be resolved. In prose domains, paragraph/sentence/word indices or a topic graph can play the same role, but the choice must be consistent across metrics.
 
 **See [theory/DIFFERENTIABILITY.md](./theory/DIFFERENTIABILITY.md)** for the full mathematical treatment.
 

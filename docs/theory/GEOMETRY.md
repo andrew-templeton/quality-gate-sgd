@@ -143,7 +143,7 @@ This tells us which dimension to improve but not *where* in code-space.
 ∇ₜQ = [∂Q/∂t₁, ∂Q/∂t₂, ..., ∂Q/∂tₘ]
 ```
 
-Where each tᵢ is a code location (file, symbol) with computable expected ΔQ.
+Where each tᵢ is an addressable unit from a shared address space (defined by the topology) with computable expected ΔQ.
 
 Key properties:
 1. **Cross-dimension aggregation**: One target may affect multiple dimensions
@@ -151,6 +151,8 @@ Key properties:
 3. **Computable impact**: ΔQ(t) = Σ weight(d) × impact(t, d) for affected dimensions
 
 This transforms priority ordering into actual gradient computation over discrete targets.
+
+The choice of address space (symbol graph, file/line, topic graph, claim graph) is a topology decision, not a geometric requirement.
 
 **See [DIFFERENTIABILITY.md](./DIFFERENTIABILITY.md) for full treatment.**
 

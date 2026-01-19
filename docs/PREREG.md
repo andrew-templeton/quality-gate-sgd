@@ -19,6 +19,7 @@ Primary novel claims (see `docs/theory/CLAIMS.md`):
 - Quality gates create descent-like behavior in LLM agents
 - Biased proposer (p > 0.5) assumption holds for code quality tasks
 - Metric topology choice affects convergence rate
+- Addressing fitness predicts convergence speed and success rate
 
 ## Confirmatory Designs (Committed)
 
@@ -75,12 +76,40 @@ Primary novel claims (see `docs/theory/CLAIMS.md`):
 - ANOVA across topologies
 - Post-hoc pairwise comparisons with correction
 
+---
+
+### Design C — Addressing Fitness vs Convergence (RQ7)
+**Hypotheses**
+- H4: Higher mapping coverage correlates with fewer iterations to pass.
+- H5: Higher call-graph resolution correlates with higher success rate.
+- H6: Coarser address units (p90 SLOC above threshold) correlate with slower convergence.
+
+**Dataset**
+- Same tasks as Design A (SWE-bench or equivalent)
+- Symbol-level guidance enabled to compute address fitness metrics
+
+**Conditions**
+- Treatment: quality-gate-sgd with symbol addressing (default scheme)
+- No additional manipulation; address fitness varies across tasks/repos
+
+**Metrics**
+- Mapping coverage: overall + line-level mapping rates
+- Address size distribution: median/p90 SLOC per address
+- Call-graph resolution rate (% of call sites resolved to symbols)
+- Iterations-to-pass, success rate
+
+**Analysis**
+- Regress iterations-to-pass on fitness metrics (linear or rank regression)
+- Regress success rate on fitness metrics (logistic regression)
+- Stratify by fit/mixed/unfit tiers and compare means (ANOVA or t-test)
+
 ## Exploratory Designs (Not Confirmatory)
 These are recorded to avoid retrofitting later. Results from these should be labeled exploratory.
 
 - Fine-grained per-metric smoothness estimation
 - Root-cause grouping impact on continuity (pilot)
 - Per-kSLOC normalization impact on convergence
+- Address churn under small refactors (stability diagnostics)
 
 ## Considered But Rejected Designs (with rationale)
 | Design | Rationale for rejection | Replacement/Note |

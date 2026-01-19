@@ -29,6 +29,14 @@ export interface LocatedIssue {
     column?: number;
     /** Symbol name (function/class/method) if extractable */
     symbol?: string;
+    /**
+     * Unique symbol ID for cross-referencing with symbol table.
+     * Format: "file.ts::ClassName.methodName" or "file.ts::functionName"
+     *
+     * This enables unified analysis across all quality axes by mapping
+     * each issue to its containing symbol in the symbol graph.
+     */
+    symbolId?: string;
     /** End line for multi-line issues */
     endLine?: number;
     /** End column for multi-line issues */
@@ -142,6 +150,13 @@ export interface ExtractLocatedIssuesOptions {
     skipTypescript?: boolean;
     /** Coverage directory to look for coverage-final.json */
     coverageDir?: string;
+    /**
+     * Symbol table for enriching issues with symbol information.
+     *
+     * When provided, each issue will be annotated with its containing
+     * symbol's ID, enabling unified cross-axis analysis.
+     */
+    symbolTable?: import('../symbols/types.js').SymbolTable;
 }
 /** Result of extracting located issues from all sources */
 export interface ExtractedIssues {

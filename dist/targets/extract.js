@@ -10,6 +10,69 @@ import { existsSync, readFileSync } from 'fs';
 import { spawnSync } from 'child_process';
 import path from 'path';
 import { getConfig, getSonarAuthToken } from '../config.js';
+import { mapLocationToSymbol } from '../symbols/mapper.js';
+function shouldSkipCoverageFile(filePath) {
+    return (filePath.includes('node_modules') ||
+        filePath.includes('.test.') ||
+        filePath.includes('.spec.'));
+}
+function extractCoverageIssuesFromSummary(summaryPath, dimensionPrefix) {
+    if (!existsSync(summaryPath))
+        return [];
+    try {
+        const data = JSON.parse(readFileSync(summaryPath, 'utf-8'));
+        const issues = [];
+        for (const [filePath, entry] of Object.entries(data)) {
+            if (filePath === 'total' || !entry)
+                continue;
+            if (shouldSkipCoverageFile(filePath))
+                continue;
+            const branchTotal = entry.branches.total ?? 0;
+            const branchCovered = entry.branches.covered ?? 0;
+            const branchMissing = Math.max(branchTotal - branchCovered, 0);
+            if (branchTotal > 0 && branchMissing > 0) {
+                const delta = branchMissing / branchTotal;
+                issues.push({
+                    file: filePath,
+                    source: 'coverage',
+                    dimension: `${dimensionPrefix}.branches`,
+                    code: 'uncovered-branches',
+                    impact: {
+                        dimension: `${dimensionPrefix}.branches`,
+                        delta,
+                        direction: 'higher-better',
+                    },
+                    message: `Low branch coverage (${entry.branches.pct.toFixed(1)}%)`,
+                    context: `${branchMissing}/${branchTotal} branches uncovered`,
+                });
+            }
+            const fnTotal = entry.functions.total ?? 0;
+            const fnCovered = entry.functions.covered ?? 0;
+            const fnMissing = Math.max(fnTotal - fnCovered, 0);
+            if (fnTotal > 0 && fnMissing > 0) {
+                const delta = fnMissing / fnTotal;
+                issues.push({
+                    file: filePath,
+                    source: 'coverage',
+                    dimension: `${dimensionPrefix}.functions`,
+                    code: 'uncovered-functions',
+                    impact: {
+                        dimension: `${dimensionPrefix}.functions`,
+                        delta,
+                        direction: 'higher-better',
+                    },
+                    message: `Low function coverage (${entry.functions.pct.toFixed(1)}%)`,
+                    context: `${fnMissing}/${fnTotal} functions uncovered`,
+                });
+            }
+        }
+        return issues;
+    }
+    catch (error) {
+        console.error(`Warning: Could not parse ${summaryPath}: ${error}`);
+        return [];
+    }
+}
 /**
  * Extract uncovered branches and lines from coverage-final.json.
  *
@@ -18,6 +81,7 @@ import { getConfig, getSonarAuthToken } from '../config.js';
 export function extractCoverageIssues(coverageDir) {
     const config = getConfig();
     const issues = [];
+    let foundCoverageFinal = false;
     // Try unit coverage first, then lambda
     const coveragePaths = [
         path.join(config.projectRoot, coverageDir ?? config.coverage.unitDir, 'coverage-final.json'),
@@ -26,11 +90,12 @@ export function extractCoverageIssues(coverageDir) {
     for (const coveragePath of coveragePaths) {
         if (!existsSync(coveragePath))
             continue;
+        foundCoverageFinal = true;
         try {
             const data = JSON.parse(readFileSync(coveragePath, 'utf-8'));
             for (const [filePath, fileCoverage] of Object.entries(data)) {
                 // Skip node_modules and test files
-                if (filePath.includes('node_modules') || filePath.includes('.test.') || filePath.includes('.spec.')) {
+                if (shouldSkipCoverageFile(filePath)) {
                     continue;
                 }
                 // Count total branches for this file to estimate per-branch impact
@@ -94,6 +159,26 @@ export function extractCoverageIssues(coverageDir) {
         catch (error) {
             // Silently skip if coverage file is malformed
             console.error(`Warning: Could not parse ${coveragePath}: ${error}`);
+        }
+    }
+    // Fallback: use coverage-summary.json when coverage-final.json is missing
+    if (issues.length === 0) {
+        const summaryPaths = [
+            {
+                path: path.join(config.projectRoot, coverageDir ?? config.coverage.unitDir, config.coverage.summaryFile),
+                prefix: 'coverage.unit',
+            },
+            {
+                path: path.join(config.projectRoot, config.coverage.lambdaDir, config.coverage.summaryFile),
+                prefix: 'coverage.lambda',
+            },
+        ];
+        for (const summary of summaryPaths) {
+            const summaryIssues = extractCoverageIssuesFromSummary(summary.path, summary.prefix);
+            if (summaryIssues.length > 0 && foundCoverageFinal) {
+                console.error(`Warning: Using ${config.coverage.summaryFile} fallback for ${summary.prefix} coverage`);
+            }
+            issues.push(...summaryIssues);
         }
     }
     return issues;
@@ -275,18 +360,96 @@ export function extractSonarqubeIssues() {
     return issues;
 }
 // =============================================================================
+// Symbol Enrichment
+// =============================================================================
+/**
+ * Enrich issues with symbol information from a symbol table.
+ *
+ * For each issue:
+ * - If it has a line number, maps to the containing symbol (precise)
+ * - If no line number (file-level issues like coverage-summary), maps to
+ *   the file's most significant symbol (largest by SLOC)
+ *
+ * This enables cross-axis analysis by mapping all issues to a unified symbol graph.
+ */
+function enrichIssuesWithSymbols(issues, symbolTable) {
+    // Cache file-level symbol lookups (for file-level issues without line numbers)
+    const filePrimarySymbol = new Map();
+    const findPrimarySymbolForFile = (file) => {
+        if (filePrimarySymbol.has(file)) {
+            return filePrimarySymbol.get(file) ?? null;
+        }
+        // Get all symbols in file
+        const fileSymbols = symbolTable.byFile.get(file);
+        if (!fileSymbols || fileSymbols.length === 0) {
+            // Try matching with different path formats
+            for (const [tablePath, symbols] of symbolTable.byFile) {
+                if (tablePath.endsWith(file) || file.endsWith(tablePath) ||
+                    tablePath.includes(file) || file.includes(tablePath)) {
+                    if (symbols.length > 0) {
+                        // Find largest top-level symbol by SLOC
+                        const topLevel = symbols.filter(s => !s.parent);
+                        const primary = topLevel.length > 0
+                            ? topLevel.reduce((a, b) => a.sloc > b.sloc ? a : b)
+                            : symbols.reduce((a, b) => a.sloc > b.sloc ? a : b);
+                        filePrimarySymbol.set(file, primary);
+                        return primary;
+                    }
+                }
+            }
+            filePrimarySymbol.set(file, null);
+            return null;
+        }
+        // Find largest top-level symbol by SLOC
+        const topLevel = fileSymbols.filter(s => !s.parent);
+        const primary = topLevel.length > 0
+            ? topLevel.reduce((a, b) => a.sloc > b.sloc ? a : b)
+            : fileSymbols.reduce((a, b) => a.sloc > b.sloc ? a : b);
+        filePrimarySymbol.set(file, primary);
+        return primary;
+    };
+    for (const issue of issues) {
+        if (issue.line !== undefined) {
+            // Line-level: map to containing symbol (precise)
+            const symbol = mapLocationToSymbol(symbolTable, issue.file, issue.line, issue.column);
+            if (symbol) {
+                issue.symbol = issue.symbol ?? symbol.qualifiedName;
+                issue.symbolId = symbol.id;
+            }
+        }
+        else {
+            // File-level: map to primary symbol in file
+            const primary = findPrimarySymbolForFile(issue.file);
+            if (primary) {
+                issue.symbol = issue.symbol ?? primary.qualifiedName;
+                issue.symbolId = primary.id;
+            }
+        }
+    }
+}
+// =============================================================================
 // Combined Extraction
 // =============================================================================
 /**
  * Extract located issues from all sources.
  *
  * This is the main entry point for Phase 2 of the location-aware targets system.
+ *
+ * When a symbolTable is provided in options, issues will be enriched with
+ * symbol information for unified cross-axis analysis.
  */
 export function extractLocatedIssues(options = {}) {
     const coverage = extractCoverageIssues(options.coverageDir);
     const typescript = options.skipTypescript ? [] : extractTypescriptIssues();
     const eslint = options.skipEslint ? [] : extractEslintIssues();
     const sonarqube = options.skipSonarQube ? [] : extractSonarqubeIssues();
+    // Enrich issues with symbol information if symbol table provided
+    if (options.symbolTable) {
+        enrichIssuesWithSymbols(coverage, options.symbolTable);
+        enrichIssuesWithSymbols(typescript, options.symbolTable);
+        enrichIssuesWithSymbols(eslint, options.symbolTable);
+        enrichIssuesWithSymbols(sonarqube, options.symbolTable);
+    }
     return {
         coverage,
         typescript,

@@ -100,7 +100,7 @@ export async function handleRun(args) {
             skipSonarQube,
         });
         const cache = loadCache();
-        const { key: cacheKey, isWIP } = getCacheKey();
+        const { isWIP } = getCacheKey();
         const baselineEntry = findBaselineEntry(cache, rules, isWIP);
         const result = evaluateRules(rules, metrics, baselineEntry);
         const fitness = computeFitness(metrics);

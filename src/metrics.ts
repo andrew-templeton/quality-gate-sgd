@@ -16,7 +16,6 @@ import type {
 } from './types.js';
 import { getConfig, getSonarCurlAuth } from './config.js';
 import {
-  loadCustomDimensions,
   extractAllCustomMetrics,
   registerCustomDimensions,
   type CustomDimensionConfig,

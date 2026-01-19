@@ -209,8 +209,8 @@ If true, this implies: τ_symbol < τ_file < τ_dim (faster convergence with fin
 **Solution**: Measure distinct root causes, not symptoms.
 
 **Definition**: Two errors e₁, e₂ share a **root cause** if:
-- They have the same (file, symbol_path), OR
-- They have the same (file, diagnostic_code, line_range), OR
+- They map to the same address_id (from the addressing scheme) and diagnostic code, OR
+- They have the same (file, diagnostic_code, line_range) when address_id is unavailable, OR
 - One error is a transitive consequence of the other
 
 **Refined measurement**:
@@ -232,7 +232,8 @@ For TypeScript errors:
 function countRootCauses(errors: Diagnostic[]): number {
   const rootCauses = new Set<string>();
   for (const err of errors) {
-    const key = `${err.file}:${err.code}:${getSymbolPath(err)}`;
+    const addressId = getAddressId(err) ?? getLineRange(err);
+    const key = `${err.file}:${err.code}:${addressId}`;
     rootCauses.add(key);
   }
   return rootCauses.size;
@@ -240,8 +241,8 @@ function countRootCauses(errors: Diagnostic[]): number {
 ```
 
 For SonarQube:
-- Group by (file, rule, affected_symbol)
-- Cascading issues share the same affected_symbol
+- Group by (address_id, rule) with file/line fallback
+- Cascading issues share the same address_id
 
 --
 

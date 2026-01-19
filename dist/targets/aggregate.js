@@ -5,54 +5,20 @@
  *
  * The key insight: one target (file/symbol) can address MULTIPLE dimensions.
  * We compute totalDeltaQ as the weighted sum of impacts across all dimensions.
+ *
+ * Graph Weighting:
+ * When includeGraphWeights is enabled, targets are weighted by their position
+ * in the dependency graph. Files with more dependents get higher priority
+ * because fixing them has broader impact across the codebase.
  */
 import { getDefaultFitnessConfig } from '../fitness.js';
 import { getDimension } from '../dimensions/index.js';
-// =============================================================================
-// Constants
-// =============================================================================
-/** Decay constant for error dimension normalization (from fitness.ts) */
-const ERROR_DECAY_CONSTANT = 10;
+import { buildDependencyGraph } from '../dependency-graph.js';
+import { getFileSymbols } from '../symbols/mapper.js';
+import { computeSymbolCallGraphWeights } from '../symbols/call-graph.js';
 // =============================================================================
 // ΔQ Computation
 // =============================================================================
-/**
- * Compute the change in fitness score for a given impact.
- *
- * This mirrors the normalization logic in fitness.ts:
- * - For higher-better dimensions: delta directly contributes to fitness
- * - For lower-better dimensions: uses exponential decay
- *
- * @param impact - The impact to compute ΔQ for
- * @param currentValue - Current value of the dimension (for lower-better calc)
- * @returns The change in fitness score
- */
-function computeImpactDeltaQ(impact, currentValue) {
-    const config = getDefaultFitnessConfig();
-    const dim = getDimension(impact.dimension);
-    if (!dim)
-        return 0;
-    const weight = config.weights[impact.dimension] ?? dim.defaultWeight;
-    if (impact.direction === 'higher-better') {
-        // Coverage: delta is direct % gain, contributes linearly
-        return weight * impact.delta;
-    }
-    else {
-        // Errors: fixing one error, use derivative of exp(-x/10)
-        // d/dx[exp(-x/10)] = -1/10 * exp(-x/10)
-        // Since we're REDUCING errors (improving), the gain is positive
-        // Approximate: current normalized = 100 * exp(-value/10)
-        // After fix: 100 * exp(-(value-1)/10)
-        // Delta = 100 * (exp(-(value-1)/10) - exp(-value/10))
-        //       = 100 * exp(-value/10) * (exp(1/10) - 1)
-        //       ≈ 100 * exp(-value/10) * 0.105
-        // Without knowing current value, use average-case estimate
-        const assumedValue = currentValue ?? 5; // Assume ~5 errors as baseline
-        const beforeNorm = 100 * Math.exp(-assumedValue / ERROR_DECAY_CONSTANT);
-        const afterNorm = 100 * Math.exp(-(assumedValue - 1) / ERROR_DECAY_CONSTANT);
-        return weight * (afterNorm - beforeNorm) / 100;
-    }
-}
 /**
  * Compute total ΔQ for an optimization target.
  *
@@ -164,9 +130,28 @@ function computeBreakdown(issues) {
  *
  * Groups issues by file (or symbol if granularity='symbol'), computes
  * total ΔQ for each target, and returns sorted by impact.
+ *
+ * When includeGraphWeights is enabled:
+ * - Builds the dependency graph to get dependent counts per file
+ * - Computes weightedDeltaQ = totalDeltaQ * (1 + log2(dependentCount + 1))
+ * - Sorts by weightedDeltaQ instead of totalDeltaQ
+ *
+ * This prioritizes fixing files that many other files depend on, since
+ * improving their quality has cascading benefits.
  */
 export function aggregateToTargets(extractedIssues, options = { granularity: 'file' }) {
-    const { granularity, limit, minDeltaQ } = options;
+    const { granularity, limit, minDeltaQ, includeGraphWeights } = options;
+    // Build dependency graph if graph weighting is enabled
+    let fileInfoMap;
+    if (includeGraphWeights) {
+        try {
+            fileInfoMap = buildDependencyGraph();
+        }
+        catch {
+            // If graph building fails, continue without weights
+            fileInfoMap = undefined;
+        }
+    }
     // Combine all issues
     const allIssues = [
         ...extractedIssues.coverage,
@@ -178,8 +163,16 @@ export function aggregateToTargets(extractedIssues, options = { granularity: 'fi
     const groups = new Map();
     for (const issue of allIssues) {
         let key;
-        if (granularity === 'symbol' && issue.symbol) {
-            key = `${issue.file}::${issue.symbol}`;
+        if (granularity === 'symbol') {
+            if (issue.symbolId) {
+                key = issue.symbolId;
+            }
+            else if (issue.symbol) {
+                key = `${issue.file}::${issue.symbol}`;
+            }
+            else {
+                key = issue.file;
+            }
         }
         else {
             key = issue.file;
@@ -192,7 +185,13 @@ export function aggregateToTargets(extractedIssues, options = { granularity: 'fi
     const targets = [];
     for (const [key, issues] of groups) {
         // Parse key back to file/symbol
-        const [file, symbol] = key.includes('::') ? key.split('::') : [key, undefined];
+        let file = key;
+        let symbol;
+        if (key.includes('::')) {
+            const parts = key.split('::');
+            file = parts.shift() ?? key;
+            symbol = parts.join('::') || undefined;
+        }
         // Compute impacts per dimension
         const impacts = {};
         for (const issue of issues) {
@@ -213,6 +212,32 @@ export function aggregateToTargets(extractedIssues, options = { granularity: 'fi
         const lines = issues.map(i => i.line).filter((l) => l !== undefined);
         const startLine = lines.length > 0 ? Math.min(...lines) : undefined;
         const endLine = lines.length > 0 ? Math.max(...lines) : undefined;
+        // Compute graph-based weights if available
+        let dependentCount;
+        let centralityScore;
+        let weightedDeltaQ;
+        if (fileInfoMap) {
+            // Try to find file info - handle both absolute and relative paths
+            const fileInfo = fileInfoMap.get(file) ?? findFileInfoByPath(fileInfoMap, file);
+            if (fileInfo) {
+                dependentCount = fileInfo.indirectDependents;
+                centralityScore = fileInfo.impact;
+                // weightedDeltaQ = totalDeltaQ * (1 + log2(dependentCount + 1))
+                // This gives a multiplicative boost based on how many files depend on this one:
+                // - 0 dependents: 1x boost
+                // - 1 dependent: ~2x boost
+                // - 3 dependents: ~2x boost
+                // - 7 dependents: ~3x boost
+                // - 15 dependents: ~4x boost
+                // - 31 dependents: ~5x boost
+                const graphMultiplier = 1 + Math.log2(dependentCount + 1);
+                weightedDeltaQ = totalDeltaQ * graphMultiplier;
+            }
+            else {
+                // File not in graph (possibly external or test file)
+                weightedDeltaQ = totalDeltaQ;
+            }
+        }
         targets.push({
             file,
             symbol,
@@ -223,15 +248,344 @@ export function aggregateToTargets(extractedIssues, options = { granularity: 'fi
             dimensionsAffected,
             impacts,
             totalDeltaQ,
+            dependentCount,
+            centralityScore,
+            weightedDeltaQ,
             breakdown,
         });
     }
-    // Sort by totalDeltaQ descending
-    targets.sort((a, b) => b.totalDeltaQ - a.totalDeltaQ);
+    // Sort by weightedDeltaQ if available, otherwise totalDeltaQ
+    if (includeGraphWeights) {
+        targets.sort((a, b) => (b.weightedDeltaQ ?? b.totalDeltaQ) - (a.weightedDeltaQ ?? a.totalDeltaQ));
+    }
+    else {
+        targets.sort((a, b) => b.totalDeltaQ - a.totalDeltaQ);
+    }
     // Apply limit
     if (limit !== undefined && limit > 0) {
         return targets.slice(0, limit);
     }
     return targets;
+}
+/**
+ * Try to find file info by matching the end of the path.
+ * Handles cases where issues have relative paths but graph has absolute paths.
+ */
+function findFileInfoByPath(fileInfoMap, targetPath) {
+    // Normalize the target path
+    const normalizedTarget = targetPath.replace(/\\/g, '/');
+    for (const [graphPath, info] of fileInfoMap) {
+        const normalizedGraph = graphPath.replace(/\\/g, '/');
+        // Check if one ends with the other
+        if (normalizedGraph.endsWith(normalizedTarget) || normalizedTarget.endsWith(normalizedGraph)) {
+            return info;
+        }
+        // Check if basenames match and paths are similar
+        const targetBase = normalizedTarget.split('/').pop();
+        const graphBase = normalizedGraph.split('/').pop();
+        if (targetBase === graphBase) {
+            // Could be the same file with different root paths
+            return info;
+        }
+    }
+    return undefined;
+}
+// =============================================================================
+// Symbol-Level Aggregation
+// =============================================================================
+/**
+ * Create an empty coverage structure.
+ */
+function createEmptyCoverage() {
+    return {
+        branches: { total: 0, covered: 0, uncovered: 0, percentage: 100 },
+        statements: { total: 0, covered: 0, uncovered: 0, percentage: 100 },
+    };
+}
+/**
+ * Create an empty issues-by-axis structure.
+ */
+function createEmptyIssuesByAxis() {
+    return {
+        typescript: [],
+        eslint: [],
+        sonarqube: [],
+        coverage: [],
+    };
+}
+/**
+ * Aggregate issues to the symbol level with unified representation.
+ *
+ * This function groups issues by their containing symbol (using symbolId)
+ * and computes normalized metrics like issue density and coverage gap.
+ *
+ * Unlike aggregateToTargets which groups by file/symbol string,
+ * this uses the full symbol table for accurate symbol information
+ * and enables normalized cross-axis comparison.
+ *
+ * @param extractedIssues - Issues from all axes (must have symbolId populated)
+ * @param symbolTable - Symbol table from symbol extraction
+ * @returns Array of SymbolIssues sorted by totalDeltaQ descending
+ */
+export function aggregateToSymbols(extractedIssues, symbolTable) {
+    // Initialize map with all symbols from table
+    const symbolIssuesMap = new Map();
+    for (const [id, symbol] of symbolTable.symbols) {
+        symbolIssuesMap.set(id, {
+            symbol,
+            coverage: createEmptyCoverage(),
+            issues: createEmptyIssuesByAxis(),
+            totalIssueCount: 0,
+            issueDensity: 0,
+            coverageGap: 0,
+            totalDeltaQ: 0,
+        });
+    }
+    const filePrimarySymbol = new Map();
+    const syntheticSymbols = new Map();
+    const getPrimarySymbolForFile = (file) => {
+        if (filePrimarySymbol.has(file)) {
+            return filePrimarySymbol.get(file) ?? null;
+        }
+        const fileSymbols = getFileSymbols(symbolTable, file);
+        if (fileSymbols.length === 0) {
+            filePrimarySymbol.set(file, null);
+            return null;
+        }
+        const topLevel = fileSymbols.filter(s => !s.parent);
+        const primary = (topLevel.length > 0 ? topLevel : fileSymbols)
+            .reduce((a, b) => a.sloc > b.sloc ? a : b);
+        filePrimarySymbol.set(file, primary);
+        return primary;
+    };
+    const getOrCreateSyntheticSymbol = (issue) => {
+        const file = issue.file;
+        let synthetic = syntheticSymbols.get(file);
+        if (!synthetic) {
+            const name = file.split(/[/\\]/).pop() ?? file;
+            const startLine = issue.line ?? 1;
+            const endLine = issue.endLine ?? issue.line ?? startLine;
+            synthetic = {
+                id: `${file}::(file)`,
+                file,
+                name,
+                qualifiedName: file,
+                kind: 'file',
+                exported: false,
+                span: {
+                    startLine,
+                    startColumn: 0,
+                    endLine,
+                    endColumn: 0,
+                },
+                sloc: Math.max(1, endLine - startLine + 1),
+            };
+            syntheticSymbols.set(file, synthetic);
+            symbolIssuesMap.set(synthetic.id, {
+                symbol: synthetic,
+                coverage: createEmptyCoverage(),
+                issues: createEmptyIssuesByAxis(),
+                totalIssueCount: 0,
+                issueDensity: 0,
+                coverageGap: 0,
+                totalDeltaQ: 0,
+            });
+        }
+        else if (issue.line !== undefined) {
+            const startLine = issue.line;
+            const endLine = issue.endLine ?? issue.line;
+            if (startLine < synthetic.span.startLine) {
+                synthetic.span.startLine = startLine;
+            }
+            if (endLine > synthetic.span.endLine) {
+                synthetic.span.endLine = endLine;
+            }
+            synthetic.sloc = Math.max(1, synthetic.span.endLine - synthetic.span.startLine + 1);
+        }
+        return synthetic;
+    };
+    // Map issues to symbols
+    const allIssues = [
+        ...extractedIssues.coverage.map(i => ({ ...i, axis: 'coverage' })),
+        ...extractedIssues.typescript.map(i => ({ ...i, axis: 'typescript' })),
+        ...extractedIssues.eslint.map(i => ({ ...i, axis: 'eslint' })),
+        ...extractedIssues.sonarqube.map(i => ({ ...i, axis: 'sonarqube' })),
+    ];
+    for (const issue of allIssues) {
+        let symbolId = issue.symbolId;
+        let entry = symbolId ? symbolIssuesMap.get(symbolId) : undefined;
+        if (!entry) {
+            const primary = getPrimarySymbolForFile(issue.file);
+            const fallback = primary ?? getOrCreateSyntheticSymbol(issue);
+            symbolId = fallback.id;
+            entry = symbolIssuesMap.get(symbolId);
+            issue.symbolId = symbolId;
+            issue.symbol = issue.symbol ?? fallback.qualifiedName;
+        }
+        if (!entry) {
+            continue;
+        }
+        // Add to appropriate axis
+        entry.issues[issue.axis].push(issue);
+        // Count non-coverage issues
+        if (issue.axis !== 'coverage') {
+            entry.totalIssueCount++;
+        }
+    }
+    // Update coverage statistics from coverage issues
+    for (const entry of symbolIssuesMap.values()) {
+        const coverageIssues = entry.issues.coverage;
+        if (coverageIssues.length > 0) {
+            const branchIssues = coverageIssues.filter(i => i.dimension.endsWith('.branches'));
+            const perBranchIssues = branchIssues.filter(i => i.code?.startsWith('branch-'));
+            const summaryIssues = branchIssues.filter(i => i.code === 'uncovered-branches');
+            let totalBranches = 0;
+            let uncoveredBranches = 0;
+            let branchGap = 0;
+            if (summaryIssues.length > 0) {
+                const summary = summaryIssues[0];
+                let parsedMissing;
+                let parsedTotal;
+                if (summary.context) {
+                    const match = summary.context.match(/(\d+)\s*\/\s*(\d+)/);
+                    if (match) {
+                        parsedMissing = parseInt(match[1], 10);
+                        parsedTotal = parseInt(match[2], 10);
+                    }
+                }
+                if (parsedMissing !== undefined && parsedTotal !== undefined && parsedTotal > 0) {
+                    uncoveredBranches = parsedMissing;
+                    totalBranches = parsedTotal;
+                    branchGap = parsedMissing / parsedTotal;
+                }
+                else {
+                    branchGap = Math.max(0, summary.impact.delta);
+                }
+            }
+            else if (perBranchIssues.length > 0) {
+                uncoveredBranches = perBranchIssues.length;
+                const deltaSum = perBranchIssues.reduce((sum, issue) => sum + Math.max(0, issue.impact.delta), 0);
+                branchGap = deltaSum;
+                if (deltaSum > 0) {
+                    totalBranches = Math.max(uncoveredBranches, Math.round(uncoveredBranches / deltaSum));
+                }
+            }
+            else if (branchIssues.length > 0) {
+                branchGap = branchIssues.reduce((sum, issue) => sum + Math.max(0, issue.impact.delta), 0);
+            }
+            branchGap = Math.max(0, Math.min(1, branchGap));
+            entry.coverage.branches.total = totalBranches;
+            entry.coverage.branches.uncovered = uncoveredBranches;
+            entry.coverage.branches.covered = totalBranches > 0
+                ? Math.max(0, totalBranches - uncoveredBranches)
+                : 0;
+            entry.coverage.branches.percentage = totalBranches > 0
+                ? (entry.coverage.branches.covered / totalBranches) * 100
+                : (1 - branchGap) * 100;
+            entry.coverageGap = branchGap;
+        }
+    }
+    // Compute derived metrics
+    for (const entry of symbolIssuesMap.values()) {
+        // Issue density = issues / SLOC
+        entry.issueDensity = entry.symbol.sloc > 0
+            ? entry.totalIssueCount / entry.symbol.sloc
+            : 0;
+        // Compute totalDeltaQ using the same logic as OptimizationTarget
+        const allSymbolIssues = [
+            ...entry.issues.coverage,
+            ...entry.issues.typescript,
+            ...entry.issues.eslint,
+            ...entry.issues.sonarqube,
+        ];
+        entry.totalDeltaQ = computeTargetDeltaQ(allSymbolIssues);
+    }
+    // Convert to array and filter out symbols with no issues
+    const results = [...symbolIssuesMap.values()]
+        .filter(entry => entry.totalIssueCount > 0 ||
+        entry.issues.coverage.length > 0);
+    // Sort by totalDeltaQ descending (highest priority first)
+    results.sort((a, b) => b.totalDeltaQ - a.totalDeltaQ);
+    return results;
+}
+/**
+ * Aggregate to symbols with filtering options.
+ */
+export function aggregateToSymbolsWithOptions(extractedIssues, symbolTable, options = {}) {
+    let results = aggregateToSymbols(extractedIssues, symbolTable);
+    // Apply call graph weighting if requested (symbol-level)
+    if (options.includeCallGraphWeights) {
+        const weights = computeSymbolCallGraphWeights(symbolTable);
+        for (const entry of results) {
+            const weight = weights.get(entry.symbol.id);
+            entry.callersCount = weight?.callersCount ?? 0;
+            entry.calleesCount = weight?.calleesCount ?? 0;
+            entry.weightingSource = 'call-graph';
+            const graphMultiplier = 1 + Math.log2(entry.callersCount + 1);
+            entry.weightedDeltaQ = entry.totalDeltaQ * graphMultiplier;
+        }
+        results.sort((a, b) => (b.weightedDeltaQ ?? b.totalDeltaQ) - (a.weightedDeltaQ ?? a.totalDeltaQ));
+    }
+    else if (options.includeGraphWeights) {
+        let fileInfoMap;
+        try {
+            fileInfoMap = buildDependencyGraph();
+        }
+        catch {
+            fileInfoMap = undefined;
+        }
+        if (fileInfoMap) {
+            for (const entry of results) {
+                // Normalize file path for graph lookup (may need to strip prefix or add it)
+                const file = entry.symbol.file;
+                let fileInfo = fileInfoMap.get(file);
+                // Try relative path if absolute didn't match
+                if (!fileInfo) {
+                    const relativePath = file.replace(process.cwd() + '/', '');
+                    fileInfo = fileInfoMap.get(relativePath);
+                }
+                // Try finding by suffix match
+                if (!fileInfo) {
+                    for (const [graphPath, info] of fileInfoMap) {
+                        if (file.endsWith(graphPath) || graphPath.endsWith(file.replace(/^.*\/src\//, 'src/'))) {
+                            fileInfo = info;
+                            break;
+                        }
+                    }
+                }
+                if (fileInfo) {
+                    entry.dependentCount = fileInfo.indirectDependents;
+                    entry.centralityScore = fileInfo.impact;
+                    entry.weightingSource = 'file';
+                    // weightedDeltaQ = totalDeltaQ * (1 + log2(dependentCount + 1))
+                    // This gives a multiplier ranging from 1.0 (no dependents) to ~4.0+ (many dependents)
+                    const graphMultiplier = 1 + Math.log2(entry.dependentCount + 1);
+                    entry.weightedDeltaQ = entry.totalDeltaQ * graphMultiplier;
+                }
+                else {
+                    // No graph info - use unweighted
+                    entry.weightedDeltaQ = entry.totalDeltaQ;
+                    entry.weightingSource = 'file';
+                }
+            }
+            // Re-sort by weightedDeltaQ
+            results.sort((a, b) => (b.weightedDeltaQ ?? b.totalDeltaQ) - (a.weightedDeltaQ ?? a.totalDeltaQ));
+        }
+    }
+    // Apply filters
+    if (options.minDeltaQ !== undefined) {
+        results = results.filter(s => s.totalDeltaQ >= options.minDeltaQ);
+    }
+    if (options.minIssueDensity !== undefined) {
+        results = results.filter(s => s.issueDensity >= options.minIssueDensity);
+    }
+    if (options.kinds && options.kinds.length > 0) {
+        results = results.filter(s => options.kinds.includes(s.symbol.kind));
+    }
+    // Apply limit
+    if (options.limit !== undefined && options.limit > 0) {
+        results = results.slice(0, options.limit);
+    }
+    return results;
 }
 //# sourceMappingURL=aggregate.js.map

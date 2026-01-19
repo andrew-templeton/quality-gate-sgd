@@ -16,7 +16,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import type { FileInfo, CoverageMetrics } from './types.js';
+import type { FileInfo } from './types.js';
 import { getConfig } from './config.js';
 
 // =============================================================================

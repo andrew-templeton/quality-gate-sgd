@@ -41,16 +41,50 @@ Quality measurement tools already extract precise location information:
 
 The key realization: instead of computing ∂Q/∂dimension, we can compute ∂Q/∂target where target is a code location.
 
+### 2.1 Addressing Schemes (Shared Coordinates)
+
+Target-space gradients require that all issue sources map into a shared address space. We call this the addressing scheme.
+
+**Definition**: An addressing scheme is a deterministic mapping:
+
+```
+Addr: C -> A
+Addr(c) = (V, E, μ)
+```
+
+Where V is the set of addressable units, E is an optional adjacency relation, and μ assigns a size measure used for normalization.
+
+**Quality coordinate space**: We call A a quality coordinate space if it is:
+- Deterministic: same code state yields the same addresses
+- Stable: small edits preserve address identity for unchanged units
+- Shared: every metric axis can map its issues into V
+- Normalizable: each address has a size measure μ for density
+- Graphable (optional): E enables weighting and propagation
+
+Each axis provides a locator L_i that maps raw issues to V (with explicit fallback to coarser addresses like file:line). This ensures every issue can be normalized into the shared address space.
+
+For TypeScript, we use the compiler symbol graph (symbols as nodes, edges from calls/imports/extends, μ from symbol span). File:line addressing is simpler but tends to be fragile under refactors, so we use it only as a fallback. For prose domains, paragraph/sentence/word indices or a topic graph can play the same role; for proofs, a claim graph is a natural address space.
+
+This choice is part of the topology, not the geometry.
+
+**Addressing fitness (diagnostics)**: We evaluate whether an address space is fit using measurable proxies:
+- Mapping coverage (overall and line-level)
+- Address size distribution (median/p90 SLOC per address)
+- Call-graph resolution rate (if E is derived)
+- Optional address churn under small edits (stability)
+
+Fit spaces preserve identity and cover most issues without fallback. Unfit spaces degrade target-space gradients and should trigger a coarser fallback or a different scheme.
+
 --
 
 ## 3. Target-Space Gradients
 
 ### 3.1 Definition
 
-Let **T** = {t₁, t₂, ..., tₙ} be the set of enumerable optimization targets, where each target is a tuple:
+Let **T** = V be the set of addressable targets from the addressing scheme, where each target can be represented as a tuple:
 
 ```
-t = (file, symbol?, line_range?, issue_cluster)
+t = (address_id, span?, issue_cluster)
 ```
 
 The **target-space gradient** is:
@@ -141,8 +175,10 @@ Finer granularity provides more specific guidance but may incur costs:
 | Tier | Granularity | Target Definition | Use Case |
 |---|-------|----------|-----|
 | Quick | Dimension | "improve coverage.branches" | Fast triage |
-| Standard | File | "fix src/services/payment.ts" | Default workflow |
-| Deep | Symbol | "fix processPayment() at line 45" | Precise guidance |
+| Standard | File (address) | "fix src/services/payment.ts" | Default workflow |
+| Deep | Symbol (address) | "fix processPayment() at line 45" | Precise guidance |
+
+Granularity determines how the address space V is partitioned into targets (file-level buckets vs symbol-level units).
 
 ### 5.3 Mathematical Relationship
 
@@ -198,7 +234,9 @@ This is empirically testable by comparing convergence rates across granularity m
 interface LocatedIssue {
   file: string;
   line?: number;
-  symbol?: string;
+  addressId?: string;    // normalized address (symbol path, paragraph id, etc.)
+  addressLabel?: string; // human-readable label
+  addressKind?: 'symbol' | 'file' | 'line' | 'paragraph' | 'claim';
   source: 'coverage' | 'typescript' | 'eslint' | 'sonarqube';
   dimension: string;
   impact: {
@@ -210,8 +248,9 @@ interface LocatedIssue {
 
 /** An aggregated optimization target */
 interface OptimizationTarget {
-  file: string;
-  symbol?: string;
+  addressId: string;
+  addressLabel: string;
+  file?: string;
   issues: LocatedIssue[];
   impacts: Record<string, number>;  // dimension → total delta
   totalDeltaQ: number;              // cross-dimension sum
@@ -223,13 +262,14 @@ interface OptimizationTarget {
 
 ```
 function aggregateToTargets(issues, granularity):
-  1. Group issues by (file) or (file, symbol) based on granularity
-  2. For each group:
+  1. Normalize each issue to addressId (or fallback to file/line)
+  2. Group by addressId (or by file for coarse granularity)
+  3. For each group:
      a. Sum impacts per dimension
      b. Compute totalDeltaQ using fitness weights
      c. Identify dimensionsAffected
-  3. Sort by totalDeltaQ descending
-  4. Return ranked targets
+  4. Sort by totalDeltaQ descending
+  5. Return ranked targets
 ```
 
 ### 7.3 ΔQ Computation
@@ -291,7 +331,9 @@ Our topology (TOPOLOGY.md) now includes granularity configuration:
 
 4. **Computational scaling**: How does target enumeration scale with codebase size?
 
-5. **Cross-project transfer**: Do optimal granularity choices transfer across projects?
+5. **Addressing fitness**: Which address spaces maximize stability and mapping coverage?
+
+6. **Cross-project transfer**: Do optimal granularity choices transfer across projects?
 
 --
 

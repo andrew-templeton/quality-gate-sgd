@@ -68,6 +68,14 @@ This document inventories every factual claim in the quality-gate-sgd framework,
 | Integer counts create discontinuities when N is small | `[MATH]` | 1/N step size analysis |
 | TypeScript errors can be non-deterministic | `[CITED]` | PENDING: Incremental compilation docs |
 
+### 2.4 Addressing Schemes
+
+| Claim | Type | Citation Status |
+|----|---|---------|
+| Address space A = (V, E, μ) defines targets V and optional adjacency E | `[MATH]` | Definition (self-supporting) |
+| Target-space gradients require a shared addressing scheme across axes | `[MATH]` | Definition (self-supporting) |
+| Quality coordinate space criteria (deterministic, stable, shared, normalizable) | `[MATH]` | Definition (self-supporting) |
+
 --
 
 ## 3. Novel Claims (Our Contributions)
@@ -106,6 +114,12 @@ This document inventories every factual claim in the quality-gate-sgd framework,
 | Finer granularity (symbol vs file) may improve convergence rate | `[NOVEL]` | Experimental: compare τ_symbol vs τ_file vs τ_dim |
 | Location data is already extracted but discarded during aggregation | `[MATH]` | Analysis of coverage-final.json, TS/ESLint output |
 | Total ΔQ = weighted sum across all affected dimensions | `[MATH]` | Definition (see DIFFERENTIABILITY.md Section 4.3) |
+
+### 3.5 Addressing Fitness
+
+| Claim | Type | Validation Required |
+|----|---|-----------|
+| Addressing fitness predicts convergence speed and success rate | `[NOVEL]` | Experimental: regress τ/success on fitness metrics |
 
 --
 

@@ -11,11 +11,11 @@
  * 5. Generate rules.json + explanatory QUALITY.md
  */
 
-import { spawnSync, execSync } from 'child_process';
+import { spawnSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as readline from 'readline';
-import { getValidPaths, getDimensionsByCategory } from './dimensions/index.js';
+import { getDimensionsByCategory } from './dimensions/index.js';
 
 // =============================================================================
 // Types
@@ -190,7 +190,6 @@ async function callClaude(prompt: string): Promise<string> {
   // Fall back to API if key exists
   if (checkAnthropicKey()) {
     // Use curl for simplicity (avoids adding SDK dependency)
-    const escapedPrompt = prompt.replace(/"/g, '\\"').replace(/\n/g, '\\n');
     const result = spawnSync('curl', [
       '-s',
       '-X', 'POST',
@@ -392,7 +391,7 @@ function collectCalibrationMetrics(
 
   // Run tests with coverage
   console.error('  Running tests with coverage...');
-  const testResult = spawnSync('npm', ['run', testCommand, '--', '--coverage'], {
+  spawnSync('npm', ['run', testCommand, '--', '--coverage'], {
     cwd: projectRoot,
     encoding: 'utf-8',
     timeout: 300000,

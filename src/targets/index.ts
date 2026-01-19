@@ -30,6 +30,9 @@ export {
 export {
   aggregateToTargets,
   computeTargetDeltaQ,
+  aggregateToSymbols,
+  aggregateToSymbolsWithOptions,
+  type AggregateToSymbolsOptions,
 } from './aggregate.js';
 
 // Formatting (for CLI output)
@@ -38,4 +41,7 @@ export {
   formatTargetList,
   formatTargetSuggestion,
   formatTargetsForJson,
+  formatSymbolIssues,
+  formatSymbolIssuesList,
+  formatSymbolIssuesForJson,
 } from './format.js';

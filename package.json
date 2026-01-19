@@ -10,6 +10,11 @@
   },
   "scripts": {
     "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src/ tests/",
+    "lint:fix": "eslint src/ tests/ --fix",
     "prepublishOnly": "npm run build",
     "quality-gate": "tsx src/cli.ts",
     "list-issues": "tsx src/list-issues.ts"
@@ -48,11 +53,17 @@
     "LICENSE"
   ],
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.25.2"
+    "@modelcontextprotocol/sdk": "^1.25.2",
+    "openai": "^6.16.0",
+    "typescript": "^5.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.53.0",
+    "@typescript-eslint/parser": "^8.53.0",
+    "@vitest/coverage-v8": "^4.0.17",
+    "eslint": "^9.39.2",
     "tsx": "^4.0.0",
-    "typescript": "^5.0.0"
+    "vitest": "^4.0.17"
   }
 }

@@ -57,6 +57,15 @@ Do targets affecting multiple dimensions provide more value than single-dimensio
 - **Hypothesis**: Targets with cross-dimension impact (coverage + errors + smells) converge faster than single-dimension targets
 - **Analysis**: Stratify targets by number of dimensions affected, compare improvement per iteration
 
+### RQ7: Addressing Fitness
+Does addressing fitness predict convergence quality and speed?
+- **Metrics**:
+  - Mapping coverage (% of issues mapped to addresses, line-level vs file-level)
+  - Address size distribution (median/p90 SLOC per address)
+  - Call graph resolution rate (% of call sites resolved to symbols)
+- **Hypothesis**: Higher mapping coverage and higher call-graph resolution correlate with faster convergence (lower τ) and higher success rate.
+- **Analysis**: Regress τ and success rate on addressing fitness metrics; stratify runs into fit/mixed/unfit tiers.
+
 ## Experimental Design
 
 ### Dataset
@@ -92,7 +101,7 @@ For each task T:
 4. **Quality Geometry** - The theoretical framework (Section 3 of paper = theory/GEOMETRY.md)
 5. **A Concrete Topology** - Our instantiation (Section 4 = theory/TOPOLOGY.md)
 6. **Experiments** - SWE-bench evaluation
-7. **Results** - RQ1-RQ6 findings
+7. **Results** - RQ1-RQ7 findings
 8. **Discussion** - Limitations, future topologies
 9. **Conclusion**
 

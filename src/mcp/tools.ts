@@ -19,7 +19,7 @@ import {
   type TargetGranularity,
 } from '../targets/index.js';
 import { buildTrajectory, formatTrajectorySummary } from '../trajectory.js';
-import { getAllDimensions, getDimension, generateDimensionsDoc } from '../dimensions/index.js';
+import { getAllDimensions, getDimension } from '../dimensions/index.js';
 import type { Metrics } from '../types.js';
 
 // =============================================================================
@@ -141,7 +141,7 @@ export async function handleRun(args: RunArguments): Promise<{
     });
 
     const cache = loadCache();
-    const { key: cacheKey, isWIP } = getCacheKey();
+    const { isWIP } = getCacheKey();
     const baselineEntry = findBaselineEntry(cache, rules, isWIP);
     const result = evaluateRules(rules, metrics, baselineEntry);
     const fitness = computeFitness(metrics);

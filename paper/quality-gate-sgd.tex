@@ -248,9 +248,9 @@ SonarQube issues & file:line:rule:severity & Counted only \\
 \subsection{Target-Space Gradients}
 
 \begin{definition}[Optimization Target]
-Let $\mathcal{T} = \{t_1, t_2, \ldots, t_m\}$ be the set of enumerable optimization targets, where each target is a tuple:
+Let $\mathcal{T} = \{t_1, t_2, \ldots, t_m\}$ be the set of enumerable optimization targets induced by the addressing scheme, where each target can be represented as a tuple:
 \[
-t = (\text{file}, \text{symbol}?, \text{line\_range}?, \text{issue\_cluster})
+t = (\text{address\_id}, \text{span}?, \text{issue\_cluster})
 \]
 \end{definition}
 
@@ -261,6 +261,35 @@ The \textbf{target-space gradient} is:
 \]
 where $\partial Q / \partial t_i$ represents the expected change in fitness if all issues at target $t_i$ are resolved.
 \end{definition}
+
+\subsection{Addressing Schemes and Consistency}
+
+Target-space gradients only become actionable when all issue sources map into a shared address space. We call this the \emph{addressing scheme}. This choice is part of the topology: it specifies the coordinate system over which discrete gradients are computed.
+
+\begin{definition}[Addressing Scheme]
+An addressing scheme is a deterministic mapping
+\[
+A: \mathcal{C} \to \mathcal{A}
+\]
+that yields an address space $\mathcal{A} = (V, E, \mu)$ where $V$ is the set of addressable units, $E$ is an optional adjacency relation, and $\mu$ assigns a size measure used for normalization. We take $\mathcal{T} = V$ as the target set for target-space gradients.
+\end{definition}
+
+\begin{definition}[Quality Coordinate Space]
+An address space $\mathcal{A}$ is a \emph{quality coordinate space} if it is:
+\begin{itemize}
+  \item \textbf{Deterministic}: the same code state yields the same addresses
+  \item \textbf{Stable}: small edits preserve address identity for unchanged units
+  \item \textbf{Shared}: every metric axis can map its issues into $V$
+  \item \textbf{Normalizable}: each address has a size measure $\mu$ for density
+  \item \textbf{Graphable (optional)}: $E$ enables weighting and propagation
+\end{itemize}
+\end{definition}
+
+In practice, a scheme may fall back to coarser addresses (e.g., file:line) when a precise address is unavailable.
+
+For TypeScript, we use the compiler symbol graph as the address space: symbols are nodes, edges (calls, imports, extends) provide adjacency, and symbol span gives $\mu$. File-and-line addressing is simpler but tends to be fragile under refactors, so we use it only as a fallback.
+
+The same requirement applies to non-code domains: a proof may be addressed by a claim graph, and an essay by paragraph/sentence/word indices or a topic graph, but the scheme must be consistent across all metrics.
 
 \subsection{Computing $\Delta Q$}
 
@@ -383,6 +412,7 @@ Based on this analysis, we recommend:
   \item[RQ4: Topology Design] Which metric combinations create the smoothest descent?
   \item[RQ5: Target Granularity] Does file-level or symbol-level targeting improve convergence?
   \item[RQ6: Cross-Dimension Value] Do multi-dimension targets converge faster?
+  \item[RQ7: Addressing Fitness] Does addressing fitness predict convergence speed and success rate?
 \end{description}
 
 \subsection{Biased Proposer Validation}

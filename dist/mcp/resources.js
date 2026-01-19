@@ -78,7 +78,7 @@ export function handleRulesResource() {
                 }],
         };
     }
-    catch (error) {
+    catch {
         return {
             contents: [{
                     uri: 'quality://rules',

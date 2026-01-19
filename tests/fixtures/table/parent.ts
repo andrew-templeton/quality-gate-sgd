@@ -1,0 +1,4 @@
+
+export class Outer {
+  inner() {}
+}

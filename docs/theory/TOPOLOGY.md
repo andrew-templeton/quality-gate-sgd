@@ -19,6 +19,38 @@ Based on the geometry framework, we apply these principles:
 | Normalization | Per-kSLOC for count metrics |
 | Weighting | Dependency analysis for priority |
 
+### 2.1 Addressing Scheme
+
+Target-space gradients require a shared addressing scheme that all axes map into. This is a topology decision: it defines the coordinate system over which targets are enumerated and ranked.
+
+We model the address space as A = (V, E, μ):
+- V: addressable units (symbols, paragraphs, claims)
+- E: optional adjacency relation for weighting/propagation
+- μ: size measure for normalization (SLOC, tokens, span length)
+
+**Quality coordinate space criteria**:
+- Deterministic: same code state yields the same addresses
+- Stable: unchanged units keep their address across small edits
+- Shared: every axis can map its issues into V (or explicit fallback)
+- Normalizable: μ exists for density/impact normalization
+- Resolution: V is neither too coarse nor too fragmented
+- Graphable (optional): E can be derived to support weighting
+
+**Addressing fitness measures** (practical diagnostics):
+- Mapping coverage: % of issues mapped into V without fallback
+- Address churn: % of addresses that change under small edits
+- Size distribution: median and tail of μ (avoid extreme skew)
+- Call-graph resolution rate: % of call sites resolved to symbols (if graphable)
+- Edge density (if graphable): average degree and connectivity
+
+**TypeScript instantiation**:
+- Nodes V: compiler symbols (functions, methods, classes, types)
+- Edges E: calls, imports, extends/implements
+- Measure μ: symbol span (SLOC or AST span)
+- Fallback: file:line when symbol resolution fails
+
+For prose or proof domains, V can be paragraph/sentence/word indices, topic graphs, or claim graphs. The key requirement is consistency across all metrics.
+
 ## 3. Metric Selection
 
 ### 3.1 Objective Metrics (Gradient Sources)

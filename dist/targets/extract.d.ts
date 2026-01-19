@@ -29,6 +29,9 @@ export declare function extractSonarqubeIssues(): LocatedIssue[];
  * Extract located issues from all sources.
  *
  * This is the main entry point for Phase 2 of the location-aware targets system.
+ *
+ * When a symbolTable is provided in options, issues will be enriched with
+ * symbol information for unified cross-axis analysis.
  */
 export declare function extractLocatedIssues(options?: ExtractLocatedIssuesOptions): ExtractedIssues;
 //# sourceMappingURL=extract.d.ts.map
