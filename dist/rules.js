@@ -186,10 +186,32 @@ export function evaluateRules(rules, currentMetrics, baselineEntry) {
 }
 /**
  * Check if cached evaluation is still valid
- * Returns false if rules have changed since cache entry was created
+ * Returns false if:
+ * - Rules have changed since cache entry was created
+ * - Required floor metrics were missing but may now be available
  */
 export function isCacheValid(entry, rules) {
     const currentHash = computeRulesHash(rules);
-    return (entry.rulesHash === currentHash && entry.rulesVersion === rules.version);
+    // Rules changed - cache invalid
+    if (entry.rulesHash !== currentHash || entry.rulesVersion !== rules.version) {
+        return false;
+    }
+    // If evaluation passed, cache is valid - no need to re-check metrics
+    if (entry.evaluation.status === 'pass') {
+        return true;
+    }
+    // For failed evaluations, check if any floor metrics were missing
+    // If they were, we should re-extract metrics in case they're now available
+    const floors = rules.rules.floors;
+    if (floors) {
+        for (const metricPath of Object.keys(floors)) {
+            const value = getMetricValue(entry.metrics, metricPath);
+            if (value === undefined) {
+                // A required metric was missing - cache invalid, try fresh extraction
+                return false;
+            }
+        }
+    }
+    return true;
 }
 //# sourceMappingURL=rules.js.map
