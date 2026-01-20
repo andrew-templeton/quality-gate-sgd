@@ -345,6 +345,80 @@ Let $\tau_{\text{dim}}$, $\tau_{\text{file}}$, $\tau_{\text{symbol}}$ be expecte
 
 This conjecture is empirically testable.
 
+\subsection{Symbol Tables and O(1) Location Mapping}
+
+For symbol-level addressing to be practical, we need efficient mapping from issue locations to containing symbols. A naive approach scans all symbols for each issue, yielding $O(n \cdot m)$ complexity for $n$ issues and $m$ symbols.
+
+\begin{definition}[Symbol Table]
+A \textbf{symbol table} $\mathcal{S}$ is a data structure providing:
+\begin{itemize}
+  \item $\texttt{symbols}: \text{Map}(\text{id} \to \text{Symbol})$ -- direct access by identifier
+  \item $\texttt{byFile}: \text{Map}(\text{file} \to \text{Symbol}[])$ -- symbols per file, sorted by line
+  \item $\texttt{lineIndex}: \text{Map}(\text{file:line} \to \text{Symbol})$ -- O(1) location lookup
+\end{itemize}
+\end{definition}
+
+The \texttt{lineIndex} is constructed by iterating each symbol's span and recording the innermost containing symbol for each line. This enables $O(1)$ mapping from any issue location to its containing symbol.
+
+\textbf{Implementation note:} For TypeScript, we extract symbols using the compiler API, capturing functions, classes, methods, arrow functions, and exported constants. Each symbol has a unique identifier of the form \texttt{file.ts::ClassName.methodName}.
+
+\subsection{Call Graph Weighting}
+
+Not all symbols are equally impactful. A utility function called from 50 locations affects more code than an isolated helper. We capture this via call graph analysis.
+
+\begin{definition}[Call Graph Weights]
+For a symbol $s$ in call graph $G = (V, E)$:
+\begin{itemize}
+  \item $\text{in}(s) = |\{v : (v, s) \in E\}|$ -- number of callers (in-degree)
+  \item $\text{out}(s) = |\{v : (s, v) \in E\}|$ -- number of callees (out-degree)
+\end{itemize}
+\end{definition}
+
+High in-degree symbols are \emph{impact multipliers}: fixing them improves code that many other symbols depend on. We weight $\Delta Q$ accordingly:
+
+\begin{equation}
+\Delta Q_{\text{weighted}}(t) = \Delta Q(t) \cdot (1 + \log_2(\text{in}(t) + 1))
+\label{eq:weighted-delta-q}
+\end{equation}
+
+The logarithmic scaling prevents extreme outliers (e.g., a logging utility called 1000 times) from dominating the priority queue.
+
+\subsection{Fixability Estimation}
+\label{sec:fixability}
+
+A target's $\Delta Q$ assumes all issues can be fixed. In practice, some issues require architectural changes that cannot be addressed in a single edit session. We introduce \emph{fixability} to model this.
+
+\begin{definition}[Fixability Score]
+The \textbf{fixability score} $\phi(t) \in [0, 1]$ is the estimated fraction of issues at target $t$ that can be resolved in a single focused editing session.
+\end{definition}
+
+\begin{definition}[Adjusted $\Delta Q$]
+The \textbf{adjusted} quality improvement accounting for fixability is:
+\begin{equation}
+\Delta Q_{\text{adj}}(t) = \Delta Q_{\text{weighted}}(t) \cdot \phi(t)
+\label{eq:adjusted-delta-q}
+\end{equation}
+\end{definition}
+
+\textbf{Estimation method:} We use an LLM to estimate $\phi(t)$ by presenting:
+\begin{enumerate}
+  \item The source code of the symbol
+  \item The list of issues (by type and count)
+  \item Current metrics (coverage gap, issue density)
+\end{enumerate}
+
+The LLM returns a score and effort classification (\texttt{trivial}, \texttt{moderate}, \texttt{significant}, \texttt{major}).
+
+\begin{conjecture}[Fixability-Adjusted Convergence]
+\label{conj:fixability}
+Prioritizing by $\Delta Q_{\text{adj}}$ yields faster convergence than prioritizing by raw $\Delta Q$:
+\[
+\mathbb{E}[\tau_{\text{adj}}] < \mathbb{E}[\tau_{\text{raw}}]
+\]
+\end{conjecture}
+
+\textbf{Rationale:} Targeting high-fixability symbols reduces wasted iterations where the agent attempts changes that cannot succeed in one pass.
+
 % ============================================================================
 \section{Metric Topology}
 \label{sec:topology}
@@ -413,6 +487,9 @@ Based on this analysis, we recommend:
   \item[RQ5: Target Granularity] Does file-level or symbol-level targeting improve convergence?
   \item[RQ6: Cross-Dimension Value] Do multi-dimension targets converge faster?
   \item[RQ7: Addressing Fitness] Does addressing fitness predict convergence speed and success rate?
+  \item[RQ8: Call Graph Impact] Does weighting by call graph in-degree improve convergence?
+  \item[RQ9: Fixability Prediction] Does LLM fixability estimation correlate with actual fix success?
+  \item[RQ10: Adjusted Prioritization] Does $\Delta Q_{\text{adj}}$ outperform raw $\Delta Q$ for prioritization?
 \end{description}
 
 \subsection{Biased Proposer Validation}
@@ -441,6 +518,9 @@ We have presented a theoretical framework for understanding how deterministic qu
   \item \textbf{Quality Geometry}: Formalization of the required properties (quantitative, deterministic, continuous)
   \item \textbf{Convergence Theorem}: Proof of finite expected convergence under the biased proposer assumption
   \item \textbf{Discrete Differentiability}: Method for computing target-space gradients over code locations
+  \item \textbf{Symbol Tables}: O(1) location-to-symbol mapping enabling practical scaling
+  \item \textbf{Call Graph Weighting}: Impact-based prioritization using in-degree as a multiplier
+  \item \textbf{Fixability Estimation}: LLM-based prediction of fix success rates for adjusted prioritization
   \item \textbf{Metric Topology}: Classification of common metrics by SGD suitability
 \end{enumerate}
 
@@ -469,6 +549,9 @@ LLMs are biased proposers ($p > 0.5$) & NOVEL & Requires validation \\
 Convergence in finite expected time & NOVEL & Theorem~\ref{thm:convergence} \\
 Target-space gradients improve guidance & NOVEL & Requires validation \\
 Finer granularity $\to$ faster convergence & NOVEL & Conjecture~\ref{conj:granularity} \\
+Call graph weighting improves prioritization & NOVEL & Requires validation \\
+Fixability-adjusted $\Delta Q$ improves convergence & NOVEL & Conjecture~\ref{conj:fixability} \\
+O(1) symbol lookup enables practical scaling & IMPL & Implemented \\
 Random walks with drift converge & CITED & PENDING \\
 RLHF improves LLM behavior & CITED & PENDING \\
 \bottomrule

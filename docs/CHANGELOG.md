@@ -46,6 +46,75 @@ This is a *design choice*, not a claim of optimality. We explicitly note that al
 
 --
 
+## 2025-01-20 - Test Infrastructure and Cache Improvements
+
+### What Changed
+- Added comprehensive test suite with 567 tests covering all major modules
+- Improved `isCacheValid` to re-extract metrics when floor metrics were previously missing
+- Added `check-coverage.sh` script for CI integration
+- Fixed lint errors across test files
+- Commits: `706cfa2`, `8d960db`
+
+### Coverage Achieved
+| Metric | Coverage |
+|--------|----------|
+| Statements | 88.82% |
+| Branches | 80.48% |
+| Functions | 93.14% |
+| Lines | 89.22% |
+
+### Rationale (A Priori)
+Cache invalidation when floor metrics are missing addresses a real-world scenario: initial runs may fail to connect to SonarQube or other metric sources. Without this fix, the cache would permanently mark the evaluation as failed even after the metric source becomes available.
+
+### Modules Tested
+- `cache.ts` - Cache read/write operations
+- `config.ts` - Configuration loading and environment handling
+- `metrics.ts` - All metric extraction (coverage, TypeScript, ESLint, SonarQube)
+- `rules.ts` - Rule evaluation, hash computation, cache validation
+- `optimizer.ts` - Priority scoring and file ranking
+- `fitness.ts` - Fitness function computation
+- `severity.ts` - Severity weight calculations
+- `trajectory.ts` - Quality score trajectories and sparklines
+- `symbols/*` - Symbol extraction, call graphs, tables
+- `targets/*` - Issue extraction, aggregation, formatting
+- `dimensions/*` - Custom dimension registration and building
+
+--
+
+## 2025-01-19 - Unified Symbol Addressing and Fixability Estimation
+
+### What Changed
+- Added unified symbol addressing system for precise code targeting
+- Implemented fixability estimation via LLM analysis
+- Enhanced symbol table with call graph statistics
+- Commit: `706cfa2`
+
+### Rationale (A Priori)
+Symbol-level addressing enables finer-grained gradient descent. Instead of file-level "fix this file", we can specify "fix function X at line Y". This improves local continuity by making the optimization surface smoother - small changes to specific symbols yield proportionally small changes in quality metrics.
+
+### Hypotheses
+
+**H1 (Symbol Granularity):** Symbol-level targeting will reduce fix iteration cycles compared to file-level targeting because:
+1. Smaller change surface reduces risk of introducing new issues
+2. More precise feedback loop enables faster convergence
+
+**H2 (Call Graph Weighting):** Prioritizing symbols by call graph in-degree will improve convergence rate because:
+1. High in-degree symbols affect more dependent code
+2. Fixing central symbols has multiplicative quality impact
+3. Prediction: $\tau_{\text{weighted}} < \tau_{\text{unweighted}}$
+
+**H3 (Fixability Estimation):** LLM-estimated fixability scores will correlate with actual fix success rates because:
+1. Code complexity is visible to the LLM
+2. Issue interdependence can be inferred from context
+3. Prediction: Spearman $\rho > 0.5$ between $\phi(t)$ and observed fix rate
+
+**H4 (Adjusted Prioritization):** Using $\Delta Q_{\text{adj}} = \Delta Q \cdot \phi(t)$ will outperform raw $\Delta Q$ for prioritization because:
+1. It deprioritizes high-value but low-fixability targets
+2. Reduces wasted iterations on intractable issues
+3. Prediction: $\mathbb{E}[\tau_{\text{adj}}] < \mathbb{E}[\tau_{\text{raw}}]$
+
+--
+
 ## Format for Future Entries
 
 ```markdown
