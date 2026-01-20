@@ -198,9 +198,106 @@ Where H is the entropy of the target ranking distribution.
 
 --
 
-## 6. Connection to Convergence
+## 6. Symbol Tables and O(1) Location Mapping
 
-### 6.1 Conjecture
+For symbol-level addressing to be practical, we need efficient mapping from issue locations to containing symbols. A naive approach scans all symbols for each issue, yielding O(n × m) complexity for n issues and m symbols.
+
+### 6.1 Definition
+
+**Definition [MATH]**: A **symbol table** S is a data structure providing:
+- `symbols`: Map(id → Symbol) - direct access by identifier
+- `byFile`: Map(file → Symbol[]) - symbols per file, sorted by line
+- `lineIndex`: Map(file:line → Symbol) - O(1) location lookup
+
+### 6.2 Construction
+
+The `lineIndex` is constructed by iterating each symbol's span and recording the innermost containing symbol for each line. This enables O(1) mapping from any issue location to its containing symbol.
+
+**Implementation note**: For TypeScript, we extract symbols using the compiler API, capturing functions, classes, methods, arrow functions, and exported constants. Each symbol has a unique identifier of the form `file.ts::ClassName.methodName`.
+
+### 6.3 Claim
+
+| Claim | Type | Status |
+|-------|------|--------|
+| O(1) symbol lookup enables practical scaling | `[IMPL]` | Implemented |
+
+--
+
+## 7. Call Graph Weighting
+
+Not all symbols are equally impactful. A utility function called from 50 locations affects more code than an isolated helper. We capture this via call graph analysis.
+
+### 7.1 Definition
+
+**Definition [MATH]**: For a symbol s in call graph G = (V, E):
+- `in(s) = |{v : (v, s) ∈ E}|` - number of callers (in-degree)
+- `out(s) = |{v : (s, v) ∈ E}|` - number of callees (out-degree)
+
+### 7.2 Weighted ΔQ
+
+High in-degree symbols are *impact multipliers*: fixing them improves code that many other symbols depend on. We weight ΔQ accordingly:
+
+```
+ΔQ_weighted(t) = ΔQ(t) × (1 + log₂(in(t) + 1))
+```
+
+The logarithmic scaling prevents extreme outliers (e.g., a logging utility called 1000 times) from dominating the priority queue.
+
+### 7.3 Claims
+
+| Claim | Type | Validation Required |
+|-------|------|---------------------|
+| Call graph in-degree weighting improves prioritization | `[NOVEL]` | Experimental: compare weighted vs unweighted |
+| Weighted prioritization yields higher monotonic improvement rate | `[NOVEL]` | Experimental: measure improvement rate |
+
+--
+
+## 8. Fixability Estimation
+
+A target's ΔQ assumes all issues can be fixed. In practice, some issues require architectural changes that cannot be addressed in a single edit session. We introduce *fixability* to model this.
+
+### 8.1 Definitions
+
+**Definition [MATH]**: The **fixability score** φ(t) ∈ [0, 1] is the estimated fraction of issues at target t that can be resolved in a single focused editing session.
+
+**Definition [MATH]**: The **adjusted** quality improvement accounting for fixability is:
+
+```
+ΔQ_adj(t) = ΔQ_weighted(t) × φ(t)
+```
+
+### 8.2 Estimation Method
+
+We use an LLM to estimate φ(t) by presenting:
+1. The source code of the symbol
+2. The list of issues (by type and count)
+3. Current metrics (coverage gap, issue density)
+
+The LLM returns a score and effort classification (`trivial`, `moderate`, `significant`, `major`).
+
+### 8.3 Conjecture
+
+**Conjecture [NOVEL]**: Prioritizing by ΔQ_adj yields faster convergence than prioritizing by raw ΔQ:
+
+```
+E[τ_adj] < E[τ_raw]
+```
+
+**Rationale**: Targeting high-fixability symbols reduces wasted iterations where the agent attempts changes that cannot succeed in one pass.
+
+### 8.4 Claims
+
+| Claim | Type | Validation Required |
+|-------|------|---------------------|
+| LLM fixability scores correlate with actual fix success | `[NOVEL]` | Experimental: Spearman ρ > 0.5 |
+| High-fixability symbols have higher fix success rate | `[NOVEL]` | Experimental: compare φ > 0.7 vs φ < 0.3 |
+| Adjusted ΔQ outperforms raw ΔQ for prioritization | `[NOVEL]` | Experimental: compare τ_adj vs τ_raw |
+
+--
+
+## 9. Connection to Convergence
+
+### 9.1 Granularity Conjecture
 
 **Conjecture [NOVEL]**: Finer-grained targets lead to faster convergence.
 
@@ -209,7 +306,7 @@ Where H is the entropy of the target ranking distribution.
 - "Fix src/payment.ts" → agent focuses on one file
 - "Fix processPayment()" → agent focuses on one function
 
-### 6.2 Testable Prediction
+### 9.2 Testable Prediction
 
 Let τ_dim, τ_file, τ_symbol be expected iterations to convergence for each granularity.
 
@@ -217,7 +314,7 @@ Let τ_dim, τ_file, τ_symbol be expected iterations to convergence for each gr
 
 This is empirically testable by comparing convergence rates across granularity modes.
 
-### 6.3 Potential Caveats
+### 9.3 Potential Caveats
 
 - Symbol-level may have higher computational overhead
 - Very fine granularity may fragment related issues
@@ -225,9 +322,9 @@ This is empirically testable by comparing convergence rates across granularity m
 
 --
 
-## 7. Implementation
+## 10. Implementation
 
-### 7.1 Data Structures
+### 10.1 Data Structures
 
 ```typescript
 /** A single located issue */
@@ -258,7 +355,7 @@ interface OptimizationTarget {
 }
 ```
 
-### 7.2 Aggregation Algorithm
+### 10.2 Aggregation Algorithm
 
 ```
 function aggregateToTargets(issues, granularity):
@@ -272,7 +369,7 @@ function aggregateToTargets(issues, granularity):
   5. Return ranked targets
 ```
 
-### 7.3 ΔQ Computation
+### 10.3 ΔQ Computation
 
 ```typescript
 function computeTargetDeltaQ(issues: LocatedIssue[]): number {
@@ -297,22 +394,22 @@ function computeTargetDeltaQ(issues: LocatedIssue[]): number {
 
 --
 
-## 8. Relationship to Existing Theory
+## 11. Relationship to Existing Theory
 
-### 8.1 Extension of Quality Geometry
+### 11.1 Extension of Quality Geometry
 
 Discrete differentiability extends the quality geometry framework (GEOMETRY.md) by:
 1. Preserving location information during measurement
 2. Defining gradients over target-space, not just dimension-space
 3. Enabling cross-dimension value computation
 
-### 8.2 Implications for Convergence
+### 11.2 Implications for Convergence
 
 The convergence theorem (CONVERGENCE.md) establishes E[τ] < ∞ under the biased proposer assumption.
 
 Discrete differentiability suggests a refinement: the convergence rate may depend on feedback granularity. Finer targets provide more informative feedback, potentially increasing the bias parameter p.
 
-### 8.3 Topology Extension
+### 11.3 Topology Extension
 
 Our topology (TOPOLOGY.md) now includes granularity configuration:
 - `-quick`: dimension-level (original behavior)
@@ -321,7 +418,7 @@ Our topology (TOPOLOGY.md) now includes granularity configuration:
 
 --
 
-## 9. Open Questions
+## 12. Open Questions
 
 1. **Optimal granularity**: Is there a sweet spot between dimension and symbol levels?
 
@@ -337,7 +434,7 @@ Our topology (TOPOLOGY.md) now includes granularity configuration:
 
 --
 
-## 10. Conclusion
+## 13. Conclusion
 
 Discrete differentiability transforms the quality optimization problem from "which metric should I improve?" to "which specific code location should I fix, and how much will it help?"
 

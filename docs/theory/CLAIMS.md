@@ -121,6 +121,33 @@ This document inventories every factual claim in the quality-gate-sgd framework,
 |----|---|-----------|
 | Addressing fitness predicts convergence speed and success rate | `[NOVEL]` | Experimental: regress τ/success on fitness metrics |
 
+### 3.6 Symbol Tables and O(1) Location Mapping
+
+| Claim | Type | Validation Required |
+|----|---|-----------|
+| Symbol table with lineIndex provides O(1) location-to-symbol lookup | `[MATH]` | Definition + implementation (self-supporting) |
+| O(1) symbol lookup enables practical scaling for large codebases | `[IMPL]` | Implemented (verified by profiling) |
+
+### 3.7 Call Graph Weighting
+
+| Claim | Type | Validation Required |
+|----|---|-----------|
+| ΔQ_weighted(t) = ΔQ(t) × (1 + log₂(in(t) + 1)) weights by in-degree | `[MATH]` | Definition (self-supporting) |
+| Logarithmic scaling prevents outlier domination | `[MATH]` | Mathematical property (log bounds growth) |
+| H7: Prioritizing symbols by call graph in-degree reduces iterations-to-pass | `[NOVEL]` | Experimental: paired t-test weighted vs unweighted |
+| H8: Weighted prioritization yields higher monotonic improvement rate | `[NOVEL]` | Experimental: measure improvement rate |
+
+### 3.8 Fixability Estimation
+
+| Claim | Type | Validation Required |
+|----|---|-----------|
+| Fixability score φ(t) ∈ [0, 1] estimates fraction of fixable issues | `[MATH]` | Definition (self-supporting) |
+| ΔQ_adj(t) = ΔQ_weighted(t) × φ(t) adjusts for fixability | `[MATH]` | Definition (self-supporting) |
+| H9: LLM fixability scores correlate with actual fix success (Spearman ρ > 0.5) | `[NOVEL]` | Experimental: correlation analysis |
+| H10: High-fixability symbols (φ > 0.7) have higher fix success rate than low (φ < 0.3) | `[NOVEL]` | Experimental: chi-squared test |
+| H11: Adjusted ΔQ outperforms raw ΔQ for prioritization | `[NOVEL]` | Experimental: compare τ_adj vs τ_raw |
+| H12: Adjusted prioritization reduces wasted iterations | `[NOVEL]` | Experimental: compare wasted iteration rates |
+
 --
 
 ## 4. The Convergence Theorem
@@ -210,6 +237,12 @@ This document inventories every factual claim in the quality-gate-sgd framework,
 | Target granularity affects convergence | Compare dimension vs file vs symbol modes | τ_dim, τ_file, τ_symbol |
 | Cross-dimension targets are more valuable | Rank targets by #dimensions affected | correlation with actual improvement |
 | Discrete differentiability provides better guidance | A/B test dimension-level vs target-level suggestions | task completion rate, iterations |
+| H7: Call graph weighting reduces iterations | Paired comparison: weighted vs unweighted | τ, Cohen's d |
+| H8: Weighted prioritization improves monotonicity | Measure monotonic improvement rate | monotonicity ratio |
+| H9: Fixability correlates with success | Spearman correlation φ vs fix rate | ρ, p-value |
+| H10: High-fixability has higher success rate | Chi-squared: φ > 0.7 vs φ < 0.3 groups | χ², p-value |
+| H11: Adjusted ΔQ outperforms raw | Compare τ_adj vs τ_raw | τ, Cohen's d |
+| H12: Adjusted reduces wasted iterations | Compare wasted iteration rates | rate difference |
 
 --
 

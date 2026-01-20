@@ -46,6 +46,38 @@ This is a *design choice*, not a claim of optimality. We explicitly note that al
 
 --
 
+## 2025-01-20 - Documentation Completeness
+
+### What Changed
+- Achieved bijective completeness between markdown theory docs and LaTeX paper
+- Updated `docs/theory/DIFFERENTIABILITY.md` with new sections:
+  - Section 6: Symbol Tables and O(1) Location Mapping
+  - Section 7: Call Graph Weighting (Eq 2: ΔQ_weighted)
+  - Section 8: Fixability Estimation (Eq 3: ΔQ_adj)
+  - Renumbered subsequent sections (9-13)
+- Updated `docs/theory/CLAIMS.md` with new claim sections:
+  - Section 3.6: Symbol Tables and O(1) Location Mapping
+  - Section 3.7: Call Graph Weighting (H7, H8)
+  - Section 3.8: Fixability Estimation (H9-H12)
+  - Added H7-H12 to validation experiments table
+- Updated `docs/PREREG.md` with experimental designs D, E, F for RQ8-RQ10
+
+### Rationale (A Priori)
+All theoretical concepts must be documented in both the paper and the markdown documentation to ensure:
+1. Reproducibility - future researchers can understand the full theory
+2. Transparency - claims are explicitly enumerated with validation requirements
+3. Pre-registration - hypotheses are recorded before experiments
+
+### Hypotheses Added
+- H7: Call graph in-degree weighting reduces iterations-to-pass
+- H8: Weighted prioritization yields higher monotonic improvement rate
+- H9: LLM fixability scores correlate with actual fix success (Spearman ρ > 0.5)
+- H10: High-fixability symbols (φ > 0.7) have higher fix success rate
+- H11: Adjusted ΔQ (ΔQ_adj = ΔQ_weighted × φ) outperforms raw ΔQ
+- H12: Adjusted prioritization reduces wasted iterations
+
+--
+
 ## 2025-01-20 - Test Infrastructure and Cache Improvements
 
 ### What Changed
