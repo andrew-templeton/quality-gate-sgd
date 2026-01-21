@@ -311,3 +311,61 @@ export {
   RESOURCES,
   readResource,
 } from './mcp/index.js';
+
+// =============================================================================
+// Experiment Infrastructure (Hypothesis Validation)
+// =============================================================================
+
+export type {
+  ExperimentDesign,
+  HypothesisId,
+  ExperimentCondition,
+  ExperimentConfig,
+  IterationRecord,
+  TargetSuggestion,
+  IterationOutcome,
+  ExperimentRun,
+  RunOutcome,
+  RunMetadata,
+  StatisticalTest,
+  DescriptiveStats,
+  HypothesisResult,
+  ExperimentBatch,
+} from './experiments/index.js';
+
+export {
+  // Logger
+  startExperimentRun,
+  logIteration,
+  endExperimentRun,
+  getCurrentRunId,
+  getCurrentIteration,
+  createBatch,
+  addRunToBatch,
+  saveBatch,
+  loadBatch,
+  loadRun,
+  listRuns,
+
+  // Statistics
+  describe,
+  tTest,
+  pearsonCorrelation,
+  spearmanCorrelation,
+  chiSquaredTest,
+
+  // Analysis
+  analyzeBatch,
+  generateAnalysisReport,
+
+  // Visualization
+  sparkline,
+  visualizeRun,
+  compareRuns,
+  visualizeBatch,
+  visualizeResults,
+  boxPlot,
+  comparativeBoxPlots,
+  iterationTimeline,
+  resultsTable,
+} from './experiments/index.js';

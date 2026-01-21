@@ -46,6 +46,46 @@ This is a *design choice*, not a claim of optimality. We explicitly note that al
 
 --
 
+## 2025-01-21 - Experiment Infrastructure
+
+### What Changed
+- Added complete experiment infrastructure for validating hypotheses H1-H12
+- New `src/experiments/` module with:
+  - `types.ts`: Type definitions for experiments, trajectories, and statistical tests
+  - `logger.ts`: Crash-resilient trajectory logging with JSONL streaming
+  - `stats.ts`: Statistical functions (t-test, Spearman correlation, chi-squared)
+  - `analyzer.ts`: Hypothesis analysis for all 12 pre-registered hypotheses
+  - `visualize.ts`: ASCII visualization (sparklines, box plots, result tables)
+- Added 45 new tests for experiment infrastructure
+
+### Modules Created
+
+| Module | Purpose |
+|--------|---------|
+| `types.ts` | Experiment, trajectory, and statistical test types |
+| `logger.ts` | `startExperimentRun()`, `logIteration()`, `endExperimentRun()` |
+| `stats.ts` | `tTest()`, `spearmanCorrelation()`, `chiSquaredTest()`, `describe()` |
+| `analyzer.ts` | `analyzeBatch()` for H1-H12 validation |
+| `visualize.ts` | `sparkline()`, `boxPlot()`, `visualizeResults()` |
+
+### Rationale (A Priori)
+Before running validation experiments, we need robust infrastructure to:
+1. **Log trajectories** - Record every iteration for reproducibility
+2. **Compute statistics** - Validate hypotheses with standard tests
+3. **Visualize results** - Present findings clearly for the paper
+
+The infrastructure is designed to support the 6 experimental designs (A-F) documented in `docs/PREREG.md`.
+
+### Statistical Tests Implemented
+- **Welch's t-test**: For comparing means between conditions (H1, H7, H11)
+- **Paired t-test**: For within-subject comparisons (same task, different conditions)
+- **Spearman correlation**: For H4, H5, H6, H9 (non-linear relationships)
+- **Chi-squared test**: For H2, H10 (comparing success rates)
+- **Cohen's d**: Effect size for all comparisons
+- **95% CIs**: Confidence intervals via Fisher's z or t-distribution
+
+--
+
 ## 2025-01-21 - Test Coverage Threshold Achieved
 
 ### What Changed
