@@ -11,6 +11,10 @@ Package complete with core functionality:
 - Dependency graph analysis
 - Priority-based file ranking
 
+---
+
+## Completed Milestones
+
 ### v0.1.1 - Discrete Differentiability ✓
 
 **Goal**: Move beyond priority ordering to actual gradient computation.
@@ -22,49 +26,102 @@ Package complete with core functionality:
 - [x] `-quick`, default, `-deep` CLI modes
 - [x] Academic documentation (theory/DIFFERENTIABILITY.md)
 
-### Files Added
-- `src/targets/types.ts` - LocatedIssue, OptimizationTarget types
-- `src/targets/extract.ts` - Issue extraction with locations
-- `src/targets/aggregate.ts` - ΔQ computation algorithm
-- `src/targets/format.ts` - Output formatting
-- `docs/theory/DIFFERENTIABILITY.md` - Theoretical foundation
+### v0.1.2 - Symbol Infrastructure ✓
 
-## v0.2.0 - Trajectory Analysis
+- [x] Symbol table with O(1) location lookup
+- [x] Call graph extraction and in-degree weighting
+- [x] Fixability estimation via LLM
+- [x] Adjusted ΔQ prioritization
 
-**Goal**: Prove descent behavior through cache analysis.
+### v0.1.3 - Test Coverage ✓
 
-### Features
-- [ ] SLOC extraction for metric normalization
-- [ ] Per-kSLOC normalized metrics (bugs/kSLOC, smells/kSLOC)
-- [ ] Trajectory analysis from cache history
-- [ ] Convergence detection
-- [ ] `npx quality-gate-sgd trajectory` command
+- [x] Branch coverage ≥90% threshold achieved (90.17%)
+- [x] 741 tests across 27 test files
 
-### Files
-- `src/trajectory.ts` - Trajectory building and analysis
-- `src/metrics.ts` - Add SLOC extraction, normalization
+### v0.1.4 - Experiment Infrastructure ✓
 
-## v0.3.0 - Practical Adoption
+- [x] Trajectory logging (`src/experiments/logger.ts`)
+- [x] Statistical analysis (`src/experiments/stats.ts`)
+- [x] Hypothesis analysis for H1-H12 (`src/experiments/analyzer.ts`)
+- [x] Visualization (`src/experiments/visualize.ts`)
+- [x] 45 tests for experiment infrastructure
+
+---
+
+## In Progress: v0.2.0 - Experiment Execution
+
+**Goal**: Run the pre-registered experiments (Designs A-F, H1-H12).
+
+### Experiment Runner Components
+
+| Component | Status | Description |
+|-----------|--------|-------------|
+| Trajectory logging | ✅ Done | `startExperimentRun()`, `logIteration()`, `endExperimentRun()` |
+| Statistical tests | ✅ Done | t-test, Spearman, chi-squared, ANOVA |
+| Hypothesis analyzer | ✅ Done | `analyzeBatch()` for H1-H12 |
+| Visualization | ✅ Done | Sparklines, box plots, result tables |
+| **Condition factory** | ⬜ TODO | Create baseline/treatment configs for each design |
+| **Experiment runner** | ⬜ TODO | Orchestrate condition × task runs |
+| **SWE-bench integration** | ⬜ TODO | Load tasks, apply patches, evaluate |
+| **Agent harness** | ⬜ TODO | LLM agent wrapper with gate feedback toggle |
+| **Batch runner** | ⬜ TODO | Run N tasks × M conditions with parallelization |
+
+### Per-Design Requirements
+
+#### Design A — Gate vs No-Gate (H1, H2)
+- [ ] Agent harness that can toggle gate feedback on/off
+- [ ] SWE-bench task loader
+- [ ] Baseline condition: no feedback
+- [ ] Treatment condition: gate feedback enabled
+
+#### Design B — Topology Sensitivity (H3)
+- [ ] Condition factory for topology variants:
+  - [ ] Coverage-only
+  - [ ] Coverage + ceilings
+  - [ ] Full topology
+- [ ] ANOVA analysis (3+ conditions)
+
+#### Design C — Addressing Fitness (H4, H5, H6)
+- [ ] Fitness metric logging in run metadata:
+  - [ ] `mappingCoverage`
+  - [ ] `callGraphResolution`
+  - [ ] `p90AddressSloc`
+- [ ] Regression analysis helpers
+
+#### Design D — Call Graph Weighting (H7, H8)
+- [ ] Toggle for weighted vs unweighted prioritization
+- [ ] Paired comparison (same task, different weighting)
+
+#### Design E — Fixability Validity (H9, H10)
+- [ ] Single-symbol fix attempt protocol
+- [ ] Binary outcome logging (fixed/not fixed)
+- [ ] ROC-AUC analysis
+
+#### Design F — Adjusted Prioritization (H11, H12)
+- [ ] Toggle for raw vs adjusted ΔQ
+- [ ] Wasted iteration tracking
+
+---
+
+## Future: v0.3.0 - Practical Adoption
 
 **Goal**: Lower adoption barriers.
 
-### Features
 - [ ] Zero-config mode (embedded defaults)
 - [ ] Coverage-only mode (no SonarQube required)
 - [ ] GitHub Action (`action.yml`)
 - [ ] Visual CLI output (progress bars, sparklines)
 
-## v1.0.0 - Research Release
+## Future: v1.0.0 - Research Release
 
 **Goal**: Stable release for academic reproducibility.
 
-### Requirements
 - [ ] All v0.2 and v0.3 features complete
-- [ ] Comprehensive test suite
-- [ ] SWE-bench experiment harness
+- [ ] SWE-bench experiment results published
 - [ ] Paper-ready documentation
+- [ ] Raw trajectory data release
 
---
+---
 
 ## Design Decisions Log
 
@@ -79,13 +136,17 @@ Package complete with core functionality:
 
 ### 2026-01-14: Discrete Differentiability
 - Extended from dimension-space to target-space gradients
-- Location data already extracted by tools-we just stopped discarding it during aggregation
+- Location data already extracted by tools—we just stopped discarding it during aggregation
 - Cross-dimension correlation: targets affecting multiple dimensions get multiplicative value
 - Three granularity tiers to balance specificity vs computational cost
-- Addresses key limitation: gradient computation, not just priority ordering
 
---
+### 2026-01-21: Experiment Infrastructure
+- JSONL streaming for crash-resilient logging
+- Statistical functions implemented from scratch (no external deps)
+- Hypothesis analyzer maps directly to PREREG.md designs
 
+---
+
+*See [PREREG.md](./PREREG.md) for pre-registered experimental designs.*
 *See [RESEARCH.md](./RESEARCH.md) for academic direction.*
-*See [theory/GEOMETRY.md](./theory/GEOMETRY.md) for theoretical framework.*
-*See [theory/DIFFERENTIABILITY.md](./theory/DIFFERENTIABILITY.md) for target-space gradients.*
+*See [theory/CLAIMS.md](./theory/CLAIMS.md) for claims inventory.*
