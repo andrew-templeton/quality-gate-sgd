@@ -14,4 +14,5 @@ export { describe, tTest, pearsonCorrelation, spearmanCorrelation, chiSquaredTes
 export { analyzeBatch, generateAnalysisReport, } from './analyzer.js';
 // Visualization
 export { sparkline, visualizeRun, compareRuns, visualizeBatch, visualizeResults, boxPlot, comparativeBoxPlots, iterationTimeline, resultsTable, } from './visualize.js';
+export { DEFAULT_EXPERIMENT_CONFIG, DESIGN_METADATA, createConditions, getBaselineCondition, getTreatmentConditions, validateCondition, canPairConditions, describeCondition, conditionLabel, } from './conditions.js';
 //# sourceMappingURL=index.js.map

@@ -60,7 +60,7 @@ Package complete with core functionality:
 | Statistical tests | ✅ Done | t-test, Spearman, chi-squared, ANOVA |
 | Hypothesis analyzer | ✅ Done | `analyzeBatch()` for H1-H12 |
 | Visualization | ✅ Done | Sparklines, box plots, result tables |
-| **Condition factory** | ⬜ TODO | Create baseline/treatment configs for each design |
+| Condition factory | ✅ Done | `createConditions()`, `DESIGN_METADATA` for A-F |
 | **Experiment runner** | ⬜ TODO | Orchestrate condition × task runs |
 | **SWE-bench integration** | ⬜ TODO | Load tasks, apply patches, evaluate |
 | **Agent harness** | ⬜ TODO | LLM agent wrapper with gate feedback toggle |
@@ -71,34 +71,35 @@ Package complete with core functionality:
 #### Design A — Gate vs No-Gate (H1, H2)
 - [ ] Agent harness that can toggle gate feedback on/off
 - [ ] SWE-bench task loader
-- [ ] Baseline condition: no feedback
-- [ ] Treatment condition: gate feedback enabled
+- [x] Baseline condition: no feedback
+- [x] Treatment condition: gate feedback enabled
 
 #### Design B — Topology Sensitivity (H3)
-- [ ] Condition factory for topology variants:
-  - [ ] Coverage-only
-  - [ ] Coverage + ceilings
-  - [ ] Full topology
+- [x] Condition factory for topology variants:
+  - [x] Coverage-only
+  - [x] Coverage + ceilings
+  - [x] Full topology
 - [ ] ANOVA analysis (3+ conditions)
 
 #### Design C — Addressing Fitness (H4, H5, H6)
-- [ ] Fitness metric logging in run metadata:
-  - [ ] `mappingCoverage`
-  - [ ] `callGraphResolution`
-  - [ ] `p90AddressSloc`
+- [x] Fitness metric logging in run metadata:
+  - [x] `mappingCoverage`
+  - [x] `callGraphResolution`
+  - [x] `p90AddressSloc`
 - [ ] Regression analysis helpers
 
 #### Design D — Call Graph Weighting (H7, H8)
-- [ ] Toggle for weighted vs unweighted prioritization
+- [x] Condition: weighted vs unweighted prioritization
 - [ ] Paired comparison (same task, different weighting)
 
 #### Design E — Fixability Validity (H9, H10)
+- [x] Condition with fixability enabled
 - [ ] Single-symbol fix attempt protocol
 - [ ] Binary outcome logging (fixed/not fixed)
 - [ ] ROC-AUC analysis
 
 #### Design F — Adjusted Prioritization (H11, H12)
-- [ ] Toggle for raw vs adjusted ΔQ
+- [x] Conditions: raw vs adjusted ΔQ
 - [ ] Wasted iteration tracking
 
 ---

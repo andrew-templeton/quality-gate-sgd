@@ -331,6 +331,7 @@ export type {
   DescriptiveStats,
   HypothesisResult,
   ExperimentBatch,
+  DesignMetadata,
 } from './experiments/index.js';
 
 export {
@@ -368,4 +369,15 @@ export {
   comparativeBoxPlots,
   iterationTimeline,
   resultsTable,
+
+  // Condition Factory
+  DEFAULT_EXPERIMENT_CONFIG,
+  DESIGN_METADATA,
+  createConditions,
+  getBaselineCondition,
+  getTreatmentConditions,
+  validateCondition,
+  canPairConditions,
+  describeCondition,
+  conditionLabel,
 } from './experiments/index.js';

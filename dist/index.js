@@ -126,5 +126,7 @@ describe, tTest, pearsonCorrelation, spearmanCorrelation, chiSquaredTest,
 // Analysis
 analyzeBatch, generateAnalysisReport, 
 // Visualization
-sparkline, visualizeRun, compareRuns, visualizeBatch, visualizeResults, boxPlot, comparativeBoxPlots, iterationTimeline, resultsTable, } from './experiments/index.js';
+sparkline, visualizeRun, compareRuns, visualizeBatch, visualizeResults, boxPlot, comparativeBoxPlots, iterationTimeline, resultsTable, 
+// Condition Factory
+DEFAULT_EXPERIMENT_CONFIG, DESIGN_METADATA, createConditions, getBaselineCondition, getTreatmentConditions, validateCondition, canPairConditions, describeCondition, conditionLabel, } from './experiments/index.js';
 //# sourceMappingURL=index.js.map

@@ -67,3 +67,18 @@ export {
   iterationTimeline,
   resultsTable,
 } from './visualize.js';
+
+// Condition Factory
+export type { DesignMetadata } from './conditions.js';
+
+export {
+  DEFAULT_EXPERIMENT_CONFIG,
+  DESIGN_METADATA,
+  createConditions,
+  getBaselineCondition,
+  getTreatmentConditions,
+  validateCondition,
+  canPairConditions,
+  describeCondition,
+  conditionLabel,
+} from './conditions.js';
