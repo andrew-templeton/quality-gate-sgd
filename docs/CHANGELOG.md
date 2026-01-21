@@ -46,6 +46,39 @@ This is a *design choice*, not a claim of optimality. We explicitly note that al
 
 --
 
+## 2025-01-21 - Test Coverage Threshold Achieved
+
+### What Changed
+- Added comprehensive tests across 14 test files (+2,987 lines)
+- Branch coverage improved from 89.54% to 90.17%, meeting 90% threshold
+- Commit: `3ab40ea`
+
+### Coverage Achieved
+| Metric | Before | After |
+|--------|--------|-------|
+| Branches | 89.54% | 90.17% |
+
+### New Test Coverage Areas
+- `aggregate.test.ts`: All-symbols-have-parents case, aggregation scenarios
+- `call-graph.test.ts`: Constructor calls, dynamic methods, fallback resolution
+- `cache.test.ts`: Cache expiry, validation, persistence edge cases
+- `config.test.ts`: Config loading, environment variable handling
+- `custom.test.ts`: Custom dimension evaluation edge cases
+- `dependency-graph.test.ts`: `@/` alias import resolution
+- `extract.test.ts`: Symbol extraction corner cases, coverage data handling
+- `fitness.test.ts`: Metric computation scenarios
+- `mapper.test.ts`: Column-based symbol resolution, path matching heuristics
+- `optimizer.test.ts`: Statements fallback when branches undefined
+- `rules.test.ts`: Rule configuration parsing and validation
+- `severity.test.ts`: Partial path matching by last segment
+- `table.test.ts`: `mergeSymbolTables` byFile/lineIndex handling
+- `trajectory.test.ts`: Converged/stagnating state classification
+
+### Rationale (A Priori)
+High branch coverage ensures the quality gate system itself meets the quality standards it enforces. The 90% threshold provides confidence that edge cases and error handling paths are exercised, reducing the risk of false positives/negatives in quality evaluations.
+
+--
+
 ## 2025-01-20 - Documentation Completeness
 
 ### What Changed
