@@ -113,6 +113,79 @@ describe('cache module', () => {
       expect(result.isWIP).toBe(true)
       expect(result.key).toMatch(/^wip:/)
     })
+
+    it('returns commit hash when git status fails', () => {
+      mockExecSync
+        .mockImplementationOnce(() => {
+          throw new Error('git status failed')
+        }) // git status --porcelain fails
+        .mockReturnValueOnce('abc123\n') // git rev-parse HEAD
+
+      const result = getCacheKey()
+
+      expect(result).toEqual({
+        key: 'abc123',
+        isWIP: false,
+      })
+    })
+
+    it('includes untracked code files in content hash', () => {
+      mockExecSync
+        .mockReturnValueOnce('?? src/new.ts\n') // git status --porcelain
+        .mockReturnValueOnce('') // git diff HEAD
+        .mockReturnValueOnce('src/new.ts\n') // git ls-files --others
+
+      mockFs.existsSync.mockReturnValue(true)
+      mockFs.statSync.mockReturnValue({ isFile: () => true } as fs.Stats)
+      mockFs.readFileSync.mockReturnValue('new file content')
+
+      const result = getCacheKey()
+
+      expect(result.isWIP).toBe(true)
+      expect(result.key).toMatch(/^wip:/)
+    })
+
+    it('skips non-code untracked files', () => {
+      mockExecSync
+        .mockReturnValueOnce('?? docs/readme.md\n') // git status --porcelain
+        .mockReturnValueOnce('') // git diff HEAD
+        .mockReturnValueOnce('docs/readme.md\n') // git ls-files --others
+
+      const result = getCacheKey()
+
+      expect(result.isWIP).toBe(true)
+    })
+
+    it('handles unreadable untracked files', () => {
+      mockExecSync
+        .mockReturnValueOnce('?? src/binary.ts\n') // git status --porcelain
+        .mockReturnValueOnce('') // git diff HEAD
+        .mockReturnValueOnce('src/binary.ts\n') // git ls-files --others
+
+      mockFs.existsSync.mockReturnValue(true)
+      mockFs.statSync.mockReturnValue({ isFile: () => true } as fs.Stats)
+      mockFs.readFileSync.mockImplementation(() => {
+        throw new Error('Binary file')
+      })
+
+      const result = getCacheKey()
+
+      expect(result.isWIP).toBe(true)
+    })
+
+    it('skips non-file entries in untracked list', () => {
+      mockExecSync
+        .mockReturnValueOnce('?? src/\n') // git status --porcelain
+        .mockReturnValueOnce('') // git diff HEAD
+        .mockReturnValueOnce('src/\n') // git ls-files --others
+
+      mockFs.existsSync.mockReturnValue(true)
+      mockFs.statSync.mockReturnValue({ isFile: () => false } as fs.Stats)
+
+      const result = getCacheKey()
+
+      expect(result.isWIP).toBe(true)
+    })
   })
 
   describe('isWIPKey', () => {
@@ -181,6 +254,58 @@ describe('cache module', () => {
 
       mockFs.existsSync.mockReturnValue(true)
       mockFs.readFileSync.mockReturnValue(JSON.stringify(oldCache))
+
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const result = loadCache()
+
+      expect(result).toEqual({
+        schemaVersion: 1,
+        entries: {},
+      })
+      consoleSpy.mockRestore()
+    })
+
+    it('returns empty cache when entries is not an object', () => {
+      const invalidCache = {
+        schemaVersion: 1,
+        entries: 'not an object',
+      }
+
+      mockFs.existsSync.mockReturnValue(true)
+      mockFs.readFileSync.mockReturnValue(JSON.stringify(invalidCache))
+
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const result = loadCache()
+
+      expect(result).toEqual({
+        schemaVersion: 1,
+        entries: {},
+      })
+      consoleSpy.mockRestore()
+    })
+
+    it('returns empty cache when data is null', () => {
+      mockFs.existsSync.mockReturnValue(true)
+      mockFs.readFileSync.mockReturnValue('null')
+
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const result = loadCache()
+
+      expect(result).toEqual({
+        schemaVersion: 1,
+        entries: {},
+      })
+      consoleSpy.mockRestore()
+    })
+
+    it('returns empty cache when entries is null', () => {
+      const invalidCache = {
+        schemaVersion: 1,
+        entries: null,
+      }
+
+      mockFs.existsSync.mockReturnValue(true)
+      mockFs.readFileSync.mockReturnValue(JSON.stringify(invalidCache))
 
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       const result = loadCache()
@@ -353,6 +478,28 @@ describe('cache module', () => {
       const cache: QualityGateCache = {
         schemaVersion: 1,
         entries: {},
+      }
+      const rules: QualityRules = { version: '1.0.0', rules: {} }
+
+      const result = findBaselineEntry(cache, rules, false)
+
+      expect(result).toBeUndefined()
+    })
+
+    it('returns undefined when parent commit exists but not in cache', () => {
+      mockExecSync.mockReturnValue('parentcommit\n')
+
+      const cache: QualityGateCache = {
+        schemaVersion: 1,
+        entries: {
+          'othercommit': {
+            timestamp: 12345,
+            rulesVersion: '1.0.0',
+            rulesHash: 'hash',
+            evaluation: { status: 'pass', failedRules: [] },
+            metrics: {} as Metrics,
+          },
+        },
       }
       const rules: QualityRules = { version: '1.0.0', rules: {} }
 

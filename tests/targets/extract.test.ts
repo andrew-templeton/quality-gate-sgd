@@ -920,10 +920,9 @@ describe('extractLocatedIssues', () => {
 
     // Create a minimal symbol table
     const symbolTable: SymbolTable = {
-      byId: new Map(),
+      symbols: new Map(),
       byFile: new Map(),
-      byName: new Map(),
-      totalSymbols: 0,
+      lineIndex: new Map(),
     }
 
     const result = extractLocatedIssues({ symbolTable })
@@ -1048,10 +1047,9 @@ src/b.ts(2,2): error TS2345: Error 2.`,
     }
 
     const symbolTable: SymbolTable = {
-      byId: new Map([[fileSymbol.id, fileSymbol]]),
+      symbols: new Map([[fileSymbol.id, fileSymbol]]),
       byFile: new Map([['/test/project/src/file.ts', [fileSymbol]]]),
-      byName: new Map([['main', [fileSymbol]]]),
-      totalSymbols: 1,
+      lineIndex: new Map(),
     }
 
     const result = extractLocatedIssues({
@@ -1064,5 +1062,518 @@ src/b.ts(2,2): error TS2345: Error 2.`,
     // File-level coverage issues should be enriched with primary symbol
     expect(result.coverage.length).toBeGreaterThan(0)
     expect(result.coverage[0].symbolId).toBe('/test/project/src/file.ts::main')
+  })
+
+  it('handles file-level issues with path suffix matching', async () => {
+    const { spawnSync } = await import('child_process')
+    const { mapLocationToSymbol } = await import('../../src/symbols/mapper.js')
+
+    // Coverage-summary with a different path format than symbol table
+    vi.mocked(fs.existsSync).mockImplementation((p) =>
+      String(p).includes('coverage-summary.json')
+    )
+    vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify({
+      total: { branches: { total: 10, covered: 5, pct: 50 } },
+      'src/file.ts': { // Relative path in coverage
+        statements: { total: 10, covered: 8, pct: 80 },
+        branches: { total: 4, covered: 2, pct: 50 },
+        functions: { total: 2, covered: 2, pct: 100 },
+        lines: { total: 10, covered: 8, pct: 80 },
+      },
+    }))
+
+    vi.mocked(spawnSync).mockReturnValue({
+      status: 0,
+      stdout: '[]',
+      stderr: '',
+      pid: 123,
+      signal: null,
+      output: [],
+    })
+
+    vi.mocked(mapLocationToSymbol).mockReturnValue(null)
+
+    // Symbol table has absolute path
+    const fileSymbol: CodeSymbol = {
+      id: '/test/project/src/file.ts::main',
+      file: '/test/project/src/file.ts', // Absolute path
+      name: 'main',
+      qualifiedName: 'main',
+      kind: 'function',
+      exported: true,
+      span: { startLine: 1, startColumn: 0, endLine: 50, endColumn: 1 },
+      sloc: 50,
+    }
+
+    const symbolTable: SymbolTable = {
+      symbols: new Map([[fileSymbol.id, fileSymbol]]),
+      byFile: new Map([['/test/project/src/file.ts', [fileSymbol]]]),
+      lineIndex: new Map(),
+    }
+
+    const result = extractLocatedIssues({
+      symbolTable,
+      skipTypescript: true,
+      skipEslint: true,
+      skipSonarQube: true,
+    })
+
+    // Should match via suffix matching (file.ts ends with src/file.ts)
+    expect(result.coverage.length).toBeGreaterThan(0)
+    expect(result.coverage[0].symbolId).toBe('/test/project/src/file.ts::main')
+  })
+
+  it('selects largest top-level symbol as primary for file', async () => {
+    const { spawnSync } = await import('child_process')
+    const { mapLocationToSymbol } = await import('../../src/symbols/mapper.js')
+
+    vi.mocked(fs.existsSync).mockImplementation((p) =>
+      String(p).includes('coverage-summary.json')
+    )
+    vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify({
+      total: { branches: { total: 10, covered: 5, pct: 50 } },
+      '/test/project/src/file.ts': {
+        statements: { total: 10, covered: 8, pct: 80 },
+        branches: { total: 4, covered: 2, pct: 50 },
+        functions: { total: 2, covered: 2, pct: 100 },
+        lines: { total: 10, covered: 8, pct: 80 },
+      },
+    }))
+
+    vi.mocked(spawnSync).mockReturnValue({
+      status: 0,
+      stdout: '[]',
+      stderr: '',
+      pid: 123,
+      signal: null,
+      output: [],
+    })
+
+    vi.mocked(mapLocationToSymbol).mockReturnValue(null)
+
+    // Create symbol table with multiple symbols - one large, one small
+    const smallSymbol: CodeSymbol = {
+      id: '/test/project/src/file.ts::helper',
+      file: '/test/project/src/file.ts',
+      name: 'helper',
+      qualifiedName: 'helper',
+      kind: 'function',
+      exported: true,
+      span: { startLine: 1, startColumn: 0, endLine: 5, endColumn: 1 },
+      sloc: 5, // Small
+    }
+
+    const largeSymbol: CodeSymbol = {
+      id: '/test/project/src/file.ts::main',
+      file: '/test/project/src/file.ts',
+      name: 'main',
+      qualifiedName: 'main',
+      kind: 'function',
+      exported: true,
+      span: { startLine: 10, startColumn: 0, endLine: 100, endColumn: 1 },
+      sloc: 90, // Large
+    }
+
+    const symbolTable: SymbolTable = {
+      symbols: new Map([
+        [smallSymbol.id, smallSymbol],
+        [largeSymbol.id, largeSymbol],
+      ]),
+      byFile: new Map([['/test/project/src/file.ts', [smallSymbol, largeSymbol]]]),
+      lineIndex: new Map(),
+    }
+
+    const result = extractLocatedIssues({
+      symbolTable,
+      skipTypescript: true,
+      skipEslint: true,
+      skipSonarQube: true,
+    })
+
+    // Should select the largest symbol as primary
+    expect(result.coverage[0].symbolId).toBe('/test/project/src/file.ts::main')
+  })
+
+  it('handles nested symbols - selects largest top-level', async () => {
+    const { spawnSync } = await import('child_process')
+    const { mapLocationToSymbol } = await import('../../src/symbols/mapper.js')
+
+    vi.mocked(fs.existsSync).mockImplementation((p) =>
+      String(p).includes('coverage-summary.json')
+    )
+    vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify({
+      total: { branches: { total: 10, covered: 5, pct: 50 } },
+      '/test/project/src/file.ts': {
+        statements: { total: 10, covered: 8, pct: 80 },
+        branches: { total: 4, covered: 2, pct: 50 },
+        functions: { total: 2, covered: 2, pct: 100 },
+        lines: { total: 10, covered: 8, pct: 80 },
+      },
+    }))
+
+    vi.mocked(spawnSync).mockReturnValue({
+      status: 0,
+      stdout: '[]',
+      stderr: '',
+      pid: 123,
+      signal: null,
+      output: [],
+    })
+
+    vi.mocked(mapLocationToSymbol).mockReturnValue(null)
+
+    // Create class with nested method
+    const classSymbol: CodeSymbol = {
+      id: '/test/project/src/file.ts::MyClass',
+      file: '/test/project/src/file.ts',
+      name: 'MyClass',
+      qualifiedName: 'MyClass',
+      kind: 'class',
+      exported: true,
+      span: { startLine: 1, startColumn: 0, endLine: 50, endColumn: 1 },
+      sloc: 50,
+    }
+
+    const methodSymbol: CodeSymbol = {
+      id: '/test/project/src/file.ts::MyClass.method',
+      file: '/test/project/src/file.ts',
+      name: 'method',
+      qualifiedName: 'MyClass.method',
+      kind: 'method',
+      exported: false,
+      parent: classSymbol.id, // Has parent
+      span: { startLine: 10, startColumn: 2, endLine: 20, endColumn: 3 },
+      sloc: 10,
+    }
+
+    const symbolTable: SymbolTable = {
+      symbols: new Map([
+        [classSymbol.id, classSymbol],
+        [methodSymbol.id, methodSymbol],
+      ]),
+      byFile: new Map([['/test/project/src/file.ts', [classSymbol, methodSymbol]]]),
+      lineIndex: new Map(),
+    }
+
+    const result = extractLocatedIssues({
+      symbolTable,
+      skipTypescript: true,
+      skipEslint: true,
+      skipSonarQube: true,
+    })
+
+    // Should select the top-level class, not the nested method
+    expect(result.coverage[0].symbolId).toBe('/test/project/src/file.ts::MyClass')
+  })
+
+  it('handles file with no symbols - returns undefined', async () => {
+    const { spawnSync } = await import('child_process')
+    const { mapLocationToSymbol } = await import('../../src/symbols/mapper.js')
+
+    vi.mocked(fs.existsSync).mockImplementation((p) =>
+      String(p).includes('coverage-summary.json')
+    )
+    vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify({
+      total: { branches: { total: 10, covered: 5, pct: 50 } },
+      '/test/project/src/unknown.ts': {
+        statements: { total: 10, covered: 8, pct: 80 },
+        branches: { total: 4, covered: 2, pct: 50 },
+        functions: { total: 2, covered: 2, pct: 100 },
+        lines: { total: 10, covered: 8, pct: 80 },
+      },
+    }))
+
+    vi.mocked(spawnSync).mockReturnValue({
+      status: 0,
+      stdout: '[]',
+      stderr: '',
+      pid: 123,
+      signal: null,
+      output: [],
+    })
+
+    vi.mocked(mapLocationToSymbol).mockReturnValue(null)
+
+    // Empty symbol table
+    const symbolTable: SymbolTable = {
+      symbols: new Map(),
+      byFile: new Map(),
+      lineIndex: new Map(),
+    }
+
+    const result = extractLocatedIssues({
+      symbolTable,
+      skipTypescript: true,
+      skipEslint: true,
+      skipSonarQube: true,
+    })
+
+    // Should have coverage issues but no symbol
+    expect(result.coverage.length).toBeGreaterThan(0)
+    expect(result.coverage[0].symbolId).toBeUndefined()
+  })
+
+  it('caches primary symbol lookups per file', async () => {
+    const { spawnSync } = await import('child_process')
+    const { mapLocationToSymbol } = await import('../../src/symbols/mapper.js')
+
+    // Coverage-summary with multiple issues from the same file
+    vi.mocked(fs.existsSync).mockImplementation((p) =>
+      String(p).includes('coverage-summary.json')
+    )
+    vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify({
+      total: { branches: { total: 10, covered: 5, pct: 50 } },
+      '/test/project/src/file.ts': {
+        statements: { total: 10, covered: 8, pct: 80 },
+        branches: { total: 4, covered: 2, pct: 50 },
+        functions: { total: 2, covered: 1, pct: 50 }, // Also uncovered functions
+        lines: { total: 10, covered: 8, pct: 80 },
+      },
+    }))
+
+    vi.mocked(spawnSync).mockReturnValue({
+      status: 0,
+      stdout: '[]',
+      stderr: '',
+      pid: 123,
+      signal: null,
+      output: [],
+    })
+
+    vi.mocked(mapLocationToSymbol).mockReturnValue(null)
+
+    const fileSymbol: CodeSymbol = {
+      id: '/test/project/src/file.ts::main',
+      file: '/test/project/src/file.ts',
+      name: 'main',
+      qualifiedName: 'main',
+      kind: 'function',
+      exported: true,
+      span: { startLine: 1, startColumn: 0, endLine: 50, endColumn: 1 },
+      sloc: 50,
+    }
+
+    const symbolTable: SymbolTable = {
+      symbols: new Map([[fileSymbol.id, fileSymbol]]),
+      byFile: new Map([['/test/project/src/file.ts', [fileSymbol]]]),
+      lineIndex: new Map(),
+    }
+
+    const result = extractLocatedIssues({
+      symbolTable,
+      skipTypescript: true,
+      skipEslint: true,
+      skipSonarQube: true,
+    })
+
+    // Should have multiple coverage issues all with the same symbol
+    // (branches + functions from both unit and lambda coverage if both are checked)
+    expect(result.coverage.length).toBeGreaterThanOrEqual(2)
+    // All issues from this file should have the same cached symbol
+    const fileIssues = result.coverage.filter(i => i.file === '/test/project/src/file.ts')
+    expect(fileIssues.length).toBeGreaterThanOrEqual(2)
+    expect(fileIssues.every(i => i.symbolId === '/test/project/src/file.ts::main')).toBe(true)
+  })
+
+  it('handles path matching via includes for partial paths', async () => {
+    const { spawnSync } = await import('child_process')
+    const { mapLocationToSymbol } = await import('../../src/symbols/mapper.js')
+
+    // Coverage has a path that doesn't end with the table path, but includes it
+    vi.mocked(fs.existsSync).mockImplementation((p) =>
+      String(p).includes('coverage-summary.json')
+    )
+    vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify({
+      total: { branches: { total: 10, covered: 5, pct: 50 } },
+      '/different/root/src/file.ts': { // Different root
+        statements: { total: 10, covered: 8, pct: 80 },
+        branches: { total: 4, covered: 2, pct: 50 },
+        functions: { total: 2, covered: 2, pct: 100 },
+        lines: { total: 10, covered: 8, pct: 80 },
+      },
+    }))
+
+    vi.mocked(spawnSync).mockReturnValue({
+      status: 0,
+      stdout: '[]',
+      stderr: '',
+      pid: 123,
+      signal: null,
+      output: [],
+    })
+
+    vi.mocked(mapLocationToSymbol).mockReturnValue(null)
+
+    // Symbol table has path that shares common substring
+    const fileSymbol: CodeSymbol = {
+      id: 'src/file.ts::main',
+      file: 'src/file.ts', // Relative path that is included in coverage path
+      name: 'main',
+      qualifiedName: 'main',
+      kind: 'function',
+      exported: true,
+      span: { startLine: 1, startColumn: 0, endLine: 50, endColumn: 1 },
+      sloc: 50,
+    }
+
+    const symbolTable: SymbolTable = {
+      symbols: new Map([[fileSymbol.id, fileSymbol]]),
+      byFile: new Map([['src/file.ts', [fileSymbol]]]),
+      lineIndex: new Map(),
+    }
+
+    const result = extractLocatedIssues({
+      symbolTable,
+      skipTypescript: true,
+      skipEslint: true,
+      skipSonarQube: true,
+    })
+
+    // Should match via includes
+    expect(result.coverage.length).toBeGreaterThan(0)
+    expect(result.coverage[0].symbolId).toBe('src/file.ts::main')
+  })
+
+  it('falls back to largest symbol when no top-level symbols exist', async () => {
+    const { spawnSync } = await import('child_process')
+    const { mapLocationToSymbol } = await import('../../src/symbols/mapper.js')
+
+    vi.mocked(fs.existsSync).mockImplementation((p) =>
+      String(p).includes('coverage-summary.json')
+    )
+    vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify({
+      total: { branches: { total: 10, covered: 5, pct: 50 } },
+      '/test/project/src/file.ts': {
+        statements: { total: 10, covered: 8, pct: 80 },
+        branches: { total: 4, covered: 2, pct: 50 },
+        functions: { total: 2, covered: 2, pct: 100 },
+        lines: { total: 10, covered: 8, pct: 80 },
+      },
+    }))
+
+    vi.mocked(spawnSync).mockReturnValue({
+      status: 0,
+      stdout: '[]',
+      stderr: '',
+      pid: 123,
+      signal: null,
+      output: [],
+    })
+
+    vi.mocked(mapLocationToSymbol).mockReturnValue(null)
+
+    // All symbols have parents (no top-level)
+    const parentId = '/test/project/src/file.ts::Parent'
+    const smallNested: CodeSymbol = {
+      id: '/test/project/src/file.ts::small',
+      file: '/test/project/src/file.ts',
+      name: 'small',
+      qualifiedName: 'Parent.small',
+      kind: 'method',
+      exported: false,
+      parent: parentId,
+      span: { startLine: 1, startColumn: 0, endLine: 5, endColumn: 1 },
+      sloc: 5,
+    }
+
+    const largeNested: CodeSymbol = {
+      id: '/test/project/src/file.ts::large',
+      file: '/test/project/src/file.ts',
+      name: 'large',
+      qualifiedName: 'Parent.large',
+      kind: 'method',
+      exported: false,
+      parent: parentId,
+      span: { startLine: 10, startColumn: 0, endLine: 50, endColumn: 1 },
+      sloc: 40,
+    }
+
+    const symbolTable: SymbolTable = {
+      symbols: new Map([
+        [smallNested.id, smallNested],
+        [largeNested.id, largeNested],
+      ]),
+      byFile: new Map([['/test/project/src/file.ts', [smallNested, largeNested]]]),
+      lineIndex: new Map(),
+    }
+
+    const result = extractLocatedIssues({
+      symbolTable,
+      skipTypescript: true,
+      skipEslint: true,
+      skipSonarQube: true,
+    })
+
+    // Should fall back to the largest nested symbol
+    expect(result.coverage[0].symbolId).toBe('/test/project/src/file.ts::large')
+  })
+
+  it('preserves existing symbol name on issue when enriching', async () => {
+    const { spawnSync } = await import('child_process')
+    const { mapLocationToSymbol } = await import('../../src/symbols/mapper.js')
+
+    // Coverage-final with function name already set
+    let existsCallCount = 0
+    vi.mocked(fs.existsSync).mockImplementation((p) => {
+      existsCallCount++
+      return String(p).includes('coverage-final.json') && existsCallCount === 1
+    })
+
+    vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify({
+      '/test/project/src/file.ts': {
+        path: '/test/project/src/file.ts',
+        statementMap: {},
+        fnMap: {
+          '0': {
+            name: 'existingFunctionName',
+            decl: { start: { line: 1, column: 0 }, end: { line: 1, column: 15 } },
+            loc: { start: { line: 1, column: 0 }, end: { line: 5, column: 1 } },
+          },
+        },
+        branchMap: {},
+        s: {},
+        f: { '0': 0 },
+        b: {},
+      },
+    }))
+
+    vi.mocked(spawnSync).mockReturnValue({
+      status: 0,
+      stdout: '[]',
+      stderr: '',
+      pid: 123,
+      signal: null,
+      output: [],
+    })
+
+    const fileSymbol: CodeSymbol = {
+      id: '/test/project/src/file.ts::existingFunctionName',
+      file: '/test/project/src/file.ts',
+      name: 'existingFunctionName',
+      qualifiedName: 'existingFunctionName',
+      kind: 'function',
+      exported: true,
+      span: { startLine: 1, startColumn: 0, endLine: 5, endColumn: 1 },
+      sloc: 5,
+    }
+
+    vi.mocked(mapLocationToSymbol).mockReturnValue(fileSymbol)
+
+    const symbolTable: SymbolTable = {
+      symbols: new Map([[fileSymbol.id, fileSymbol]]),
+      byFile: new Map([['/test/project/src/file.ts', [fileSymbol]]]),
+      lineIndex: new Map(),
+    }
+
+    const result = extractLocatedIssues({
+      symbolTable,
+      skipTypescript: true,
+      skipEslint: true,
+      skipSonarQube: true,
+    })
+
+    // Should preserve the existing symbol name from the issue
+    expect(result.coverage[0].symbol).toBe('existingFunctionName')
+    expect(result.coverage[0].symbolId).toBe('/test/project/src/file.ts::existingFunctionName')
   })
 })

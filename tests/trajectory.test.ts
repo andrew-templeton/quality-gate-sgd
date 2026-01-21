@@ -332,6 +332,61 @@ describe('trajectory module', () => {
       expect(trajectory.monotonicSteps).toBeGreaterThanOrEqual(1)
       expect(trajectory.regressionSteps).toBeGreaterThanOrEqual(1)
     })
+
+    it('returns converged state when stable at high score', () => {
+      // To trigger 'converged': passed=true, qualityScore>70, and recentVariance<1
+      const cache: QualityGateCache = {
+        schemaVersion: 1,
+        entries: {
+          'a': {
+            timestamp: 1000,
+            rulesVersion: '1.0.0',
+            rulesHash: 'hash',
+            evaluation: { status: 'pass', failedRules: [] },
+            metrics: { coverage: { unit: { branches: 90, statements: 90, lines: 90, functions: 90 } } } as Metrics,
+          },
+          'b': {
+            timestamp: 2000,
+            rulesVersion: '1.0.0',
+            rulesHash: 'hash',
+            evaluation: { status: 'pass', failedRules: [] },
+            // Stable scores - variance < 1
+            metrics: { coverage: { unit: { branches: 90, statements: 90, lines: 90, functions: 90 } } } as Metrics,
+          },
+          'c': {
+            timestamp: 3000,
+            rulesVersion: '1.0.0',
+            rulesHash: 'hash',
+            evaluation: { status: 'pass', failedRules: [] },
+            metrics: { coverage: { unit: { branches: 90, statements: 90, lines: 90, functions: 90 } } } as Metrics,
+          },
+        },
+      }
+
+      const trajectory = buildTrajectory(cache)
+
+      expect(trajectory.convergenceState).toBe('converged')
+    })
+
+    it('returns stagnating for single point trajectory', () => {
+      // Tests the points.length < 2 branch
+      const cache: QualityGateCache = {
+        schemaVersion: 1,
+        entries: {
+          'single': {
+            timestamp: 1000,
+            rulesVersion: '1.0.0',
+            rulesHash: 'hash',
+            evaluation: { status: 'fail', failedRules: [] },
+            metrics: { coverage: { unit: { branches: 50, statements: 50, lines: 50, functions: 50 } } } as Metrics,
+          },
+        },
+      }
+
+      const trajectory = buildTrajectory(cache)
+
+      expect(trajectory.convergenceState).toBe('stagnating')
+    })
   })
 
   describe('trajectorySparkline', () => {

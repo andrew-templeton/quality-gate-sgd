@@ -182,6 +182,37 @@ import lodash from 'lodash';
 
     expect(imports).toHaveLength(0)
   })
+
+  it('resolves @/ alias imports', () => {
+    // @/ alias assumes @/ points to the src directory
+    const srcDir = TEST_DIR
+    const mainFile = join(TEST_DIR, 'main.ts')
+    const utilFile = join(TEST_DIR, 'utils.ts')
+
+    writeFileSync(utilFile, 'export const util = () => {};')
+    writeFileSync(mainFile, "import { util } from '@/utils';")
+
+    const allFiles = new Set([mainFile, utilFile])
+    const imports = extractLocalImports(mainFile, allFiles, srcDir)
+
+    expect(imports).toContain(utilFile)
+  })
+
+  it('resolves @/ alias with nested paths', () => {
+    // Create nested structure
+    mkdirSync(join(TEST_DIR, 'components'), { recursive: true })
+    const srcDir = TEST_DIR
+    const mainFile = join(TEST_DIR, 'main.ts')
+    const componentFile = join(TEST_DIR, 'components', 'Button.ts')
+
+    writeFileSync(componentFile, 'export const Button = () => {};')
+    writeFileSync(mainFile, "import { Button } from '@/components/Button';")
+
+    const allFiles = new Set([mainFile, componentFile])
+    const imports = extractLocalImports(mainFile, allFiles, srcDir)
+
+    expect(imports).toContain(componentFile)
+  })
 })
 
 describe('calculateDegrees', () => {

@@ -169,6 +169,24 @@ describe('optimizer module', () => {
 
       expect(result.length).toBe(1)
     })
+
+    it('uses statements fallback when branches is undefined', () => {
+      // Tests the fallback path: coverage.branches ?? coverage.statements ?? 0
+      const files = new Map<string, FileInfo>([
+        ['/src/statementsOnly.ts', {
+          path: '/src/statementsOnly.ts',
+          degree: 0,
+          impact: 1,
+          // Coverage without branches - should fall back to statements
+          coverage: { statements: 50, functions: 50, lines: 50 } as { statements: number; functions: number; lines: number; branches?: number },
+        }],
+      ])
+
+      const result = prioritizeFiles(files)
+
+      expect(result.length).toBe(1)
+      // File should be included since 50% coverage is below default threshold
+    })
   })
 
   describe('categorizeFiles', () => {

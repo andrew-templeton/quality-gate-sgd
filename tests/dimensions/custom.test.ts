@@ -42,9 +42,153 @@ describe('loadCustomDimensions', () => {
     expect(result).toEqual([])
   })
 
-  // Note: Testing loadCustomDimensions with config file parsing is challenging
-  // because it uses dynamic imports. The main functionality tested here is the
-  // empty case and extractCustomMetric which doesn't rely on dynamic imports.
+  it('tries multiple config file names in order', async () => {
+    vi.mocked(fs.existsSync).mockReturnValue(false)
+
+    await loadCustomDimensions('/test/path')
+
+    // Should check all config file names
+    expect(fs.existsSync).toHaveBeenCalledWith('/test/path/quality-gate.config.ts')
+    expect(fs.existsSync).toHaveBeenCalledWith('/test/path/quality-gate.config.js')
+    expect(fs.existsSync).toHaveBeenCalledWith('/test/path/quality-gate.config.mjs')
+    expect(fs.existsSync).toHaveBeenCalledWith('/test/path/quality-gate.config.cjs')
+  })
+
+  it('handles config file read errors gracefully', async () => {
+    vi.mocked(fs.existsSync).mockReturnValue(true)
+    vi.mocked(fs.readFileSync).mockImplementation(() => {
+      throw new Error('Read error')
+    })
+
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const result = await loadCustomDimensions('/test/path')
+
+    expect(result).toEqual([])
+    consoleSpy.mockRestore()
+  })
+
+  it('parses TS config with simple JSON array export', async () => {
+    vi.mocked(fs.existsSync).mockImplementation((path) => {
+      return String(path).endsWith('quality-gate.config.ts')
+    })
+
+    // Simple literal JSON array in the file
+    const configContent = `
+export const customDimensions = [
+  {"path": "custom.test", "displayName": "Test", "direction": "lower-better", "extractor": {"type": "script", "command": "echo 1"}}
+];
+`
+    vi.mocked(fs.readFileSync).mockReturnValue(configContent)
+
+    const result = await loadCustomDimensions('/test/path')
+
+    expect(result).toHaveLength(1)
+    expect(result[0].path).toBe('custom.test')
+  })
+
+  it('warns when TS config has JS expressions', async () => {
+    vi.mocked(fs.existsSync).mockImplementation((path) => {
+      return String(path).endsWith('quality-gate.config.ts')
+    })
+
+    // Config with JS expressions that can't be parsed as JSON
+    const configContent = `
+export const customDimensions = [
+  { path: \`custom.test\`, displayName: getDisplayName(), direction: 'lower-better' }
+];
+`
+    vi.mocked(fs.readFileSync).mockReturnValue(configContent)
+
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const result = await loadCustomDimensions('/test/path')
+
+    expect(result).toEqual([])
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Install tsx or ts-node')
+    )
+    consoleSpy.mockRestore()
+  })
+
+  it('returns empty when no customDimensions export found in TS file', async () => {
+    vi.mocked(fs.existsSync).mockImplementation((path) => {
+      return String(path).endsWith('quality-gate.config.ts')
+    })
+
+    const configContent = `
+export const otherConfig = { foo: 'bar' };
+`
+    vi.mocked(fs.readFileSync).mockReturnValue(configContent)
+
+    const result = await loadCustomDimensions('/test/path')
+
+    expect(result).toEqual([])
+  })
+
+  it('filters out invalid configs during validation', async () => {
+    vi.mocked(fs.existsSync).mockImplementation((path) => {
+      return String(path).endsWith('quality-gate.config.ts')
+    })
+
+    // Mix of valid and invalid configs
+    const configContent = `
+export const customDimensions = [
+  {"path": "custom.valid", "displayName": "Valid", "direction": "lower-better", "extractor": {"type": "script", "command": "echo 1"}},
+  {"path": "invalid.noprefix", "displayName": "Invalid", "direction": "lower-better", "extractor": {"type": "script", "command": "echo 1"}},
+  {"path": "custom.missing", "displayName": "Missing"},
+  null,
+  "not-an-object"
+];
+`
+    vi.mocked(fs.readFileSync).mockReturnValue(configContent)
+
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const result = await loadCustomDimensions('/test/path')
+
+    // Only the first valid config should pass
+    expect(result).toHaveLength(1)
+    expect(result[0].path).toBe('custom.valid')
+    consoleSpy.mockRestore()
+  })
+
+  it('sets default values for continuity and defaultWeight', async () => {
+    vi.mocked(fs.existsSync).mockImplementation((path) => {
+      return String(path).endsWith('quality-gate.config.ts')
+    })
+
+    const configContent = `
+export const customDimensions = [
+  {"path": "custom.test", "displayName": "Test", "direction": "higher-better", "extractor": {"type": "script", "command": "echo 1"}}
+];
+`
+    vi.mocked(fs.readFileSync).mockReturnValue(configContent)
+
+    const result = await loadCustomDimensions('/test/path')
+
+    expect(result[0].continuity).toBe('discrete')
+    expect(result[0].defaultWeight).toBe(0.01)
+  })
+
+  it('preserves custom continuity and defaultWeight values', async () => {
+    vi.mocked(fs.existsSync).mockImplementation((path) => {
+      return String(path).endsWith('quality-gate.config.ts')
+    })
+
+    const configContent = `
+export const customDimensions = [
+  {"path": "custom.test", "displayName": "Test", "direction": "lower-better", "continuity": "smooth", "defaultWeight": 0.5, "extractor": {"type": "script", "command": "echo 1"}}
+];
+`
+    vi.mocked(fs.readFileSync).mockReturnValue(configContent)
+
+    const result = await loadCustomDimensions('/test/path')
+
+    expect(result[0].continuity).toBe('smooth')
+    expect(result[0].defaultWeight).toBe(0.5)
+  })
+
+  // Note: Testing .js/.mjs/.cjs config files requires actual file system access
+  // and dynamic imports, which are challenging to mock in Vitest. The TypeScript
+  // path is tested via the readFileSync fallback which covers the main logic.
 })
 
 describe('extractCustomMetric', () => {
@@ -62,6 +206,147 @@ describe('extractCustomMetric', () => {
       parseOutput: 'number',
     },
   }
+
+  it('returns 0 for JSON with non-numeric root when no jsonPath', async () => {
+    const { execSync } = await import('child_process')
+    vi.mocked(execSync).mockReturnValue('{"key": "value"}')
+
+    const config: CustomDimensionConfig = {
+      ...baseConfig,
+      extractor: {
+        type: 'script',
+        command: 'echo json',
+        parseOutput: 'json',
+      },
+    }
+
+    const result = extractCustomMetric(config)
+
+    expect(result).toBe(0)
+  })
+
+  it('returns 0 for unknown parseOutput mode', async () => {
+    const { execSync } = await import('child_process')
+    vi.mocked(execSync).mockReturnValue('42\n')
+
+    const config: CustomDimensionConfig = {
+      ...baseConfig,
+      extractor: {
+        type: 'script',
+        command: 'echo 42',
+        parseOutput: 'unknown' as 'number',
+      },
+    }
+
+    const result = extractCustomMetric(config)
+
+    expect(result).toBe(0)
+  })
+
+  it('returns undefined when array indexing used on non-array', async () => {
+    const { execSync } = await import('child_process')
+    vi.mocked(execSync).mockReturnValue(JSON.stringify({
+      items: 'not-an-array',
+    }))
+
+    const config: CustomDimensionConfig = {
+      ...baseConfig,
+      extractor: {
+        type: 'script',
+        command: 'cat report.json',
+        parseOutput: 'json',
+        jsonPath: '$.items[0]',
+      },
+    }
+
+    const result = extractCustomMetric(config)
+
+    expect(result).toBe(0)
+  })
+
+  it('returns 0 when jsonPath traverses through null', async () => {
+    const { execSync } = await import('child_process')
+    vi.mocked(execSync).mockReturnValue(JSON.stringify({
+      summary: null,
+    }))
+
+    const config: CustomDimensionConfig = {
+      ...baseConfig,
+      extractor: {
+        type: 'script',
+        command: 'cat report.json',
+        parseOutput: 'json',
+        jsonPath: '$.summary.total',
+      },
+    }
+
+    const result = extractCustomMetric(config)
+
+    expect(result).toBe(0)
+  })
+
+  it('returns 0 when jsonPath traverses through primitive', async () => {
+    const { execSync } = await import('child_process')
+    vi.mocked(execSync).mockReturnValue(JSON.stringify({
+      summary: 42,
+    }))
+
+    const config: CustomDimensionConfig = {
+      ...baseConfig,
+      extractor: {
+        type: 'script',
+        command: 'cat report.json',
+        parseOutput: 'json',
+        jsonPath: '$.summary.total',
+      },
+    }
+
+    const result = extractCustomMetric(config)
+
+    expect(result).toBe(0)
+  })
+
+  it('parses string value from jsonPath as number', async () => {
+    const { execSync } = await import('child_process')
+    vi.mocked(execSync).mockReturnValue(JSON.stringify({
+      value: '123.5',
+    }))
+
+    const config: CustomDimensionConfig = {
+      ...baseConfig,
+      extractor: {
+        type: 'script',
+        command: 'cat report.json',
+        parseOutput: 'json',
+        jsonPath: '$.value',
+      },
+    }
+
+    const result = extractCustomMetric(config)
+
+    expect(result).toBe(123.5)
+  })
+
+  it('returns 0 for non-numeric string value from jsonPath', async () => {
+    const { execSync } = await import('child_process')
+    vi.mocked(execSync).mockReturnValue(JSON.stringify({
+      value: 'not-a-number',
+    }))
+
+    const config: CustomDimensionConfig = {
+      ...baseConfig,
+      extractor: {
+        type: 'script',
+        command: 'cat report.json',
+        parseOutput: 'json',
+        jsonPath: '$.value',
+      },
+    }
+
+    const result = extractCustomMetric(config)
+
+    expect(result).toBe(0)
+  })
 
   it('extracts number from simple output', async () => {
     const { execSync } = await import('child_process')
@@ -342,6 +627,121 @@ describe('registerCustomDimensions', () => {
     const configs = await registerCustomDimensions('/nonexistent')
 
     expect(configs).toEqual([])
+  })
+
+  it('registers dimensions from config file', async () => {
+    const { registerDimension } = await import('../../src/dimensions/registry.js')
+
+    vi.mocked(fs.existsSync).mockImplementation((path) => {
+      return String(path).endsWith('quality-gate.config.ts')
+    })
+
+    const configContent = `
+export const customDimensions = [
+  {"path": "custom.metric1", "displayName": "Metric 1", "direction": "lower-better", "extractor": {"type": "script", "command": "echo 1"}},
+  {"path": "custom.metric2", "displayName": "Metric 2", "description": "Custom description", "direction": "higher-better", "extractor": {"type": "script", "command": "echo 2"}}
+];
+`
+    vi.mocked(fs.readFileSync).mockReturnValue(configContent)
+
+    const configs = await registerCustomDimensions('/test/path')
+
+    expect(configs).toHaveLength(2)
+    expect(registerDimension).toHaveBeenCalledTimes(2)
+    expect(registerDimension).toHaveBeenCalledWith(
+      expect.objectContaining({
+        path: 'custom.metric1',
+        displayName: 'Metric 1',
+        category: 'custom',
+        direction: 'lower-better',
+      })
+    )
+    expect(registerDimension).toHaveBeenCalledWith(
+      expect.objectContaining({
+        path: 'custom.metric2',
+        displayName: 'Metric 2',
+        description: 'Custom description',
+        category: 'custom',
+        direction: 'higher-better',
+      })
+    )
+  })
+
+  it('uses default description when not provided', async () => {
+    const { registerDimension } = await import('../../src/dimensions/registry.js')
+
+    vi.mocked(fs.existsSync).mockImplementation((path) => {
+      return String(path).endsWith('quality-gate.config.ts')
+    })
+
+    const configContent = `
+export const customDimensions = [
+  {"path": "custom.test", "displayName": "Test Metric", "direction": "lower-better", "extractor": {"type": "script", "command": "echo 1"}}
+];
+`
+    vi.mocked(fs.readFileSync).mockReturnValue(configContent)
+
+    await registerCustomDimensions('/test/path')
+
+    expect(registerDimension).toHaveBeenCalledWith(
+      expect.objectContaining({
+        description: 'Custom metric: Test Metric',
+      })
+    )
+  })
+
+  it('handles registration errors gracefully', async () => {
+    const { registerDimension } = await import('../../src/dimensions/registry.js')
+    vi.mocked(registerDimension).mockImplementation(() => {
+      throw new Error('Registration failed')
+    })
+
+    vi.mocked(fs.existsSync).mockImplementation((path) => {
+      return String(path).endsWith('quality-gate.config.ts')
+    })
+
+    const configContent = `
+export const customDimensions = [
+  {"path": "custom.test", "displayName": "Test", "direction": "lower-better", "extractor": {"type": "script", "command": "echo 1"}}
+];
+`
+    vi.mocked(fs.readFileSync).mockReturnValue(configContent)
+
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const configs = await registerCustomDimensions('/test/path')
+
+    // Still returns configs even if registration fails
+    expect(configs).toHaveLength(1)
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Failed to register custom dimension'),
+      expect.any(Error)
+    )
+    consoleSpy.mockRestore()
+  })
+
+  it('sets default continuity and weight in registered dimension', async () => {
+    const { registerDimension } = await import('../../src/dimensions/registry.js')
+
+    vi.mocked(fs.existsSync).mockImplementation((path) => {
+      return String(path).endsWith('quality-gate.config.ts')
+    })
+
+    const configContent = `
+export const customDimensions = [
+  {"path": "custom.test", "displayName": "Test", "direction": "lower-better", "extractor": {"type": "script", "command": "echo 1"}}
+];
+`
+    vi.mocked(fs.readFileSync).mockReturnValue(configContent)
+
+    await registerCustomDimensions('/test/path')
+
+    expect(registerDimension).toHaveBeenCalledWith(
+      expect.objectContaining({
+        continuity: 'discrete',
+        defaultWeight: 0.01,
+        unit: 'count',
+      })
+    )
   })
 })
 

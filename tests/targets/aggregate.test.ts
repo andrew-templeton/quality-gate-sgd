@@ -1,7 +1,7 @@
 /**
  * Tests for targets/aggregate.ts
  */
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   computeTargetDeltaQ,
   aggregateToTargets,
@@ -13,6 +13,16 @@ import type {
   ExtractedIssues,
 } from '../../src/targets/types.js';
 import type { SymbolTable, CodeSymbol } from '../../src/symbols/types.js';
+
+// Mock dependency-graph module
+vi.mock('../../src/dependency-graph.js', () => ({
+  buildDependencyGraph: vi.fn(),
+}));
+
+// Mock symbols/call-graph module
+vi.mock('../../src/symbols/call-graph.js', () => ({
+  computeSymbolCallGraphWeights: vi.fn(),
+}));
 
 // =============================================================================
 // Test Data Factories
@@ -148,6 +158,9 @@ function createSymbolTable(symbols: CodeSymbol[]): SymbolTable {
 // =============================================================================
 
 describe('computeTargetDeltaQ', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
   it('returns 0 for empty issues array', () => {
     const result = computeTargetDeltaQ([]);
     expect(result).toBe(0);
@@ -427,6 +440,243 @@ describe('aggregateToTargets', () => {
     expect(result.length).toBe(1);
     expect(result[0].issueCount).toBe(4);
   });
+
+  it('handles issues without line numbers for line range', () => {
+    const extracted = createEmptyExtractedIssues();
+    extracted.typescript = [
+      createLocatedIssue({ file: 'src/a.ts', line: undefined }),
+    ];
+    extracted.totalCount = 1;
+
+    const result = aggregateToTargets(extracted, { granularity: 'file' });
+
+    expect(result.length).toBe(1);
+    expect(result[0].startLine).toBeUndefined();
+    expect(result[0].endLine).toBeUndefined();
+  });
+
+  it('falls back to file when symbol granularity but no symbol info', () => {
+    const extracted = createEmptyExtractedIssues();
+    extracted.typescript = [
+      createLocatedIssue({ file: 'src/orphan.ts', symbol: undefined, symbolId: undefined }),
+    ];
+    extracted.totalCount = 1;
+
+    const result = aggregateToTargets(extracted, { granularity: 'symbol' });
+
+    expect(result.length).toBe(1);
+    expect(result[0].file).toBe('src/orphan.ts');
+    expect(result[0].symbol).toBeUndefined();
+  });
+
+  it('parses file::symbol back correctly', () => {
+    const extracted = createEmptyExtractedIssues();
+    extracted.typescript = [
+      createLocatedIssue({ file: 'src/a.ts', symbol: 'myFunc' }),
+    ];
+    extracted.totalCount = 1;
+
+    const result = aggregateToTargets(extracted, { granularity: 'symbol' });
+
+    expect(result.length).toBe(1);
+    expect(result[0].file).toBe('src/a.ts');
+    expect(result[0].symbol).toBe('myFunc');
+  });
+
+  it('handles sonar issues without severity', () => {
+    const extracted = createEmptyExtractedIssues();
+    extracted.sonarqube = [
+      createSonarIssue({ severity: undefined }),
+    ];
+    extracted.totalCount = 1;
+
+    const result = aggregateToTargets(extracted, { granularity: 'file' });
+
+    expect(result.length).toBe(1);
+    expect(result[0].breakdown.sonarqube).toBeDefined();
+  });
+
+  describe('with graph weights', () => {
+    it('computes weighted ΔQ when graph is available', async () => {
+      const { buildDependencyGraph } = await import('../../src/dependency-graph.js');
+      vi.mocked(buildDependencyGraph).mockReturnValue(
+        new Map([
+          ['src/core.ts', {
+            path: 'src/core.ts',
+            directDependents: 5,
+            indirectDependents: 10,
+            directDependencies: 2,
+            indirectDependencies: 5,
+            impact: 0.8,
+            dependentPaths: [],
+          }],
+        ])
+      );
+
+      const extracted = createEmptyExtractedIssues();
+      extracted.typescript = [
+        createLocatedIssue({ file: 'src/core.ts' }),
+      ];
+      extracted.totalCount = 1;
+
+      const result = aggregateToTargets(extracted, {
+        granularity: 'file',
+        includeGraphWeights: true,
+      });
+
+      expect(result.length).toBe(1);
+      expect(result[0].dependentCount).toBe(10);
+      expect(result[0].centralityScore).toBe(0.8);
+      expect(result[0].weightedDeltaQ).toBeGreaterThan(result[0].totalDeltaQ);
+    });
+
+    it('handles graph building failure gracefully', async () => {
+      const { buildDependencyGraph } = await import('../../src/dependency-graph.js');
+      vi.mocked(buildDependencyGraph).mockImplementation(() => {
+        throw new Error('Graph build failed');
+      });
+
+      const extracted = createEmptyExtractedIssues();
+      extracted.typescript = [
+        createLocatedIssue({ file: 'src/a.ts' }),
+      ];
+      extracted.totalCount = 1;
+
+      const result = aggregateToTargets(extracted, {
+        granularity: 'file',
+        includeGraphWeights: true,
+      });
+
+      expect(result.length).toBe(1);
+      expect(result[0].weightedDeltaQ).toBeUndefined();
+    });
+
+    it('uses unweighted ΔQ for files not in graph', async () => {
+      const { buildDependencyGraph } = await import('../../src/dependency-graph.js');
+      vi.mocked(buildDependencyGraph).mockReturnValue(new Map());
+
+      const extracted = createEmptyExtractedIssues();
+      extracted.typescript = [
+        createLocatedIssue({ file: 'src/unknown.ts' }),
+      ];
+      extracted.totalCount = 1;
+
+      const result = aggregateToTargets(extracted, {
+        granularity: 'file',
+        includeGraphWeights: true,
+      });
+
+      expect(result.length).toBe(1);
+      expect(result[0].weightedDeltaQ).toBe(result[0].totalDeltaQ);
+    });
+
+    it('matches files by path suffix', async () => {
+      const { buildDependencyGraph } = await import('../../src/dependency-graph.js');
+      vi.mocked(buildDependencyGraph).mockReturnValue(
+        new Map([
+          ['/absolute/path/src/core.ts', {
+            path: '/absolute/path/src/core.ts',
+            directDependents: 3,
+            indirectDependents: 7,
+            directDependencies: 1,
+            indirectDependencies: 3,
+            impact: 0.5,
+            dependentPaths: [],
+          }],
+        ])
+      );
+
+      const extracted = createEmptyExtractedIssues();
+      extracted.typescript = [
+        createLocatedIssue({ file: 'src/core.ts' }),
+      ];
+      extracted.totalCount = 1;
+
+      const result = aggregateToTargets(extracted, {
+        granularity: 'file',
+        includeGraphWeights: true,
+      });
+
+      expect(result.length).toBe(1);
+      expect(result[0].dependentCount).toBe(7);
+    });
+
+    it('matches by basename when suffix does not match', async () => {
+      const { buildDependencyGraph } = await import('../../src/dependency-graph.js');
+      vi.mocked(buildDependencyGraph).mockReturnValue(
+        new Map([
+          ['different/path/core.ts', {
+            path: 'different/path/core.ts',
+            directDependents: 2,
+            indirectDependents: 4,
+            directDependencies: 1,
+            indirectDependencies: 2,
+            impact: 0.3,
+            dependentPaths: [],
+          }],
+        ])
+      );
+
+      const extracted = createEmptyExtractedIssues();
+      extracted.typescript = [
+        createLocatedIssue({ file: 'src/core.ts' }),
+      ];
+      extracted.totalCount = 1;
+
+      const result = aggregateToTargets(extracted, {
+        granularity: 'file',
+        includeGraphWeights: true,
+      });
+
+      expect(result.length).toBe(1);
+      expect(result[0].dependentCount).toBe(4);
+    });
+
+    it('sorts by weightedDeltaQ when graph weights enabled', async () => {
+      const { buildDependencyGraph } = await import('../../src/dependency-graph.js');
+      vi.mocked(buildDependencyGraph).mockReturnValue(
+        new Map([
+          ['src/core.ts', {
+            path: 'src/core.ts',
+            directDependents: 10,
+            indirectDependents: 20,
+            directDependencies: 1,
+            indirectDependencies: 2,
+            impact: 0.9,
+            dependentPaths: [],
+          }],
+          ['src/leaf.ts', {
+            path: 'src/leaf.ts',
+            directDependents: 0,
+            indirectDependents: 0,
+            directDependencies: 5,
+            indirectDependencies: 10,
+            impact: 0.1,
+            dependentPaths: [],
+          }],
+        ])
+      );
+
+      const extracted = createEmptyExtractedIssues();
+      // Leaf has more issues but core has more dependents
+      extracted.typescript = [
+        createLocatedIssue({ file: 'src/core.ts' }),
+        createLocatedIssue({ file: 'src/leaf.ts' }),
+        createLocatedIssue({ file: 'src/leaf.ts' }),
+        createLocatedIssue({ file: 'src/leaf.ts' }),
+      ];
+      extracted.totalCount = 4;
+
+      const result = aggregateToTargets(extracted, {
+        granularity: 'file',
+        includeGraphWeights: true,
+      });
+
+      expect(result.length).toBe(2);
+      // Core should be first due to high dependent count despite fewer issues
+      expect(result[0].file).toBe('src/core.ts');
+    });
+  });
 });
 
 // =============================================================================
@@ -591,6 +841,220 @@ describe('aggregateToSymbols', () => {
     expect(result[0].totalIssueCount).toBe(0);
     expect(result[0].issues.coverage.length).toBe(1);
   });
+
+  it('expands synthetic symbol span with multiple issues', () => {
+    const symbolTable = createSymbolTable([]);
+
+    const extracted = createEmptyExtractedIssues();
+    extracted.typescript = [
+      createLocatedIssue({ file: 'src/orphan.ts', line: 50, endLine: 55 }),
+      createLocatedIssue({ file: 'src/orphan.ts', line: 10, endLine: 15 }),
+      createLocatedIssue({ file: 'src/orphan.ts', line: 100, endLine: 110 }),
+    ];
+    extracted.totalCount = 3;
+
+    const result = aggregateToSymbols(extracted, symbolTable);
+
+    expect(result.length).toBe(1);
+    expect(result[0].symbol.span.startLine).toBe(10);
+    expect(result[0].symbol.span.endLine).toBe(110);
+  });
+
+  it('falls back to primary symbol when symbolId not found', () => {
+    // Create a large function that should be the primary symbol for the file
+    const primarySymbol = createSymbol({
+      id: 'src/test.ts::mainFunction',
+      file: 'src/test.ts',
+      sloc: 100,
+    });
+    const symbolTable = createSymbolTable([primarySymbol]);
+
+    const extracted = createEmptyExtractedIssues();
+    extracted.typescript = [
+      createLocatedIssue({
+        file: 'src/test.ts',
+        symbolId: undefined,
+        symbol: undefined,
+      }),
+    ];
+    extracted.totalCount = 1;
+
+    const result = aggregateToSymbols(extracted, symbolTable);
+
+    expect(result.length).toBe(1);
+    expect(result[0].symbol.id).toBe('src/test.ts::mainFunction');
+  });
+
+  it('selects largest symbol when all symbols have parents (no top-level)', () => {
+    // Create nested symbols where ALL have parents - tests the branch at line 432
+    // where topLevel.length === 0 so we fall back to fileSymbols
+    const outerSymbol = createSymbol({
+      id: 'src/nested.ts::OuterClass',
+      file: 'src/nested.ts',
+      name: 'OuterClass',
+      kind: 'class',
+      sloc: 50,
+      parent: 'src/nested.ts::module', // Has a parent, so NOT top-level
+    });
+    const innerSymbol = createSymbol({
+      id: 'src/nested.ts::OuterClass.innerMethod',
+      file: 'src/nested.ts',
+      name: 'innerMethod',
+      kind: 'method',
+      sloc: 20,
+      parent: 'src/nested.ts::OuterClass', // Has a parent
+    });
+    const symbolTable = createSymbolTable([outerSymbol, innerSymbol]);
+
+    const extracted = createEmptyExtractedIssues();
+    extracted.typescript = [
+      createLocatedIssue({
+        file: 'src/nested.ts',
+        symbolId: undefined,
+        symbol: undefined,
+      }),
+    ];
+    extracted.totalCount = 1;
+
+    const result = aggregateToSymbols(extracted, symbolTable);
+
+    expect(result.length).toBe(1);
+    // Should select OuterClass because it has the largest SLOC (50 > 20)
+    expect(result[0].symbol.id).toBe('src/nested.ts::OuterClass');
+  });
+
+  it('handles issueDensity when sloc is 0', () => {
+    const symbol = createSymbol({ id: 'src/test.ts::emptyFunc', sloc: 0 });
+    const symbolTable = createSymbolTable([symbol]);
+
+    const extracted = createEmptyExtractedIssues();
+    extracted.typescript = [
+      createLocatedIssue({ symbolId: 'src/test.ts::emptyFunc' }),
+    ];
+    extracted.totalCount = 1;
+
+    const result = aggregateToSymbols(extracted, symbolTable);
+
+    expect(result.length).toBe(1);
+    expect(result[0].issueDensity).toBe(0);
+  });
+
+  describe('coverage parsing', () => {
+    it('parses summary coverage context with X / Y format', () => {
+      const symbol = createSymbol({ id: 'src/test.ts::testFunc' });
+      const symbolTable = createSymbolTable([symbol]);
+
+      const extracted = createEmptyExtractedIssues();
+      extracted.coverage = [
+        createCoverageIssue({
+          symbolId: 'src/test.ts::testFunc',
+          dimension: 'coverage.unit.branches',
+          code: 'uncovered-branches',
+          context: '5 / 20 branches uncovered',
+        }),
+      ];
+      extracted.totalCount = 1;
+
+      const result = aggregateToSymbols(extracted, symbolTable);
+
+      expect(result.length).toBe(1);
+      expect(result[0].coverage.branches.total).toBe(20);
+      expect(result[0].coverage.branches.uncovered).toBe(5);
+      expect(result[0].coverage.branches.covered).toBe(15);
+    });
+
+    it('uses delta when context parsing fails', () => {
+      const symbol = createSymbol({ id: 'src/test.ts::testFunc' });
+      const symbolTable = createSymbolTable([symbol]);
+
+      const extracted = createEmptyExtractedIssues();
+      extracted.coverage = [
+        createCoverageIssue({
+          symbolId: 'src/test.ts::testFunc',
+          dimension: 'coverage.unit.branches',
+          code: 'uncovered-branches',
+          context: 'no numbers here',
+          impact: { dimension: 'coverage.unit.branches', delta: 0.25, direction: 'higher-better' },
+        }),
+      ];
+      extracted.totalCount = 1;
+
+      const result = aggregateToSymbols(extracted, symbolTable);
+
+      expect(result.length).toBe(1);
+      expect(result[0].coverageGap).toBe(0.25);
+    });
+
+    it('handles per-branch issues', () => {
+      const symbol = createSymbol({ id: 'src/test.ts::testFunc' });
+      const symbolTable = createSymbolTable([symbol]);
+
+      const extracted = createEmptyExtractedIssues();
+      extracted.coverage = [
+        createCoverageIssue({
+          symbolId: 'src/test.ts::testFunc',
+          dimension: 'coverage.unit.branches',
+          code: 'branch-1',
+          impact: { dimension: 'coverage.unit.branches', delta: 0.1, direction: 'higher-better' },
+        }),
+        createCoverageIssue({
+          symbolId: 'src/test.ts::testFunc',
+          dimension: 'coverage.unit.branches',
+          code: 'branch-2',
+          impact: { dimension: 'coverage.unit.branches', delta: 0.1, direction: 'higher-better' },
+        }),
+      ];
+      extracted.totalCount = 2;
+
+      const result = aggregateToSymbols(extracted, symbolTable);
+
+      expect(result.length).toBe(1);
+      expect(result[0].coverage.branches.uncovered).toBe(2);
+    });
+
+    it('handles generic branch issues without code', () => {
+      const symbol = createSymbol({ id: 'src/test.ts::testFunc' });
+      const symbolTable = createSymbolTable([symbol]);
+
+      const extracted = createEmptyExtractedIssues();
+      extracted.coverage = [
+        createCoverageIssue({
+          symbolId: 'src/test.ts::testFunc',
+          dimension: 'coverage.unit.branches',
+          code: undefined,
+          impact: { dimension: 'coverage.unit.branches', delta: 0.3, direction: 'higher-better' },
+        }),
+      ];
+      extracted.totalCount = 1;
+
+      const result = aggregateToSymbols(extracted, symbolTable);
+
+      expect(result.length).toBe(1);
+      expect(result[0].coverageGap).toBeGreaterThan(0);
+    });
+
+    it('clamps coverage gap to [0, 1]', () => {
+      const symbol = createSymbol({ id: 'src/test.ts::testFunc' });
+      const symbolTable = createSymbolTable([symbol]);
+
+      const extracted = createEmptyExtractedIssues();
+      extracted.coverage = [
+        createCoverageIssue({
+          symbolId: 'src/test.ts::testFunc',
+          dimension: 'coverage.unit.branches',
+          code: 'uncovered-branches',
+          context: undefined,
+          impact: { dimension: 'coverage.unit.branches', delta: 2.0, direction: 'higher-better' },
+        }),
+      ];
+      extracted.totalCount = 1;
+
+      const result = aggregateToSymbols(extracted, symbolTable);
+
+      expect(result.length).toBe(1);
+      expect(result[0].coverageGap).toBeLessThanOrEqual(1);
+    });
+  });
 });
 
 // =============================================================================
@@ -693,5 +1157,220 @@ describe('aggregateToSymbolsWithOptions', () => {
 
     expect(result.length).toBe(1);
     expect(result[0].symbol.id).toBe('src/test.ts::funcA');
+  });
+
+  describe('with call graph weights', () => {
+    it('applies call graph weights when requested', async () => {
+      const { computeSymbolCallGraphWeights } = await import('../../src/symbols/call-graph.js');
+      vi.mocked(computeSymbolCallGraphWeights).mockReturnValue(
+        new Map([
+          ['src/test.ts::funcA', { callersCount: 10, calleesCount: 2 }],
+          ['src/test.ts::funcB', { callersCount: 0, calleesCount: 5 }],
+        ])
+      );
+
+      const symbols = [
+        createSymbol({ id: 'src/test.ts::funcA' }),
+        createSymbol({ id: 'src/test.ts::funcB' }),
+      ];
+      const symbolTable = createSymbolTable(symbols);
+
+      const extracted = createEmptyExtractedIssues();
+      extracted.typescript = [
+        createLocatedIssue({ symbolId: 'src/test.ts::funcA' }),
+        createLocatedIssue({ symbolId: 'src/test.ts::funcB' }),
+        createLocatedIssue({ symbolId: 'src/test.ts::funcB' }),
+      ];
+      extracted.totalCount = 3;
+
+      const result = aggregateToSymbolsWithOptions(extracted, symbolTable, {
+        includeCallGraphWeights: true,
+      });
+
+      expect(result.length).toBe(2);
+      // funcA should be first due to higher callers count despite fewer issues
+      expect(result[0].symbol.id).toBe('src/test.ts::funcA');
+      expect(result[0].callersCount).toBe(10);
+      expect(result[0].calleesCount).toBe(2);
+      expect(result[0].weightingSource).toBe('call-graph');
+      expect(result[0].weightedDeltaQ).toBeGreaterThan(result[0].totalDeltaQ);
+    });
+
+    it('handles symbols not in call graph', async () => {
+      const { computeSymbolCallGraphWeights } = await import('../../src/symbols/call-graph.js');
+      vi.mocked(computeSymbolCallGraphWeights).mockReturnValue(new Map());
+
+      const symbol = createSymbol({ id: 'src/test.ts::orphan' });
+      const symbolTable = createSymbolTable([symbol]);
+
+      const extracted = createEmptyExtractedIssues();
+      extracted.typescript = [
+        createLocatedIssue({ symbolId: 'src/test.ts::orphan' }),
+      ];
+      extracted.totalCount = 1;
+
+      const result = aggregateToSymbolsWithOptions(extracted, symbolTable, {
+        includeCallGraphWeights: true,
+      });
+
+      expect(result.length).toBe(1);
+      expect(result[0].callersCount).toBe(0);
+      expect(result[0].calleesCount).toBe(0);
+    });
+  });
+
+  describe('with file graph weights', () => {
+    it('applies file graph weights when requested', async () => {
+      const { buildDependencyGraph } = await import('../../src/dependency-graph.js');
+      vi.mocked(buildDependencyGraph).mockReturnValue(
+        new Map([
+          ['src/test.ts', {
+            path: 'src/test.ts',
+            directDependents: 5,
+            indirectDependents: 15,
+            directDependencies: 2,
+            indirectDependencies: 5,
+            impact: 0.7,
+            dependentPaths: [],
+          }],
+        ])
+      );
+
+      const symbol = createSymbol({ id: 'src/test.ts::func', file: 'src/test.ts' });
+      const symbolTable = createSymbolTable([symbol]);
+
+      const extracted = createEmptyExtractedIssues();
+      extracted.typescript = [
+        createLocatedIssue({ symbolId: 'src/test.ts::func' }),
+      ];
+      extracted.totalCount = 1;
+
+      const result = aggregateToSymbolsWithOptions(extracted, symbolTable, {
+        includeGraphWeights: true,
+      });
+
+      expect(result.length).toBe(1);
+      expect(result[0].dependentCount).toBe(15);
+      expect(result[0].centralityScore).toBe(0.7);
+      expect(result[0].weightingSource).toBe('file');
+      expect(result[0].weightedDeltaQ).toBeGreaterThan(result[0].totalDeltaQ);
+    });
+
+    it('handles graph build failure gracefully', async () => {
+      const { buildDependencyGraph } = await import('../../src/dependency-graph.js');
+      vi.mocked(buildDependencyGraph).mockImplementation(() => {
+        throw new Error('Graph build failed');
+      });
+
+      const symbol = createSymbol({ id: 'src/test.ts::func' });
+      const symbolTable = createSymbolTable([symbol]);
+
+      const extracted = createEmptyExtractedIssues();
+      extracted.typescript = [
+        createLocatedIssue({ symbolId: 'src/test.ts::func' }),
+      ];
+      extracted.totalCount = 1;
+
+      const result = aggregateToSymbolsWithOptions(extracted, symbolTable, {
+        includeGraphWeights: true,
+      });
+
+      expect(result.length).toBe(1);
+      expect(result[0].weightedDeltaQ).toBeUndefined();
+    });
+
+    it('tries relative path when absolute does not match', async () => {
+      const { buildDependencyGraph } = await import('../../src/dependency-graph.js');
+      vi.mocked(buildDependencyGraph).mockReturnValue(
+        new Map([
+          ['src/test.ts', {
+            path: 'src/test.ts',
+            directDependents: 3,
+            indirectDependents: 8,
+            directDependencies: 1,
+            indirectDependencies: 3,
+            impact: 0.5,
+            dependentPaths: [],
+          }],
+        ])
+      );
+
+      const symbol = createSymbol({
+        id: `${process.cwd()}/src/test.ts::func`,
+        file: `${process.cwd()}/src/test.ts`,
+      });
+      const symbolTable = createSymbolTable([symbol]);
+
+      const extracted = createEmptyExtractedIssues();
+      extracted.typescript = [
+        createLocatedIssue({ symbolId: symbol.id }),
+      ];
+      extracted.totalCount = 1;
+
+      const result = aggregateToSymbolsWithOptions(extracted, symbolTable, {
+        includeGraphWeights: true,
+      });
+
+      expect(result.length).toBe(1);
+      expect(result[0].dependentCount).toBe(8);
+    });
+
+    it('uses suffix matching as fallback', async () => {
+      const { buildDependencyGraph } = await import('../../src/dependency-graph.js');
+      vi.mocked(buildDependencyGraph).mockReturnValue(
+        new Map([
+          ['other/path/src/test.ts', {
+            path: 'other/path/src/test.ts',
+            directDependents: 2,
+            indirectDependents: 6,
+            directDependencies: 1,
+            indirectDependencies: 2,
+            impact: 0.4,
+            dependentPaths: [],
+          }],
+        ])
+      );
+
+      const symbol = createSymbol({
+        id: '/project/src/test.ts::func',
+        file: '/project/src/test.ts',
+      });
+      const symbolTable = createSymbolTable([symbol]);
+
+      const extracted = createEmptyExtractedIssues();
+      extracted.typescript = [
+        createLocatedIssue({ symbolId: symbol.id }),
+      ];
+      extracted.totalCount = 1;
+
+      const result = aggregateToSymbolsWithOptions(extracted, symbolTable, {
+        includeGraphWeights: true,
+      });
+
+      expect(result.length).toBe(1);
+      expect(result[0].dependentCount).toBe(6);
+    });
+
+    it('uses unweighted delta for files not in graph', async () => {
+      const { buildDependencyGraph } = await import('../../src/dependency-graph.js');
+      vi.mocked(buildDependencyGraph).mockReturnValue(new Map());
+
+      const symbol = createSymbol({ id: 'src/unknown.ts::func', file: 'src/unknown.ts' });
+      const symbolTable = createSymbolTable([symbol]);
+
+      const extracted = createEmptyExtractedIssues();
+      extracted.typescript = [
+        createLocatedIssue({ symbolId: symbol.id }),
+      ];
+      extracted.totalCount = 1;
+
+      const result = aggregateToSymbolsWithOptions(extracted, symbolTable, {
+        includeGraphWeights: true,
+      });
+
+      expect(result.length).toBe(1);
+      expect(result[0].weightedDeltaQ).toBe(result[0].totalDeltaQ);
+      expect(result[0].weightingSource).toBe('file');
+    });
   });
 });

@@ -230,6 +230,53 @@ describe('fitness module', () => {
 
       expect(gradient).toEqual([])
     })
+
+    it('generates rationale for high error counts (> 10)', () => {
+      // Use errors.lint which is mocked as a lower-better dimension
+      const metrics: Metrics = {
+        errors: { lint: 25 },
+      } as Metrics
+
+      const gradient = computeGradient(metrics)
+
+      // Should have components with "High ... count" rationale for lower-better dims
+      const highCountComponent = gradient.find(
+        comp => comp.rationale.includes('High') && comp.rationale.includes('count')
+      )
+      expect(highCountComponent).toBeDefined()
+    })
+
+    it('generates rationale for moderate error counts (1-10)', () => {
+      // Use errors.lint which is mocked as a lower-better dimension
+      const metrics: Metrics = {
+        errors: { lint: 5 },
+      } as Metrics
+
+      const gradient = computeGradient(metrics)
+
+      // Should have components with "Some ... each fix helps" rationale
+      const someCountComponent = gradient.find(comp =>
+        comp.rationale.toLowerCase().includes('some') &&
+        comp.rationale.toLowerCase().includes('each fix helps')
+      )
+      expect(someCountComponent).toBeDefined()
+    })
+
+    it('generates rationale for zero error counts', () => {
+      // Use errors.lint which is mocked as a lower-better dimension
+      const metrics: Metrics = {
+        errors: { lint: 0 },
+      } as Metrics
+
+      const gradient = computeGradient(metrics)
+
+      // Should have components with "Zero ... optimal" rationale
+      const zeroComponent = gradient.find(comp =>
+        comp.rationale.toLowerCase().includes('zero') &&
+        comp.rationale.toLowerCase().includes('optimal')
+      )
+      expect(zeroComponent).toBeDefined()
+    })
   })
 
   describe('suggestNextFix', () => {

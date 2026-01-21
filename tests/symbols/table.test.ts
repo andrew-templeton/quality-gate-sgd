@@ -417,6 +417,107 @@ describe('mergeSymbolTables', () => {
     expect(merged.symbols.has('id1')).toBe(true)
     expect(merged.symbols.has('id2')).toBe(true)
   })
+
+  it('merges byFile and lineIndex from multiple tables', () => {
+    const sym1 = {
+      id: 'a.ts::func1',
+      file: 'a.ts',
+      name: 'func1',
+      qualifiedName: 'func1',
+      kind: 'function' as const,
+      exported: true,
+      span: { startLine: 1, startColumn: 0, endLine: 5, endColumn: 1 },
+      sloc: 5,
+    }
+    const sym2 = {
+      id: 'a.ts::func2',
+      file: 'a.ts',
+      name: 'func2',
+      qualifiedName: 'func2',
+      kind: 'function' as const,
+      exported: true,
+      span: { startLine: 10, startColumn: 0, endLine: 15, endColumn: 1 },
+      sloc: 6,
+    }
+    const sym3 = {
+      id: 'b.ts::func3',
+      file: 'b.ts',
+      name: 'func3',
+      qualifiedName: 'func3',
+      kind: 'function' as const,
+      exported: true,
+      span: { startLine: 1, startColumn: 0, endLine: 3, endColumn: 1 },
+      sloc: 3,
+    }
+
+    const table1 = createEmptySymbolTable()
+    table1.symbols.set(sym1.id, sym1)
+    table1.byFile.set('a.ts', [sym1])
+    for (let line = sym1.span.startLine; line <= sym1.span.endLine; line++) {
+      table1.lineIndex.set(`a.ts:${line}`, sym1)
+    }
+
+    const table2 = createEmptySymbolTable()
+    table2.symbols.set(sym2.id, sym2)
+    table2.symbols.set(sym3.id, sym3)
+    table2.byFile.set('a.ts', [sym2])
+    table2.byFile.set('b.ts', [sym3])
+    for (let line = sym2.span.startLine; line <= sym2.span.endLine; line++) {
+      table2.lineIndex.set(`a.ts:${line}`, sym2)
+    }
+    for (let line = sym3.span.startLine; line <= sym3.span.endLine; line++) {
+      table2.lineIndex.set(`b.ts:${line}`, sym3)
+    }
+
+    const merged = mergeSymbolTables(table1, table2)
+
+    // Check symbols merged
+    expect(merged.symbols.size).toBe(3)
+
+    // Check byFile merged and sorted by startLine
+    const aSymbols = merged.byFile.get('a.ts')
+    expect(aSymbols).toHaveLength(2)
+    expect(aSymbols?.[0].id).toBe('a.ts::func1') // Line 1 comes first
+    expect(aSymbols?.[1].id).toBe('a.ts::func2') // Line 10 comes second
+
+    // Check b.ts has its symbol
+    const bSymbols = merged.byFile.get('b.ts')
+    expect(bSymbols).toHaveLength(1)
+    expect(bSymbols?.[0].id).toBe('b.ts::func3')
+
+    // Check lineIndex merged
+    expect(merged.lineIndex.get('a.ts:1')?.id).toBe('a.ts::func1')
+    expect(merged.lineIndex.get('a.ts:10')?.id).toBe('a.ts::func2')
+    expect(merged.lineIndex.get('b.ts:1')?.id).toBe('b.ts::func3')
+  })
+
+  it('deduplicates symbols in byFile when same symbol in multiple tables', () => {
+    const sym1 = {
+      id: 'a.ts::func1',
+      file: 'a.ts',
+      name: 'func1',
+      qualifiedName: 'func1',
+      kind: 'function' as const,
+      exported: true,
+      span: { startLine: 1, startColumn: 0, endLine: 5, endColumn: 1 },
+      sloc: 5,
+    }
+
+    const table1 = createEmptySymbolTable()
+    table1.symbols.set(sym1.id, sym1)
+    table1.byFile.set('a.ts', [sym1])
+
+    const table2 = createEmptySymbolTable()
+    table2.symbols.set(sym1.id, sym1) // Same symbol
+    table2.byFile.set('a.ts', [sym1]) // Duplicate in byFile
+
+    const merged = mergeSymbolTables(table1, table2)
+
+    // Should deduplicate in byFile
+    const aSymbols = merged.byFile.get('a.ts')
+    expect(aSymbols).toHaveLength(1)
+    expect(aSymbols?.[0].id).toBe('a.ts::func1')
+  })
 })
 
 describe('createEmptySymbolTable', () => {

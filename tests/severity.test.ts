@@ -59,6 +59,13 @@ describe('severity module', () => {
       expect(getSeverityWeight('coverage.unit.branches')).toBe(55)
     })
 
+    it('matches by last segment when path ends with known metric name', () => {
+      // Tests the branch: key.endsWith(metricPath.split('.').pop() || '')
+      // 'custom.foo.branches' is not in defaults, but 'coverage.branches' ends with 'branches'
+      // so the last segment 'branches' should match and return 55
+      expect(getSeverityWeight('custom.foo.branches')).toBe(55)
+    })
+
     it('returns default fallback for unknown paths', () => {
       expect(getSeverityWeight('completely.unknown.path')).toBe(50)
     })

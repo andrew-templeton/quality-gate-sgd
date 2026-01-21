@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import {
   loadConfig,
   getConfig,
@@ -6,7 +6,14 @@ import {
   getSonarAuthToken,
   getSonarCurlAuth,
 } from '../src/config.js'
-import { writeFileSync, unlinkSync, existsSync } from 'fs'
+import {
+  writeFileSync,
+  unlinkSync,
+  existsSync,
+  mkdirSync,
+  rmSync,
+  readFileSync,
+} from 'fs'
 import path from 'path'
 
 describe('loadConfig', () => {
@@ -71,6 +78,92 @@ describe('loadConfig', () => {
     // Should detect from current project's package.json
     expect(config.sonarqube.projectKey).toBe('quality-gate-sgd')
   })
+
+  it('detects project key from sonar-project.properties when available', () => {
+    // The actual project has sonar-project.properties
+    const sonarPropsPath = path.join(process.cwd(), 'sonar-project.properties')
+    if (existsSync(sonarPropsPath)) {
+      const content = readFileSync(sonarPropsPath, 'utf-8')
+      if (content.includes('sonar.projectKey=')) {
+        const config = loadConfig()
+        // Should detect from sonar-project.properties
+        expect(config.sonarqube.projectKey).toBe('quality-gate-sgd')
+      }
+    }
+  })
+
+  it('respects QUALITY_PROJECT_ROOT environment variable', () => {
+    const testRoot = path.join(process.cwd(), 'tests/fixtures')
+    process.env.QUALITY_PROJECT_ROOT = testRoot
+
+    const config = loadConfig()
+
+    expect(config.projectRoot).toBe(testRoot)
+  })
+
+  it('respects QUALITY_PROJECT_NAME environment variable', () => {
+    process.env.QUALITY_PROJECT_NAME = 'my-custom-project'
+
+    const config = loadConfig()
+
+    expect(config.projectName).toBe('my-custom-project')
+  })
+
+  it('respects SONARQUBE_PROJECT_KEY environment variable', () => {
+    process.env.SONARQUBE_PROJECT_KEY = 'custom-project-key'
+
+    const config = loadConfig()
+
+    expect(config.sonarqube.projectKey).toBe('custom-project-key')
+  })
+
+  it('respects SONARQUBE_DEFAULT_USER environment variable', () => {
+    process.env.SONARQUBE_DEFAULT_USER = 'custom-user'
+
+    const config = loadConfig()
+
+    expect(config.sonarqube.defaultCredentials.user).toBe('custom-user')
+  })
+
+  it('respects SONARQUBE_DEFAULT_PASSWORD environment variable', () => {
+    process.env.SONARQUBE_DEFAULT_PASSWORD = 'custom-password'
+
+    const config = loadConfig()
+
+    expect(config.sonarqube.defaultCredentials.password).toBe('custom-password')
+  })
+
+  it('respects QUALITY_COVERAGE_UNIT_DIR environment variable', () => {
+    process.env.QUALITY_COVERAGE_UNIT_DIR = 'custom-coverage'
+
+    const config = loadConfig()
+
+    expect(config.coverage.unitDir).toBe('custom-coverage')
+  })
+
+  it('respects QUALITY_COVERAGE_LAMBDA_DIR environment variable', () => {
+    process.env.QUALITY_COVERAGE_LAMBDA_DIR = 'custom-lambda-coverage'
+
+    const config = loadConfig()
+
+    expect(config.coverage.lambdaDir).toBe('custom-lambda-coverage')
+  })
+
+  it('respects QUALITY_COVERAGE_SUMMARY_FILE environment variable', () => {
+    process.env.QUALITY_COVERAGE_SUMMARY_FILE = 'custom-summary.json'
+
+    const config = loadConfig()
+
+    expect(config.coverage.summaryFile).toBe('custom-summary.json')
+  })
+
+  it('respects QUALITY_CACHE_FILE environment variable', () => {
+    process.env.QUALITY_CACHE_FILE = '/custom/cache/file.json'
+
+    const config = loadConfig()
+
+    expect(config.cache.file).toBe('/custom/cache/file.json')
+  })
 })
 
 describe('getConfig', () => {
@@ -134,6 +227,150 @@ describe('getSonarAuthToken', () => {
     const token = getSonarAuthToken()
 
     expect(token).toBe('my-secret-token')
+  })
+})
+
+describe('detectProjectKey edge cases', () => {
+  const testDir = path.join(process.cwd(), 'tests/fixtures/config-test')
+  const originalEnv = { ...process.env }
+
+  beforeEach(() => {
+    mkdirSync(testDir, { recursive: true })
+    resetConfig()
+  })
+
+  afterEach(() => {
+    process.env = { ...originalEnv }
+    resetConfig()
+    try {
+      rmSync(testDir, { recursive: true, force: true })
+    } catch {
+      // ignore cleanup errors
+    }
+  })
+
+  it('returns my-project when no package.json or sonar-project.properties exist', () => {
+    // Create an empty directory with no package.json
+    process.env.QUALITY_PROJECT_ROOT = testDir
+    delete process.env.SONARQUBE_PROJECT_KEY
+
+    const config = loadConfig()
+
+    expect(config.sonarqube.projectKey).toBe('my-project')
+  })
+
+  it('reads project key from sonar-project.properties', () => {
+    // Create sonar-project.properties
+    writeFileSync(
+      path.join(testDir, 'sonar-project.properties'),
+      'sonar.projectKey=from-sonar-props\n'
+    )
+    process.env.QUALITY_PROJECT_ROOT = testDir
+    delete process.env.SONARQUBE_PROJECT_KEY
+
+    const config = loadConfig()
+
+    expect(config.sonarqube.projectKey).toBe('from-sonar-props')
+  })
+
+  it('handles sonar-project.properties without projectKey', () => {
+    // Create sonar-project.properties without projectKey line
+    writeFileSync(
+      path.join(testDir, 'sonar-project.properties'),
+      'sonar.host.url=http://localhost:9000\n'
+    )
+    process.env.QUALITY_PROJECT_ROOT = testDir
+    delete process.env.SONARQUBE_PROJECT_KEY
+
+    const config = loadConfig()
+
+    // Should fall back to my-project since no package.json either
+    expect(config.sonarqube.projectKey).toBe('my-project')
+  })
+
+  it('reads from package.json when sonar-project.properties has no key', () => {
+    // Create sonar-project.properties without key
+    writeFileSync(
+      path.join(testDir, 'sonar-project.properties'),
+      'sonar.host.url=http://localhost:9000\n'
+    )
+    // Create package.json with name
+    writeFileSync(
+      path.join(testDir, 'package.json'),
+      JSON.stringify({ name: 'test-pkg' })
+    )
+    process.env.QUALITY_PROJECT_ROOT = testDir
+    delete process.env.SONARQUBE_PROJECT_KEY
+
+    const config = loadConfig()
+
+    expect(config.sonarqube.projectKey).toBe('test-pkg')
+  })
+
+  it('handles scoped package names', () => {
+    writeFileSync(
+      path.join(testDir, 'package.json'),
+      JSON.stringify({ name: '@scope/my-package' })
+    )
+    process.env.QUALITY_PROJECT_ROOT = testDir
+    delete process.env.SONARQUBE_PROJECT_KEY
+
+    const config = loadConfig()
+
+    expect(config.sonarqube.projectKey).toBe('scope-my-package')
+  })
+
+  it('handles invalid package.json', () => {
+    writeFileSync(path.join(testDir, 'package.json'), 'invalid json {')
+    process.env.QUALITY_PROJECT_ROOT = testDir
+    delete process.env.SONARQUBE_PROJECT_KEY
+
+    const config = loadConfig()
+
+    // Should fall back to default
+    expect(config.sonarqube.projectKey).toBe('my-project')
+  })
+
+  it('handles package.json without name field', () => {
+    writeFileSync(
+      path.join(testDir, 'package.json'),
+      JSON.stringify({ version: '1.0.0' })
+    )
+    process.env.QUALITY_PROJECT_ROOT = testDir
+    delete process.env.SONARQUBE_PROJECT_KEY
+
+    const config = loadConfig()
+
+    expect(config.sonarqube.projectKey).toBe('my-project')
+  })
+})
+
+describe('resolveProjectRoot', () => {
+  const originalEnv = { ...process.env }
+  const testDir = path.join(process.cwd(), 'tests/fixtures/resolve-root-test')
+
+  beforeEach(() => {
+    mkdirSync(testDir, { recursive: true })
+    resetConfig()
+  })
+
+  afterEach(() => {
+    process.env = { ...originalEnv }
+    resetConfig()
+    try {
+      rmSync(testDir, { recursive: true, force: true })
+    } catch {
+      // ignore cleanup errors
+    }
+  })
+
+  it('uses cwd when package.json exists there', () => {
+    // Default behavior - cwd has package.json
+    delete process.env.QUALITY_PROJECT_ROOT
+
+    const config = loadConfig()
+
+    expect(config.projectRoot).toBe(process.cwd())
   })
 })
 

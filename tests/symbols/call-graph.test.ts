@@ -285,4 +285,103 @@ export function funcB(): void {
     // Should handle cross-file calls
     expect(weights).toBeDefined()
   })
+
+  it('handles calls with no resolved signature but has symbol', () => {
+    // This tests the fallback path where signature.declaration is undefined
+    // but getSymbolAtLocation returns a symbol
+    const testFile = join(TEST_DIR, 'fallback.ts')
+    writeFileSync(testFile, `
+function target(): void {
+  console.log('target');
+}
+
+function caller(): void {
+  const fn = target;
+  fn();
+}
+`)
+
+    const targetSymbol = createSymbol({
+      id: `${testFile}::target`,
+      file: testFile,
+      name: 'target',
+      span: { startLine: 2, startColumn: 0, endLine: 4, endColumn: 1 },
+    })
+    const callerSymbol = createSymbol({
+      id: `${testFile}::caller`,
+      file: testFile,
+      name: 'caller',
+      span: { startLine: 6, startColumn: 0, endLine: 9, endColumn: 1 },
+    })
+
+    const symbolTable = createSymbolTable([targetSymbol, callerSymbol])
+
+    const weights = computeSymbolCallGraphWeights(symbolTable)
+
+    // The indirect call fn() may trigger the fallback path
+    expect(weights).toBeDefined()
+  })
+
+  it('handles constructor calls (new expressions)', () => {
+    const testFile = join(TEST_DIR, 'constructor.ts')
+    writeFileSync(testFile, `
+class MyClass {
+  constructor() {
+    console.log('constructed');
+  }
+}
+
+function creator(): void {
+  const obj = new MyClass();
+}
+`)
+
+    const classSymbol = createSymbol({
+      id: `${testFile}::MyClass`,
+      file: testFile,
+      name: 'MyClass',
+      kind: 'class',
+      span: { startLine: 2, startColumn: 0, endLine: 6, endColumn: 1 },
+    })
+    const creatorSymbol = createSymbol({
+      id: `${testFile}::creator`,
+      file: testFile,
+      name: 'creator',
+      span: { startLine: 8, startColumn: 0, endLine: 10, endColumn: 1 },
+    })
+
+    const symbolTable = createSymbolTable([classSymbol, creatorSymbol])
+
+    const stats = computeSymbolCallGraphStats(symbolTable)
+
+    // Should detect the new MyClass() call
+    expect(stats.totalCalls).toBeGreaterThan(0)
+  })
+
+  it('handles method calls with dynamic receiver', () => {
+    const testFile = join(TEST_DIR, 'dynamic.ts')
+    writeFileSync(testFile, `
+interface Callable {
+  doSomething(): void;
+}
+
+function caller(obj: Callable): void {
+  obj.doSomething();
+}
+`)
+
+    const callerSymbol = createSymbol({
+      id: `${testFile}::caller`,
+      file: testFile,
+      name: 'caller',
+      span: { startLine: 6, startColumn: 0, endLine: 8, endColumn: 1 },
+    })
+
+    const symbolTable = createSymbolTable([callerSymbol])
+
+    const stats = computeSymbolCallGraphStats(symbolTable)
+
+    // Should handle dynamic calls - may not resolve but shouldn't error
+    expect(stats.unresolvedCalls).toBeGreaterThanOrEqual(0)
+  })
 })

@@ -150,6 +150,52 @@ describe('evaluateRules', () => {
       expect(result.status).toBe('fail')
       expect(result.failedRules[0].message).toContain('not available')
     })
+
+    it('fails when metric path traverses through non-object', () => {
+      const rules: QualityRules = {
+        version: '1.0.0',
+        rules: {
+          floors: { 'sloc.something.deep': 100 },
+        },
+      }
+
+      const metrics: Metrics = {
+        coverage: {},
+        typescript: { errors: 0, warnings: 0, rootCauses: 0 },
+        eslint: { errors: 0, warnings: 0, rootCauses: 0 },
+        scripts: {},
+        sloc: 1000, // sloc is a number, not an object
+      }
+
+      const result = evaluateRules(rules, metrics)
+
+      // Should fail because sloc.something tries to access property on number
+      expect(result.status).toBe('fail')
+      expect(result.failedRules[0].message).toContain('not available')
+    })
+
+    it('fails when metric value is not a number', () => {
+      const rules: QualityRules = {
+        version: '1.0.0',
+        rules: {
+          floors: { 'scripts.test': 1 },
+        },
+      }
+
+      const metrics: Metrics = {
+        coverage: {},
+        typescript: { errors: 0, warnings: 0, rootCauses: 0 },
+        eslint: { errors: 0, warnings: 0, rootCauses: 0 },
+        scripts: { test: 'pass' }, // test is a string, not a number
+        sloc: 1000,
+      }
+
+      const result = evaluateRules(rules, metrics)
+
+      // Should fail because scripts.test is 'pass' (string), not a number
+      expect(result.status).toBe('fail')
+      expect(result.failedRules[0].message).toContain('not available')
+    })
   })
 
   describe('ceiling evaluation', () => {
@@ -354,6 +400,121 @@ describe('evaluateRules', () => {
 
       expect(result.status).toBe('pass')
     })
+
+    it('skips metric comparison when baseline metric is undefined', () => {
+      const rules: QualityRules = {
+        version: '1.0.0',
+        rules: {
+          monotonic: [
+            { direction: 'up', metrics: ['coverage.unit.branches'] },
+          ],
+        },
+      }
+
+      const currentMetrics: Metrics = {
+        coverage: { unit: { branches: 85, statements: 90, functions: 80, lines: 85 } },
+        typescript: { errors: 0, warnings: 0, rootCauses: 0 },
+        eslint: { errors: 0, warnings: 0, rootCauses: 0 },
+        scripts: {},
+        sloc: 1000,
+      }
+
+      const baselineEntry: CacheEntry = {
+        timestamp: Date.now(),
+        rulesHash: 'def',
+        rulesVersion: '1.0.0',
+        metrics: {
+          coverage: {}, // No unit.branches in baseline
+          typescript: { errors: 0, warnings: 0, rootCauses: 0 },
+          eslint: { errors: 0, warnings: 0, rootCauses: 0 },
+          scripts: {},
+          sloc: 1000,
+        },
+        evaluation: { status: 'pass', failedRules: [] },
+      }
+
+      const result = evaluateRules(rules, currentMetrics, baselineEntry)
+
+      // Should pass because missing baseline metric is skipped
+      expect(result.status).toBe('pass')
+    })
+
+    it('skips metric comparison when current metric is undefined', () => {
+      const rules: QualityRules = {
+        version: '1.0.0',
+        rules: {
+          monotonic: [
+            { direction: 'up', metrics: ['coverage.unit.branches'] },
+          ],
+        },
+      }
+
+      const currentMetrics: Metrics = {
+        coverage: {}, // No unit.branches in current
+        typescript: { errors: 0, warnings: 0, rootCauses: 0 },
+        eslint: { errors: 0, warnings: 0, rootCauses: 0 },
+        scripts: {},
+        sloc: 1000,
+      }
+
+      const baselineEntry: CacheEntry = {
+        timestamp: Date.now(),
+        rulesHash: 'def',
+        rulesVersion: '1.0.0',
+        metrics: {
+          coverage: { unit: { branches: 80, statements: 85, functions: 75, lines: 80 } },
+          typescript: { errors: 0, warnings: 0, rootCauses: 0 },
+          eslint: { errors: 0, warnings: 0, rootCauses: 0 },
+          scripts: {},
+          sloc: 1000,
+        },
+        evaluation: { status: 'pass', failedRules: [] },
+      }
+
+      const result = evaluateRules(rules, currentMetrics, baselineEntry)
+
+      // Should pass because missing current metric is skipped
+      expect(result.status).toBe('pass')
+    })
+
+    it('fails when metric increases (direction: down)', () => {
+      const rules: QualityRules = {
+        version: '1.0.0',
+        rules: {
+          monotonic: [
+            { direction: 'down', metrics: ['typescript.errors'] },
+          ],
+        },
+      }
+
+      const currentMetrics: Metrics = {
+        coverage: {},
+        typescript: { errors: 10, warnings: 0, rootCauses: 0 },
+        eslint: { errors: 0, warnings: 0, rootCauses: 0 },
+        scripts: {},
+        sloc: 1000,
+      }
+
+      const baselineEntry: CacheEntry = {
+        timestamp: Date.now(),
+        rulesHash: 'def',
+        rulesVersion: '1.0.0',
+        metrics: {
+          coverage: {},
+          typescript: { errors: 5, warnings: 0, rootCauses: 0 },
+          eslint: { errors: 0, warnings: 0, rootCauses: 0 },
+          scripts: {},
+          sloc: 1000,
+        },
+        evaluation: { status: 'pass', failedRules: [] },
+      }
+
+      const result = evaluateRules(rules, currentMetrics, baselineEntry)
+
+      expect(result.status).toBe('fail')
+      expect(result.failedRules[0].type).toBe('monotonic')
+      expect(result.failedRules[0].message).toContain('increased')
+    })
   })
 
   describe('script evaluation', () => {
@@ -498,5 +659,84 @@ describe('isCacheValid', () => {
     }
 
     expect(isCacheValid(entry, rules)).toBe(false)
+  })
+
+  it('returns false when failed cache has missing floor metric', () => {
+    const rules: QualityRules = {
+      version: '1.0.0',
+      rules: {
+        floors: { 'coverage.unit.branches': 80 },
+      },
+    }
+
+    const entry: CacheEntry = {
+      timestamp: Date.now(),
+      rulesHash: computeRulesHash(rules),
+      rulesVersion: '1.0.0',
+      metrics: {
+        coverage: {}, // Missing coverage.unit.branches
+        typescript: { errors: 0, warnings: 0, rootCauses: 0 },
+        eslint: { errors: 0, warnings: 0, rootCauses: 0 },
+        scripts: {},
+        sloc: 1000,
+      },
+      evaluation: { status: 'fail', failedRules: [] }, // Failed status
+    }
+
+    // Should return false because a floor metric was missing in a failed evaluation
+    expect(isCacheValid(entry, rules)).toBe(false)
+  })
+
+  it('returns true when failed cache has all floor metrics present', () => {
+    const rules: QualityRules = {
+      version: '1.0.0',
+      rules: {
+        floors: { 'coverage.unit.branches': 80 },
+      },
+    }
+
+    const entry: CacheEntry = {
+      timestamp: Date.now(),
+      rulesHash: computeRulesHash(rules),
+      rulesVersion: '1.0.0',
+      metrics: {
+        coverage: { unit: { branches: 70, statements: 80, functions: 70, lines: 75 } },
+        typescript: { errors: 0, warnings: 0, rootCauses: 0 },
+        eslint: { errors: 0, warnings: 0, rootCauses: 0 },
+        scripts: {},
+        sloc: 1000,
+      },
+      evaluation: { status: 'fail', failedRules: [] }, // Failed due to branches < 80
+    }
+
+    // Should return true because the metric exists (even though evaluation failed)
+    expect(isCacheValid(entry, rules)).toBe(true)
+  })
+
+  it('returns true for failed cache when rules have no floors', () => {
+    const rules: QualityRules = {
+      version: '1.0.0',
+      rules: {
+        ceilings: { 'typescript.errors': 0 },
+        // No floors defined
+      },
+    }
+
+    const entry: CacheEntry = {
+      timestamp: Date.now(),
+      rulesHash: computeRulesHash(rules),
+      rulesVersion: '1.0.0',
+      metrics: {
+        coverage: {},
+        typescript: { errors: 5, warnings: 0, rootCauses: 0 },
+        eslint: { errors: 0, warnings: 0, rootCauses: 0 },
+        scripts: {},
+        sloc: 1000,
+      },
+      evaluation: { status: 'fail', failedRules: [] }, // Failed due to errors > 0
+    }
+
+    // Should return true - no floor metrics to check for missing values
+    expect(isCacheValid(entry, rules)).toBe(true)
   })
 })
