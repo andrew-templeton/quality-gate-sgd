@@ -75,6 +75,23 @@ import {
 } from './dimensions/index.js';
 import { runMcpServer } from './mcp/index.js';
 import { estimateFixability as runFixabilityEstimation } from './fixability/index.js';
+import {
+  createExperimentScaffold,
+  initializeRun,
+  executeDockerRun,
+  listExperiments,
+  listRuns as listDockerRuns,
+  loadRun as loadDockerRun,
+  type ScaffoldOptions,
+} from './experiments/docker/index.js';
+import {
+  analyzeBatch,
+  generateAnalysisReport,
+  loadBatch,
+  visualizeBatch,
+  visualizeResults,
+  type ExperimentBatch,
+} from './experiments/index.js';
 import * as readline from 'readline';
 
 function log(message: string): void {
@@ -893,6 +910,478 @@ async function runAddDimension(args: string[]): Promise<void> {
   }
 }
 
+// =============================================================================
+// Experiment Commands
+// =============================================================================
+
+/**
+ * Create a new experiment scaffold.
+ */
+async function runExperimentInit(args: string[]): Promise<void> {
+  log('Quality Gate SGD - Create Experiment');
+  log('====================================\n');
+
+  // Parse args
+  const nameArg = args.find(a => a.startsWith('--name='));
+  const designArg = args.find(a => a.startsWith('--design='));
+  const agentArg = args.find(a => a.startsWith('--agent='));
+  const taskArg = args.find(a => a.startsWith('--task='));
+  const baseDirArg = args.find(a => a.startsWith('--dir='));
+  const skipConfirm = args.includes('-y') || args.includes('--yes');
+
+  // Get name
+  let name = nameArg?.split('=')[1];
+  if (!name) {
+    name = await askQuestion('Experiment name');
+    if (!name) {
+      log('Error: Name is required');
+      process.exit(1);
+    }
+  }
+
+  // Get design
+  let design = designArg?.split('=')[1];
+  if (!design) {
+    log('\nExperiment designs:');
+    log('  A - Gate vs No-Gate (H1, H2)');
+    log('  B - Topology Sensitivity (H3)');
+    log('  C - Addressing Fitness (H4-H6)');
+    log('  D - Call Graph Weighting (H7, H8)');
+    log('  E - Fixability Validity (H9, H10)');
+    log('  F - Adjusted Prioritization (H11, H12)');
+    design = await askQuestion('Design (A-F)', 'A');
+  }
+  if (!['A', 'B', 'C', 'D', 'E', 'F'].includes(design.toUpperCase())) {
+    log('Error: Invalid design. Must be A-F');
+    process.exit(1);
+  }
+
+  // Get agent type
+  let agentType = agentArg?.split('=')[1];
+  if (!agentType) {
+    log('\nAgent types:');
+    log('  swe-agent - SWE-agent (recommended for SWE-bench)');
+    log('  aider - Aider (recommended for code fixes)');
+    log('  custom - Custom Docker image');
+    agentType = await askQuestion('Agent type', 'swe-agent');
+  }
+
+  let customImage: string | undefined;
+  if (agentType === 'custom') {
+    customImage = await askQuestion('Docker image for custom agent');
+    if (!customImage) {
+      log('Error: Docker image is required for custom agent');
+      process.exit(1);
+    }
+  }
+
+  // Get task source
+  let taskSource = taskArg?.split('=')[1];
+  if (!taskSource) {
+    log('\nTask sources:');
+    log('  swe-bench - SWE-bench benchmark tasks');
+    log('  custom - Custom task definition');
+    taskSource = await askQuestion('Task source', 'swe-bench');
+  }
+
+  // Get description
+  const description = await askQuestion('Description (optional)');
+
+  // Confirm
+  log('\nExperiment configuration:');
+  log(`  Name: ${name}`);
+  log(`  Design: ${design.toUpperCase()}`);
+  log(`  Agent: ${agentType}${customImage ? ` (${customImage})` : ''}`);
+  log(`  Task source: ${taskSource}`);
+  if (description) log(`  Description: ${description}`);
+
+  let shouldCreate = skipConfirm;
+  if (!skipConfirm) {
+    shouldCreate = await askYesNo('\nCreate experiment scaffold?', true);
+  }
+
+  if (!shouldCreate) {
+    log('Cancelled');
+    return;
+  }
+
+  // Create scaffold
+  const options: ScaffoldOptions = {
+    name,
+    design: design.toUpperCase() as 'A' | 'B' | 'C' | 'D' | 'E' | 'F',
+    agentType: agentType as 'swe-agent' | 'aider' | 'custom',
+    customImage,
+    taskSource: taskSource as 'swe-bench' | 'custom',
+    description: description || undefined,
+    baseDir: baseDirArg?.split('=')[1],
+    includeExample: true,
+  };
+
+  const dirs = createExperimentScaffold(options);
+
+  log('\n✓ Experiment scaffold created');
+  log(`\nDirectory: ${dirs.root}`);
+  log('\nNext steps:');
+  log(`  1. Review experiment.json in ${dirs.root}`);
+  log(`  2. Create a run:`);
+  log(`     npx quality-gate-sgd experiment init-run --experiment ${dirs.root.split('/').pop()} --condition baseline --task <task-id>`);
+  log(`  3. Start the run:`);
+  log(`     cd ${dirs.runs}/<run-id>`);
+  log(`     docker-compose up`);
+}
+
+/**
+ * Initialize a new experiment run.
+ */
+async function runExperimentInitRun(args: string[]): Promise<void> {
+  log('Quality Gate SGD - Initialize Run');
+  log('=================================\n');
+
+  // Parse args
+  const expArg = args.find(a => a.startsWith('--experiment='));
+  const condArg = args.find(a => a.startsWith('--condition='));
+  const taskArg = args.find(a => a.startsWith('--task='));
+  const runIdArg = args.find(a => a.startsWith('--run-id='));
+
+  const experimentId = expArg?.split('=')[1];
+  const conditionName = condArg?.split('=')[1];
+  const taskId = taskArg?.split('=')[1];
+  const runId = runIdArg?.split('=')[1];
+
+  if (!experimentId) {
+    log('Error: --experiment=<id> is required');
+    log('\nAvailable experiments:');
+    const experiments = listExperiments();
+    for (const exp of experiments) {
+      log(`  ${exp.id} - ${exp.name} (Design ${exp.design})`);
+    }
+    process.exit(1);
+  }
+
+  if (!conditionName) {
+    log('Error: --condition=<name> is required');
+    process.exit(1);
+  }
+
+  if (!taskId) {
+    log('Error: --task=<id> is required');
+    process.exit(1);
+  }
+
+  const run = initializeRun({
+    experimentId,
+    conditionName,
+    taskId,
+    runId,
+  });
+
+  log('✓ Run initialized');
+  log(`\nRun ID: ${run.runId}`);
+  log(`Directory: ${run.runDir}`);
+  log('\nNext steps:');
+  log(`  cd ${run.runDir}`);
+  log(`  docker-compose up`);
+}
+
+/**
+ * Execute an experiment run.
+ */
+async function runExperimentRun(args: string[]): Promise<void> {
+  log('Quality Gate SGD - Execute Run');
+  log('==============================\n');
+
+  const expArg = args.find(a => a.startsWith('--experiment='));
+  const runArg = args.find(a => a.startsWith('--run='));
+  const followLogs = args.includes('--follow');
+  const timeout = args.find(a => a.startsWith('--timeout='));
+
+  const experimentId = expArg?.split('=')[1];
+  const runId = runArg?.split('=')[1];
+
+  if (!experimentId || !runId) {
+    log('Error: --experiment=<id> and --run=<id> are required');
+    process.exit(1);
+  }
+
+  const timeoutMs = timeout ? parseInt(timeout.split('=')[1], 10) * 1000 : undefined;
+
+  log(`Running experiment ${experimentId}, run ${runId}...`);
+  if (followLogs) {
+    log('Following logs (Ctrl+C to stop)...\n');
+  }
+
+  const result = await executeDockerRun(experimentId, runId, {
+    timeout: timeoutMs,
+    followLogs,
+    onStateChange: (state, run) => {
+      log(`State: ${state}`);
+    },
+    onLog: (service, message) => {
+      log(`[${service}] ${message}`);
+    },
+  });
+
+  log('\n' + '='.repeat(50));
+  log(`Run completed: ${result.state}`);
+  if (result.result) {
+    log(`Gate passed: ${result.result.gatePassed}`);
+    log(`Final score: ${result.result.finalScore}`);
+    log(`Gate queries: ${result.result.gateQueries}`);
+  }
+  if (result.error) {
+    log(`Error: ${result.error}`);
+  }
+}
+
+/**
+ * List experiments and runs.
+ */
+function runExperimentList(args: string[]): void {
+  const expArg = args.find(a => a.startsWith('--experiment='));
+  const jsonFlag = args.includes('--json');
+
+  if (expArg) {
+    // List runs for an experiment
+    const experimentId = expArg.split('=')[1];
+    const runs = listDockerRuns(experimentId);
+
+    if (jsonFlag) {
+      console.log(JSON.stringify(runs, null, 2));
+      return;
+    }
+
+    log(`Runs for experiment ${experimentId}:`);
+    log('');
+    if (runs.length === 0) {
+      log('  No runs found');
+      return;
+    }
+
+    for (const run of runs) {
+      log(`  ${run.runId}`);
+      log(`    State: ${run.state}`);
+      if (run.startedAt) {
+        log(`    Started: ${new Date(run.startedAt).toISOString()}`);
+      }
+      if (run.result) {
+        log(`    Passed: ${run.result.gatePassed}, Score: ${run.result.finalScore}`);
+      }
+      log('');
+    }
+  } else {
+    // List all experiments
+    const experiments = listExperiments();
+
+    if (jsonFlag) {
+      console.log(JSON.stringify(experiments, null, 2));
+      return;
+    }
+
+    log('Available experiments:');
+    log('');
+    if (experiments.length === 0) {
+      log('  No experiments found');
+      log('  Create one with: npx quality-gate-sgd experiment create');
+      return;
+    }
+
+    for (const exp of experiments) {
+      log(`  ${exp.id}`);
+      log(`    Name: ${exp.name}`);
+      log(`    Design: ${exp.design}`);
+      log(`    Agent: ${exp.agent.type}`);
+      if (exp.description) {
+        log(`    Description: ${exp.description}`);
+      }
+      log('');
+    }
+  }
+}
+
+/**
+ * Analyze a completed experiment batch.
+ */
+function runExperimentAnalyze(args: string[]): void {
+  const batchArg = args.find(a => a.startsWith('--batch='));
+  const jsonFlag = args.includes('--json');
+
+  if (!batchArg) {
+    log('Error: --batch=<id> is required');
+    log('\nUsage: npx quality-gate-sgd experiment analyze --batch=<batch-id>');
+    process.exit(1);
+  }
+
+  const batchId = batchArg.split('=')[1];
+  const batch = loadBatch(batchId);
+
+  if (!batch) {
+    log(`Error: Batch not found: ${batchId}`);
+    process.exit(1);
+  }
+
+  const results = analyzeBatch(batch);
+
+  if (jsonFlag) {
+    console.log(JSON.stringify({
+      batchId: batch.batchId,
+      design: batch.design,
+      hypotheses: batch.hypotheses,
+      results,
+    }, null, 2));
+    return;
+  }
+
+  log('Quality Gate SGD - Batch Analysis');
+  log('=================================\n');
+  log(`Batch: ${batch.batchId}`);
+  log(`Design: ${batch.design}`);
+  log(`Runs: ${batch.runs.length}`);
+  log(`Hypotheses: ${batch.hypotheses.join(', ')}`);
+  log('');
+
+  const supported = results.filter(r => r.supported).length;
+  log(`Results: ${supported}/${results.length} hypotheses supported`);
+  log('');
+
+  for (const result of results) {
+    const icon = result.supported ? '✓' : '✗';
+    log(`${icon} ${result.hypothesis}: ${result.interpretation}`);
+  }
+}
+
+/**
+ * Generate a markdown analysis report for a batch.
+ */
+function runExperimentReport(args: string[]): void {
+  const batchArg = args.find(a => a.startsWith('--batch='));
+  const outputArg = args.find(a => a.startsWith('--output='));
+
+  if (!batchArg) {
+    log('Error: --batch=<id> is required');
+    log('\nUsage: npx quality-gate-sgd experiment report --batch=<batch-id> [--output=<file>]');
+    process.exit(1);
+  }
+
+  const batchId = batchArg.split('=')[1];
+  const batch = loadBatch(batchId);
+
+  if (!batch) {
+    log(`Error: Batch not found: ${batchId}`);
+    process.exit(1);
+  }
+
+  const results = analyzeBatch(batch);
+  const report = generateAnalysisReport(batch, results);
+
+  if (outputArg) {
+    const outputPath = outputArg.split('=')[1];
+    const fs = require('fs');
+    fs.writeFileSync(outputPath, report);
+    log(`Report written to: ${outputPath}`);
+  } else {
+    console.log(report);
+  }
+}
+
+/**
+ * Visualize experiment results with ASCII charts.
+ */
+function runExperimentVisualize(args: string[]): void {
+  const batchArg = args.find(a => a.startsWith('--batch='));
+  const typeArg = args.find(a => a.startsWith('--type='));
+
+  if (!batchArg) {
+    log('Error: --batch=<id> is required');
+    log('\nUsage: npx quality-gate-sgd experiment visualize --batch=<batch-id> [--type=batch|results]');
+    process.exit(1);
+  }
+
+  const batchId = batchArg.split('=')[1];
+  const batch = loadBatch(batchId);
+
+  if (!batch) {
+    log(`Error: Batch not found: ${batchId}`);
+    process.exit(1);
+  }
+
+  const vizType = typeArg?.split('=')[1] || 'batch';
+
+  log('Quality Gate SGD - Experiment Visualization');
+  log('==========================================\n');
+
+  if (vizType === 'results') {
+    const results = analyzeBatch(batch);
+    log(visualizeResults(results));
+  } else {
+    log(visualizeBatch(batch));
+  }
+}
+
+/**
+ * Main experiment command dispatcher.
+ */
+async function runExperimentCommand(args: string[]): Promise<void> {
+  const subcommand = args[0];
+
+  switch (subcommand) {
+    case 'create':
+    case 'new':
+      await runExperimentInit(args.slice(1));
+      break;
+
+    case 'init-run':
+      await runExperimentInitRun(args.slice(1));
+      break;
+
+    case 'run':
+    case 'execute':
+      await runExperimentRun(args.slice(1));
+      break;
+
+    case 'list':
+    case 'ls':
+      runExperimentList(args.slice(1));
+      break;
+
+    case 'analyze':
+      runExperimentAnalyze(args.slice(1));
+      break;
+
+    case 'report':
+      runExperimentReport(args.slice(1));
+      break;
+
+    case 'visualize':
+    case 'viz':
+      runExperimentVisualize(args.slice(1));
+      break;
+
+    default:
+      log('Quality Gate SGD - Experiment Commands');
+      log('======================================\n');
+      log('USAGE:');
+      log('  npx quality-gate-sgd experiment <command> [options]\n');
+      log('COMMANDS:');
+      log('  create      Create a new experiment scaffold');
+      log('  init-run    Initialize a new run for an experiment');
+      log('  run         Execute an experiment run');
+      log('  list        List experiments or runs');
+      log('  analyze     Analyze completed batch and test hypotheses');
+      log('  report      Generate markdown analysis report');
+      log('  visualize   Show ASCII visualizations of results\n');
+      log('EXAMPLES:');
+      log('  npx quality-gate-sgd experiment create --name="Gate Test" --design=A');
+      log('  npx quality-gate-sgd experiment init-run --experiment=exp-xxx --condition=baseline --task=test-1');
+      log('  npx quality-gate-sgd experiment run --experiment=exp-xxx --run=run-xxx --follow');
+      log('  npx quality-gate-sgd experiment list');
+      log('  npx quality-gate-sgd experiment list --experiment=exp-xxx');
+      log('  npx quality-gate-sgd experiment analyze --batch=batch-xxx');
+      log('  npx quality-gate-sgd experiment report --batch=batch-xxx --output=report.md');
+      log('  npx quality-gate-sgd experiment visualize --batch=batch-xxx --type=results');
+      break;
+  }
+}
+
 function showHelp(): void {
   console.log(`
 quality-gate-sgd - Deterministic quality gates for LLM agents
@@ -1085,6 +1574,11 @@ async function main(): Promise<void> {
 
     case 'mcp':
       await runMcpServer();
+      break;
+
+    case 'experiment':
+    case 'exp':
+      await runExperimentCommand(args.slice(1));
       break;
 
     case 'help':

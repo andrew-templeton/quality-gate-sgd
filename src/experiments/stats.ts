@@ -515,6 +515,499 @@ function gammainc_upper(a: number, x: number): number {
   return Math.exp(-x + a * Math.log(x) - Math.log(gamma(a))) * h;
 }
 
+// =============================================================================
+// ANOVA
+// =============================================================================
+
+/**
+ * One-way ANOVA result.
+ */
+export interface AnovaResult extends StatisticalTest {
+  /** Group means */
+  groupMeans: number[];
+  /** Between-group sum of squares */
+  ssBetween: number;
+  /** Within-group sum of squares */
+  ssWithin: number;
+  /** Between-group degrees of freedom */
+  dfBetween: number;
+  /** Within-group degrees of freedom */
+  dfWithin: number;
+  /** Mean square between */
+  msBetween: number;
+  /** Mean square within */
+  msWithin: number;
+  /** Eta-squared effect size */
+  etaSquared: number;
+}
+
+/**
+ * One-way ANOVA for comparing means across multiple groups.
+ * Tests H0: all group means are equal.
+ */
+export function anova(groups: number[][]): AnovaResult {
+  const k = groups.length; // Number of groups
+  const ns = groups.map(g => g.length);
+  const N = ns.reduce((a, b) => a + b, 0); // Total sample size
+
+  // Group means and grand mean
+  const groupMeans = groups.map(g => g.reduce((a, b) => a + b, 0) / g.length);
+  const grandMean = groups.flat().reduce((a, b) => a + b, 0) / N;
+
+  // Between-group sum of squares
+  const ssBetween = groups.reduce((acc, g, i) => {
+    return acc + g.length * (groupMeans[i] - grandMean) ** 2;
+  }, 0);
+
+  // Within-group sum of squares
+  const ssWithin = groups.reduce((acc, g, i) => {
+    return acc + g.reduce((a, x) => a + (x - groupMeans[i]) ** 2, 0);
+  }, 0);
+
+  // Degrees of freedom
+  const dfBetween = k - 1;
+  const dfWithin = N - k;
+
+  // Mean squares
+  const msBetween = ssBetween / dfBetween;
+  const msWithin = ssWithin / dfWithin;
+
+  // F-statistic
+  const F = msBetween / msWithin;
+
+  // P-value from F-distribution
+  const pValue = 1 - fCDF(F, dfBetween, dfWithin);
+
+  // Effect size: eta-squared
+  const etaSquared = ssBetween / (ssBetween + ssWithin);
+
+  return {
+    test: 'one-way-anova',
+    statistic: F,
+    pValue,
+    effectSize: etaSquared,
+    ci95: [NaN, NaN] as [number, number], // CI not typically reported for ANOVA
+    df: dfBetween,
+    n: ns as number | [number, number],
+    groupMeans,
+    ssBetween,
+    ssWithin,
+    dfBetween,
+    dfWithin,
+    msBetween,
+    msWithin,
+    etaSquared,
+  };
+}
+
+// =============================================================================
+// Regression
+// =============================================================================
+
+/**
+ * Linear regression result.
+ */
+export interface RegressionResult extends StatisticalTest {
+  /** Intercept (b0) */
+  intercept: number;
+  /** Slope (b1) */
+  slope: number;
+  /** R-squared */
+  rSquared: number;
+  /** Adjusted R-squared */
+  adjRSquared: number;
+  /** Standard error of the estimate */
+  standardError: number;
+  /** Standard error of the slope */
+  slopeStdError: number;
+  /** Residuals */
+  residuals: number[];
+}
+
+/**
+ * Simple linear regression: y = b0 + b1*x
+ * Returns slope, intercept, R², and significance test for slope.
+ */
+export function linearRegression(x: number[], y: number[]): RegressionResult {
+  if (x.length !== y.length) {
+    throw new Error('Arrays must have equal length');
+  }
+
+  const n = x.length;
+  if (n < 3) {
+    return {
+      test: 'linear-regression',
+      statistic: NaN,
+      pValue: NaN,
+      effectSize: NaN,
+      ci95: [NaN, NaN],
+      n,
+      intercept: NaN,
+      slope: NaN,
+      rSquared: NaN,
+      adjRSquared: NaN,
+      standardError: NaN,
+      slopeStdError: NaN,
+      residuals: [],
+    };
+  }
+
+  const xMean = x.reduce((a, b) => a + b, 0) / n;
+  const yMean = y.reduce((a, b) => a + b, 0) / n;
+
+  // Sums of squares and cross-products
+  let ssX = 0, ssY = 0, ssXY = 0;
+  for (let i = 0; i < n; i++) {
+    ssX += (x[i] - xMean) ** 2;
+    ssY += (y[i] - yMean) ** 2;
+    ssXY += (x[i] - xMean) * (y[i] - yMean);
+  }
+
+  // Slope and intercept
+  const slope = ssXY / ssX;
+  const intercept = yMean - slope * xMean;
+
+  // Predicted values and residuals
+  const residuals = y.map((yi, i) => yi - (intercept + slope * x[i]));
+
+  // Sum of squared residuals (error)
+  const ssResidual = residuals.reduce((a, r) => a + r ** 2, 0);
+
+  // R-squared
+  const rSquared = 1 - ssResidual / ssY;
+  const adjRSquared = 1 - (1 - rSquared) * (n - 1) / (n - 2);
+
+  // Standard error of the estimate
+  const standardError = Math.sqrt(ssResidual / (n - 2));
+
+  // Standard error of the slope
+  const slopeStdError = standardError / Math.sqrt(ssX);
+
+  // T-statistic for slope (H0: slope = 0)
+  const t = slope / slopeStdError;
+  const df = n - 2;
+  const pValue = 2 * (1 - tCDF(Math.abs(t), df));
+
+  // 95% CI for slope
+  const tCrit = tQuantile(0.975, df);
+  const ci95: [number, number] = [
+    slope - tCrit * slopeStdError,
+    slope + tCrit * slopeStdError,
+  ];
+
+  return {
+    test: 'linear-regression',
+    statistic: t,
+    pValue,
+    effectSize: rSquared,
+    ci95,
+    df,
+    n,
+    intercept,
+    slope,
+    rSquared,
+    adjRSquared,
+    standardError,
+    slopeStdError,
+    residuals,
+  };
+}
+
+/**
+ * Logistic regression result.
+ */
+export interface LogisticRegressionResult extends StatisticalTest {
+  /** Intercept (b0) */
+  intercept: number;
+  /** Slope (b1) */
+  slope: number;
+  /** Odds ratio (exp(slope)) */
+  oddsRatio: number;
+  /** Log-likelihood */
+  logLikelihood: number;
+  /** Null log-likelihood */
+  nullLogLikelihood: number;
+  /** McFadden's pseudo R-squared */
+  pseudoRSquared: number;
+}
+
+/**
+ * Simple logistic regression: log(p/(1-p)) = b0 + b1*x
+ * Uses Newton-Raphson for maximum likelihood estimation.
+ */
+export function logisticRegression(x: number[], y: number[]): LogisticRegressionResult {
+  if (x.length !== y.length) {
+    throw new Error('Arrays must have equal length');
+  }
+
+  const n = x.length;
+  if (n < 3) {
+    return {
+      test: 'logistic-regression',
+      statistic: NaN,
+      pValue: NaN,
+      effectSize: NaN,
+      ci95: [NaN, NaN],
+      n,
+      intercept: NaN,
+      slope: NaN,
+      oddsRatio: NaN,
+      logLikelihood: NaN,
+      nullLogLikelihood: NaN,
+      pseudoRSquared: NaN,
+    };
+  }
+
+  // Validate y values are 0 or 1
+  const validY = y.every(v => v === 0 || v === 1);
+  if (!validY) {
+    throw new Error('Logistic regression requires binary outcome (0 or 1)');
+  }
+
+  // Newton-Raphson iteration
+  let b0 = 0;
+  let b1 = 0;
+  const maxIter = 25;
+  const tolerance = 1e-8;
+
+  for (let iter = 0; iter < maxIter; iter++) {
+    // Compute predicted probabilities
+    const p = x.map((xi) => {
+      const z = b0 + b1 * xi;
+      return 1 / (1 + Math.exp(-z));
+    });
+
+    // Gradient
+    let g0 = 0, g1 = 0;
+    for (let i = 0; i < n; i++) {
+      const diff = y[i] - p[i];
+      g0 += diff;
+      g1 += diff * x[i];
+    }
+
+    // Hessian
+    let h00 = 0, h01 = 0, h11 = 0;
+    for (let i = 0; i < n; i++) {
+      const w = p[i] * (1 - p[i]);
+      h00 -= w;
+      h01 -= w * x[i];
+      h11 -= w * x[i] * x[i];
+    }
+
+    // Newton step (2x2 matrix inverse)
+    const det = h00 * h11 - h01 * h01;
+    if (Math.abs(det) < 1e-10) break;
+
+    const db0 = (h11 * g0 - h01 * g1) / det;
+    const db1 = (-h01 * g0 + h00 * g1) / det;
+
+    b0 -= db0;
+    b1 -= db1;
+
+    if (Math.abs(db0) < tolerance && Math.abs(db1) < tolerance) break;
+  }
+
+  // Final predicted probabilities
+  const pFinal = x.map((xi) => {
+    const z = b0 + b1 * xi;
+    return 1 / (1 + Math.exp(-z));
+  });
+
+  // Log-likelihood
+  let logLikelihood = 0;
+  for (let i = 0; i < n; i++) {
+    const pi = Math.max(1e-10, Math.min(1 - 1e-10, pFinal[i]));
+    logLikelihood += y[i] * Math.log(pi) + (1 - y[i]) * Math.log(1 - pi);
+  }
+
+  // Null log-likelihood (intercept only model)
+  let ySum = 0;
+  for (let i = 0; i < n; i++) {
+    ySum += y[i];
+  }
+  const pNull = ySum / n;
+  const nullLogLikelihood = n * (pNull * Math.log(pNull) + (1 - pNull) * Math.log(1 - pNull));
+
+  // McFadden's pseudo R-squared
+  const pseudoRSquared = 1 - logLikelihood / nullLogLikelihood;
+
+  // Standard error of slope (from Hessian)
+  const pForSE = x.map((xi) => {
+    const z = b0 + b1 * xi;
+    return 1 / (1 + Math.exp(-z));
+  });
+  let infoMatrix = 0;
+  for (let i = 0; i < n; i++) {
+    infoMatrix += pForSE[i] * (1 - pForSE[i]) * x[i] * x[i];
+  }
+  const slopeStdError = 1 / Math.sqrt(infoMatrix);
+
+  // Wald test for slope
+  const z = b1 / slopeStdError;
+  const pValue = 2 * (1 - normalCDF(Math.abs(z)));
+
+  // 95% CI for slope
+  const ci95: [number, number] = [
+    b1 - 1.96 * slopeStdError,
+    b1 + 1.96 * slopeStdError,
+  ];
+
+  return {
+    test: 'logistic-regression',
+    statistic: z,
+    pValue,
+    effectSize: pseudoRSquared,
+    ci95,
+    n,
+    intercept: b0,
+    slope: b1,
+    oddsRatio: Math.exp(b1),
+    logLikelihood,
+    nullLogLikelihood,
+    pseudoRSquared,
+  };
+}
+
+// =============================================================================
+// ROC-AUC
+// =============================================================================
+
+/**
+ * ROC-AUC result.
+ */
+export interface RocAucResult extends StatisticalTest {
+  /** Area under the curve */
+  auc: number;
+  /** ROC curve points (fpr, tpr) */
+  rocCurve: Array<{ fpr: number; tpr: number; threshold: number }>;
+  /** Standard error of AUC (DeLong) */
+  aucStdError: number;
+}
+
+/**
+ * Compute ROC curve and AUC for binary classification.
+ * Scores should be higher for positive class.
+ */
+export function rocAuc(scores: number[], labels: number[]): RocAucResult {
+  if (scores.length !== labels.length) {
+    throw new Error('Arrays must have equal length');
+  }
+
+  const n = scores.length;
+  if (n < 2) {
+    return {
+      test: 'roc-auc',
+      statistic: NaN,
+      pValue: NaN,
+      effectSize: NaN,
+      ci95: [NaN, NaN],
+      n,
+      auc: NaN,
+      rocCurve: [],
+      aucStdError: NaN,
+    };
+  }
+
+  // Validate labels are 0 or 1
+  const validLabels = labels.every(v => v === 0 || v === 1);
+  if (!validLabels) {
+    throw new Error('ROC-AUC requires binary labels (0 or 1)');
+  }
+
+  // Count positives and negatives
+  const nPos = labels.filter(l => l === 1).length;
+  const nNeg = n - nPos;
+
+  if (nPos === 0 || nNeg === 0) {
+    return {
+      test: 'roc-auc',
+      statistic: NaN,
+      pValue: NaN,
+      effectSize: NaN,
+      ci95: [NaN, NaN],
+      n,
+      auc: NaN,
+      rocCurve: [],
+      aucStdError: NaN,
+    };
+  }
+
+  // Sort by score descending
+  const indexed = scores.map((s, i) => ({ score: s, label: labels[i] }));
+  indexed.sort((a, b) => b.score - a.score);
+
+  // Compute ROC curve points
+  const rocCurve: Array<{ fpr: number; tpr: number; threshold: number }> = [];
+  let tp = 0, fp = 0;
+
+  // Add initial point (0, 0)
+  rocCurve.push({ fpr: 0, tpr: 0, threshold: Infinity });
+
+  for (let i = 0; i < indexed.length; i++) {
+    if (indexed[i].label === 1) {
+      tp++;
+    } else {
+      fp++;
+    }
+
+    // Only add point if score changes or it's the last point
+    if (i === indexed.length - 1 || indexed[i].score !== indexed[i + 1].score) {
+      rocCurve.push({
+        fpr: fp / nNeg,
+        tpr: tp / nPos,
+        threshold: indexed[i].score,
+      });
+    }
+  }
+
+  // Compute AUC using trapezoidal rule
+  let auc = 0;
+  for (let i = 1; i < rocCurve.length; i++) {
+    const width = rocCurve[i].fpr - rocCurve[i - 1].fpr;
+    const height = (rocCurve[i].tpr + rocCurve[i - 1].tpr) / 2;
+    auc += width * height;
+  }
+
+  // DeLong standard error approximation
+  // Simplified: SE ≈ sqrt(AUC * (1 - AUC) / min(nPos, nNeg))
+  const aucStdError = Math.sqrt(auc * (1 - auc) * (1 / nPos + 1 / nNeg));
+
+  // Z-test for AUC = 0.5
+  const z = (auc - 0.5) / aucStdError;
+  const pValue = 2 * (1 - normalCDF(Math.abs(z)));
+
+  // 95% CI for AUC
+  const ci95: [number, number] = [
+    Math.max(0, auc - 1.96 * aucStdError),
+    Math.min(1, auc + 1.96 * aucStdError),
+  ];
+
+  return {
+    test: 'roc-auc',
+    statistic: auc,
+    pValue,
+    effectSize: auc, // AUC is its own effect size measure
+    ci95,
+    n,
+    auc,
+    rocCurve,
+    aucStdError,
+  };
+}
+
+// =============================================================================
+// Additional Distribution Functions
+// =============================================================================
+
+/**
+ * F-distribution CDF approximation.
+ */
+function fCDF(x: number, d1: number, d2: number): number {
+  if (x <= 0) return 0;
+  const z = d1 * x / (d1 * x + d2);
+  return incompleteBeta(d1 / 2, d2 / 2, z);
+}
+
 /**
  * Regularized incomplete beta function.
  */

@@ -41,18 +41,33 @@ export {
 } from './logger.js';
 
 // Statistics
+export type {
+  AnovaResult,
+  RegressionResult,
+  LogisticRegressionResult,
+  RocAucResult,
+} from './stats.js';
+
 export {
   describe,
   tTest,
   pearsonCorrelation,
   spearmanCorrelation,
   chiSquaredTest,
+  anova,
+  linearRegression,
+  logisticRegression,
+  rocAuc,
 } from './stats.js';
 
 // Analysis
+export type { WastedIterationBreakdown } from './analyzer.js';
+
 export {
   analyzeBatch,
   generateAnalysisReport,
+  computeWastedIterationRate,
+  computeWastedIterationBreakdown,
 } from './analyzer.js';
 
 // Visualization
@@ -82,3 +97,40 @@ export {
   describeCondition,
   conditionLabel,
 } from './conditions.js';
+
+// Runner
+export type {
+  ExperimentTask,
+  IterationEvaluationResult,
+  ExperimentAgent,
+  RunOptions,
+  BatchOptions,
+  ResumeOptions,
+} from './runner.js';
+
+export {
+  executeRun,
+  executeBatch,
+  executeTaskAcrossConditions,
+  executeBaselineVsTreatment,
+  canResumeRun,
+  getLastIteration,
+  createMockAgent,
+  estimateTimeRemaining,
+  formatDuration,
+} from './runner.js';
+
+// Agent Harness
+export type {
+  MetricsProvider,
+  LLMExecutor,
+  FixContext,
+  FixAttemptResult,
+  HarnessOptions,
+} from './harness.js';
+
+export {
+  createAgentHarness,
+  createMockMetricsProvider,
+  createMockExecutor,
+} from './harness.js';
