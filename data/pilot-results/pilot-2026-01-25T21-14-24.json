@@ -1,0 +1,104 @@
+{
+  "metadata": {
+    "timestamp": "2026-01-25T21:14:24.920Z",
+    "model": "gpt-4o",
+    "pilotSize": 10
+  },
+  "results": [
+    {
+      "taskId": "django__django-12184",
+      "condition": "baseline",
+      "success": false,
+      "testsFixed": 0,
+      "totalTests": 0,
+      "apiCalls": 1,
+      "durationMs": 2144
+    },
+    {
+      "taskId": "django__django-12284",
+      "condition": "gated",
+      "success": false,
+      "testsFixed": 0,
+      "totalTests": 1,
+      "reasoningIterations": 1,
+      "apiCalls": 2,
+      "durationMs": 35376
+    },
+    {
+      "taskId": "django__django-13964",
+      "condition": "baseline",
+      "success": false,
+      "testsFixed": 0,
+      "totalTests": 0,
+      "apiCalls": 1,
+      "durationMs": 2972
+    },
+    {
+      "taskId": "django__django-11001",
+      "condition": "gated",
+      "success": false,
+      "testsFixed": 0,
+      "totalTests": 2,
+      "reasoningIterations": 1,
+      "apiCalls": 2,
+      "durationMs": 20193
+    },
+    {
+      "taskId": "django__django-16595",
+      "condition": "baseline",
+      "success": false,
+      "testsFixed": 0,
+      "totalTests": 0,
+      "apiCalls": 1,
+      "durationMs": 2010
+    },
+    {
+      "taskId": "django__django-13768",
+      "condition": "gated",
+      "success": false,
+      "testsFixed": 0,
+      "totalTests": 1,
+      "reasoningIterations": 1,
+      "apiCalls": 2,
+      "durationMs": 32583
+    },
+    {
+      "taskId": "django__django-16046",
+      "condition": "baseline",
+      "success": false,
+      "testsFixed": 0,
+      "totalTests": 0,
+      "apiCalls": 1,
+      "durationMs": 2472
+    },
+    {
+      "taskId": "django__django-13448",
+      "condition": "gated",
+      "success": false,
+      "testsFixed": 0,
+      "totalTests": 1,
+      "reasoningIterations": 1,
+      "apiCalls": 2,
+      "durationMs": 20433
+    },
+    {
+      "taskId": "django__django-14915",
+      "condition": "baseline",
+      "success": false,
+      "testsFixed": 0,
+      "totalTests": 0,
+      "apiCalls": 1,
+      "durationMs": 1649
+    },
+    {
+      "taskId": "django__django-15738",
+      "condition": "gated",
+      "success": false,
+      "testsFixed": 0,
+      "totalTests": 2,
+      "reasoningIterations": 1,
+      "apiCalls": 2,
+      "durationMs": 57921
+    }
+  ]
+}

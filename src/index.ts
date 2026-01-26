@@ -73,7 +73,16 @@ export {
   computeRulesHash,
   evaluateRules,
   isCacheValid,
+  isUsingEmbeddedDefaults,
+  type LoadRulesOptions,
 } from './rules.js';
+
+export {
+  getDefaultRules,
+  isEmbeddedDefaults,
+  COVERAGE_ONLY_DEFAULTS,
+  FULL_DEFAULTS,
+} from './defaults.js';
 
 // =============================================================================
 // Metrics Extraction
@@ -332,6 +341,19 @@ export type {
   HypothesisResult,
   ExperimentBatch,
   DesignMetadata,
+  // Runner types
+  ExperimentTask,
+  IterationEvaluationResult,
+  ExperimentAgent,
+  RunOptions,
+  BatchOptions,
+  ResumeOptions,
+  // Harness types
+  MetricsProvider,
+  LLMExecutor,
+  FixContext,
+  FixAttemptResult,
+  HarnessOptions,
 } from './experiments/index.js';
 
 export {
@@ -380,4 +402,20 @@ export {
   canPairConditions,
   describeCondition,
   conditionLabel,
+
+  // Runner
+  executeRun,
+  executeBatch,
+  executeTaskAcrossConditions,
+  executeBaselineVsTreatment,
+  canResumeRun,
+  getLastIteration,
+  createMockAgent,
+  estimateTimeRemaining,
+  formatDuration,
+
+  // Agent Harness
+  createAgentHarness,
+  createMockMetricsProvider,
+  createMockExecutor,
 } from './experiments/index.js';

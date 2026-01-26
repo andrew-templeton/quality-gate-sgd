@@ -14,13 +14,36 @@ import type {
   CacheEntry,
 } from './types.js';
 import { getConfig } from './config.js';
+import { getDefaultRules, isEmbeddedDefaults } from './defaults.js';
+
+// =============================================================================
+// Module State
+// =============================================================================
+
+// Track whether we're using embedded defaults (for CLI messaging)
+let _usingEmbeddedDefaults = false;
+
+/**
+ * Check if the currently loaded rules are embedded defaults.
+ */
+export function isUsingEmbeddedDefaults(): boolean {
+  return _usingEmbeddedDefaults;
+}
 
 // =============================================================================
 // Rules Loading
 // =============================================================================
 
-export function loadRules(): QualityRules {
+export interface LoadRulesOptions {
+  /** Use coverage-only defaults if no rules file exists */
+  coverageOnly?: boolean;
+  /** Suppress warning about using defaults */
+  silent?: boolean;
+}
+
+export function loadRules(options: LoadRulesOptions = {}): QualityRules {
   const config = getConfig();
+  const { coverageOnly = false, silent = false } = options;
 
   // Check if rulesFile is absolute or relative
   const rulesPath = path.isAbsolute(config.rulesFile)
@@ -28,14 +51,32 @@ export function loadRules(): QualityRules {
     : path.join(config.projectRoot, config.rulesFile);
 
   if (!fs.existsSync(rulesPath)) {
-    throw new Error(
-      `Rules file not found: ${rulesPath}\n` +
-        'Create a rules.json file or copy from templates/rules.template.json'
-    );
+    // Zero-config mode: use embedded defaults
+    _usingEmbeddedDefaults = true;
+    const defaults = getDefaultRules(coverageOnly);
+
+    if (!silent) {
+      console.error(
+        `[zero-config] No rules.json found, using embedded defaults (${coverageOnly ? 'coverage-only' : 'full'})`
+      );
+      console.error(
+        '             Run "npx quality-gate-sgd init" to create a custom configuration\n'
+      );
+    }
+
+    return defaults;
   }
 
+  _usingEmbeddedDefaults = false;
   const content = fs.readFileSync(rulesPath, 'utf-8');
-  return JSON.parse(content) as QualityRules;
+  const rules = JSON.parse(content) as QualityRules;
+
+  // Check if loaded rules are actually embedded defaults (for testing)
+  if (isEmbeddedDefaults(rules)) {
+    _usingEmbeddedDefaults = true;
+  }
+
+  return rules;
 }
 
 export function computeRulesHash(rules: QualityRules): string {

@@ -18,7 +18,8 @@ export { getConfig, loadConfig, resetConfig, getSonarAuthToken, getSonarCurlAuth
 // =============================================================================
 // Rules Engine
 // =============================================================================
-export { loadRules, computeRulesHash, evaluateRules, isCacheValid, } from './rules.js';
+export { loadRules, computeRulesHash, evaluateRules, isCacheValid, isUsingEmbeddedDefaults, } from './rules.js';
+export { getDefaultRules, isEmbeddedDefaults, COVERAGE_ONLY_DEFAULTS, FULL_DEFAULTS, } from './defaults.js';
 // =============================================================================
 // Metrics Extraction
 // =============================================================================
@@ -128,5 +129,9 @@ analyzeBatch, generateAnalysisReport,
 // Visualization
 sparkline, visualizeRun, compareRuns, visualizeBatch, visualizeResults, boxPlot, comparativeBoxPlots, iterationTimeline, resultsTable, 
 // Condition Factory
-DEFAULT_EXPERIMENT_CONFIG, DESIGN_METADATA, createConditions, getBaselineCondition, getTreatmentConditions, validateCondition, canPairConditions, describeCondition, conditionLabel, } from './experiments/index.js';
+DEFAULT_EXPERIMENT_CONFIG, DESIGN_METADATA, createConditions, getBaselineCondition, getTreatmentConditions, validateCondition, canPairConditions, describeCondition, conditionLabel, 
+// Runner
+executeRun, executeBatch, executeTaskAcrossConditions, executeBaselineVsTreatment, canResumeRun, getLastIteration, createMockAgent, estimateTimeRemaining, formatDuration, 
+// Agent Harness
+createAgentHarness, createMockMetricsProvider, createMockExecutor, } from './experiments/index.js';
 //# sourceMappingURL=index.js.map

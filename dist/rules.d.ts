@@ -3,7 +3,17 @@
  * Evaluates quality metrics against defined rules
  */
 import type { QualityRules, Metrics, EvaluationResult, CacheEntry } from './types.js';
-export declare function loadRules(): QualityRules;
+/**
+ * Check if the currently loaded rules are embedded defaults.
+ */
+export declare function isUsingEmbeddedDefaults(): boolean;
+export interface LoadRulesOptions {
+    /** Use coverage-only defaults if no rules file exists */
+    coverageOnly?: boolean;
+    /** Suppress warning about using defaults */
+    silent?: boolean;
+}
+export declare function loadRules(options?: LoadRulesOptions): QualityRules;
 export declare function computeRulesHash(rules: QualityRules): string;
 export declare function evaluateRules(rules: QualityRules, currentMetrics: Metrics, baselineEntry?: CacheEntry): EvaluationResult;
 /**

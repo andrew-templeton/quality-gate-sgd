@@ -93,7 +93,7 @@ export const TOOLS = [
 export async function handleRun(args) {
     const skipSonarQube = args.coverageOnly ?? false;
     try {
-        const rules = loadRules();
+        const rules = loadRules({ coverageOnly: skipSonarQube });
         const requiredScripts = rules.rules.requiredScripts || ['quality'];
         const metrics = extractAllMetrics({
             scriptsToRun: requiredScripts,
@@ -127,7 +127,7 @@ export async function handleRun(args) {
 export async function handleScore(args) {
     const skipSonarQube = args.coverageOnly ?? false;
     try {
-        const rules = loadRules();
+        const rules = loadRules({ coverageOnly: skipSonarQube });
         const requiredScripts = rules.rules.requiredScripts || ['quality'];
         const metrics = extractAllMetrics({
             scriptsToRun: requiredScripts,
@@ -160,7 +160,7 @@ export async function handleSuggest(args) {
     const limit = args.limit ?? 5;
     const skipSonarQube = args.coverageOnly ?? false;
     try {
-        const rules = loadRules();
+        const rules = loadRules({ coverageOnly: skipSonarQube });
         const requiredScripts = rules.rules.requiredScripts || ['quality'];
         const metrics = extractAllMetrics({
             scriptsToRun: requiredScripts,

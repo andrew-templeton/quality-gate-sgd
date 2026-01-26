@@ -61,16 +61,15 @@ Package complete with core functionality:
 | Hypothesis analyzer | ✅ Done | `analyzeBatch()` for H1-H12 |
 | Visualization | ✅ Done | Sparklines, box plots, result tables |
 | Condition factory | ✅ Done | `createConditions()`, `DESIGN_METADATA` for A-F |
-| **Experiment runner** | ⬜ TODO | Orchestrate condition × task runs |
-| **SWE-bench integration** | ⬜ TODO | Load tasks, apply patches, evaluate |
-| **Agent harness** | ⬜ TODO | LLM agent wrapper with gate feedback toggle |
-| **Batch runner** | ⬜ TODO | Run N tasks × M conditions with parallelization |
+| **Experiment runner** | ✅ Done | `executeRun()`, `executeBatch()`, `createMockAgent()` |
+| **Agent harness** | ✅ Done | `createAgentHarness()`, `MetricsProvider`, `LLMExecutor` |
+| **SWE-bench integration** | ✅ Done | `loadTasks()`, `applyPatch()`, `evaluateTask()` |
 
 ### Per-Design Requirements
 
 #### Design A — Gate vs No-Gate (H1, H2)
-- [ ] Agent harness that can toggle gate feedback on/off
-- [ ] SWE-bench task loader
+- [x] Agent harness that can toggle gate feedback on/off
+- [x] SWE-bench task loader
 - [x] Baseline condition: no feedback
 - [x] Treatment condition: gate feedback enabled
 
@@ -79,37 +78,37 @@ Package complete with core functionality:
   - [x] Coverage-only
   - [x] Coverage + ceilings
   - [x] Full topology
-- [ ] ANOVA analysis (3+ conditions)
+- [x] ANOVA analysis (3+ conditions) - `analyzeH3()` in analyzer.ts
 
 #### Design C — Addressing Fitness (H4, H5, H6)
 - [x] Fitness metric logging in run metadata:
   - [x] `mappingCoverage`
   - [x] `callGraphResolution`
   - [x] `p90AddressSloc`
-- [ ] Regression analysis helpers
+- [x] Regression analysis helpers - `linearRegression()`, `logisticRegression()` in stats.ts
 
 #### Design D — Call Graph Weighting (H7, H8)
 - [x] Condition: weighted vs unweighted prioritization
-- [ ] Paired comparison (same task, different weighting)
+- [x] Paired comparison (same task, different weighting) - `analyzeH7()`, `analyzeH8()` use paired t-test
 
 #### Design E — Fixability Validity (H9, H10)
 - [x] Condition with fixability enabled
-- [ ] Single-symbol fix attempt protocol
-- [ ] Binary outcome logging (fixed/not fixed)
-- [ ] ROC-AUC analysis
+- [x] Single-symbol fix attempt protocol - via iteration logging
+- [x] Binary outcome logging (fixed/not fixed) - `iter.outcome.success`
+- [x] ROC-AUC analysis - `rocAuc()` in stats.ts, `analyzeH9()`, `analyzeH10()` in analyzer.ts
 
 #### Design F — Adjusted Prioritization (H11, H12)
 - [x] Conditions: raw vs adjusted ΔQ
-- [ ] Wasted iteration tracking
+- [x] Wasted iteration tracking - `computeWastedIterationRate()`, `computeWastedIterationBreakdown()`
 
 ---
 
-## Future: v0.3.0 - Practical Adoption
+## In Progress: v0.3.0 - Practical Adoption
 
 **Goal**: Lower adoption barriers.
 
-- [ ] Zero-config mode (embedded defaults)
-- [ ] Coverage-only mode (no SonarQube required)
+- [x] Zero-config mode (embedded defaults)
+- [x] Coverage-only mode (no SonarQube required) - via `--coverage-only` flag
 - [ ] GitHub Action (`action.yml`)
 - [ ] Visual CLI output (progress bars, sparklines)
 

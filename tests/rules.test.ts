@@ -4,8 +4,10 @@ import {
   computeRulesHash,
   evaluateRules,
   isCacheValid,
+  isUsingEmbeddedDefaults,
 } from '../src/rules.js'
 import { resetConfig } from '../src/config.js'
+import { isEmbeddedDefaults } from '../src/defaults.js'
 import type { QualityRules, Metrics, CacheEntry } from '../src/types.js'
 
 describe('loadRules', () => {
@@ -21,11 +23,48 @@ describe('loadRules', () => {
     expect(rules.rules.floors).toBeDefined()
   })
 
-  it('throws error when rules file does not exist', () => {
-    process.env.QUALITY_RULES_FILE = '/nonexistent/rules.json'
-    resetConfig()
+  describe('zero-config mode', () => {
+    it('returns embedded defaults when rules file does not exist', () => {
+      process.env.QUALITY_RULES_FILE = '/nonexistent/rules.json'
+      resetConfig()
 
-    expect(() => loadRules()).toThrow('Rules file not found')
+      const rules = loadRules({ silent: true })
+
+      expect(rules.version).toBe('0.0.0-embedded')
+      expect(isEmbeddedDefaults(rules)).toBe(true)
+      expect(isUsingEmbeddedDefaults()).toBe(true)
+    })
+
+    it('returns coverage-only defaults when coverageOnly is true', () => {
+      process.env.QUALITY_RULES_FILE = '/nonexistent/rules.json'
+      resetConfig()
+
+      const rules = loadRules({ coverageOnly: true, silent: true })
+
+      expect(rules.description).toContain('coverage-only')
+      expect(rules.rules.ceilings?.['sonarqube.blocker']).toBeUndefined()
+    })
+
+    it('returns full defaults when coverageOnly is false', () => {
+      process.env.QUALITY_RULES_FILE = '/nonexistent/rules.json'
+      resetConfig()
+
+      const rules = loadRules({ coverageOnly: false, silent: true })
+
+      expect(rules.description).toContain('full')
+      expect(rules.rules.ceilings?.['sonarqube.blocker']).toBe(0)
+    })
+
+    it('marks isUsingEmbeddedDefaults as false when loading from file', () => {
+      // Reset to default config (which should find the actual rules.json)
+      delete process.env.QUALITY_RULES_FILE
+      resetConfig()
+
+      const rules = loadRules()
+
+      expect(isUsingEmbeddedDefaults()).toBe(false)
+      expect(rules.version).not.toBe('0.0.0-embedded')
+    })
   })
 })
 

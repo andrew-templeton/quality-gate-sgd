@@ -132,7 +132,7 @@ export async function handleRun(args: RunArguments): Promise<{
   const skipSonarQube = args.coverageOnly ?? false;
 
   try {
-    const rules = loadRules();
+    const rules = loadRules({ coverageOnly: skipSonarQube });
     const requiredScripts = rules.rules.requiredScripts || ['quality'];
 
     const metrics = extractAllMetrics({
@@ -173,7 +173,7 @@ export async function handleScore(args: ScoreArguments): Promise<{
   const skipSonarQube = args.coverageOnly ?? false;
 
   try {
-    const rules = loadRules();
+    const rules = loadRules({ coverageOnly: skipSonarQube });
     const requiredScripts = rules.rules.requiredScripts || ['quality'];
 
     const metrics = extractAllMetrics({
@@ -213,7 +213,7 @@ export async function handleSuggest(args: SuggestArguments): Promise<{
   const skipSonarQube = args.coverageOnly ?? false;
 
   try {
-    const rules = loadRules();
+    const rules = loadRules({ coverageOnly: skipSonarQube });
     const requiredScripts = rules.rules.requiredScripts || ['quality'];
 
     const metrics = extractAllMetrics({

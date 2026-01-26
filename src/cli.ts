@@ -91,6 +91,12 @@ import {
   visualizeBatch,
   visualizeResults,
   type ExperimentBatch,
+  downloadSWEBenchSplit,
+  checkSWEBenchLocalSplits,
+  getSWEBenchDatasetInfo,
+  formatBytes,
+  progressBar,
+  type DatasetSplit,
 } from './experiments/index.js';
 import * as readline from 'readline';
 
@@ -199,8 +205,8 @@ async function runQualityGate(options: RunOptions = { skipSonarQube: false }): P
     log('(coverage-only mode - SonarQube skipped)');
   }
 
-  // Load rules
-  const rules = loadRules();
+  // Load rules (zero-config mode will use embedded defaults if no rules.json)
+  const rules = loadRules({ coverageOnly: options.skipSonarQube });
   log(`Rules: ${rules.version} - ${rules.description}`);
 
   // Get cache key (commit hash for clean tree, wip:contentHash for uncommitted changes)
@@ -522,7 +528,7 @@ async function runScore(args: string[]): Promise<void> {
   }
 
   // Extract metrics
-  const rules = loadRules();
+  const rules = loadRules({ coverageOnly: skipSonarQube });
   const requiredScripts = rules.rules.requiredScripts || ['quality'];
   const metrics = extractAllMetrics({
     scriptsToRun: requiredScripts,
@@ -611,7 +617,7 @@ async function runSuggest(args: string[]): Promise<void> {
   }
 
   // Extract metrics for fitness score
-  const rules = loadRules();
+  const rules = loadRules({ coverageOnly: skipSonarQube });
   const requiredScripts = rules.rules.requiredScripts || ['quality'];
   const metrics = extractAllMetrics({
     scriptsToRun: requiredScripts,
@@ -1318,6 +1324,102 @@ function runExperimentVisualize(args: string[]): void {
 }
 
 /**
+ * Download SWE-bench dataset splits.
+ */
+async function runExperimentDownload(args: string[]): Promise<void> {
+  const splitArg = args.find(a => a.startsWith('--split='));
+  const dataDirArg = args.find(a => a.startsWith('--data-dir='));
+  const forceFlag = args.includes('--force');
+  const allFlag = args.includes('--all');
+  const statusFlag = args.includes('--status');
+
+  const dataDir = dataDirArg?.split('=')[1] || 'data/swe-bench';
+
+  // Status check
+  if (statusFlag) {
+    log('Quality Gate SGD - SWE-bench Dataset Status');
+    log('==========================================\n');
+
+    const localSplits = checkSWEBenchLocalSplits(dataDir);
+    const splits: DatasetSplit[] = ['dev', 'test', 'lite', 'verified'];
+
+    for (const split of splits) {
+      const info = getSWEBenchDatasetInfo(split, dataDir);
+      if (info) {
+        log(`  ✓ ${split.padEnd(10)} ${info.instanceCount} instances (${formatBytes(info.sizeBytes)})`);
+      } else {
+        log(`  ✗ ${split.padEnd(10)} not downloaded`);
+      }
+    }
+
+    log('');
+    log('Use --split=<split> to download a specific split');
+    log('Use --all to download all splits');
+    return;
+  }
+
+  // Determine which splits to download
+  let splits: DatasetSplit[] = [];
+
+  if (allFlag) {
+    splits = ['dev', 'test', 'lite', 'verified'];
+  } else if (splitArg) {
+    const split = splitArg.split('=')[1] as DatasetSplit;
+    if (!['dev', 'test', 'lite', 'verified'].includes(split)) {
+      log(`Error: Invalid split "${split}". Valid options: dev, test, lite, verified`);
+      process.exit(1);
+    }
+    splits = [split];
+  } else {
+    // Default to 'lite' for quick experiments
+    splits = ['lite'];
+    log('No split specified, defaulting to "lite" (smallest subset)\n');
+  }
+
+  log('Quality Gate SGD - SWE-bench Dataset Download');
+  log('============================================\n');
+  log(`Data directory: ${dataDir}`);
+  log(`Splits to download: ${splits.join(', ')}`);
+  log(`Force re-download: ${forceFlag ? 'yes' : 'no'}`);
+  log('');
+
+  for (const split of splits) {
+    log(`Downloading ${split}...`);
+
+    let lastProgress = '';
+    const result = await downloadSWEBenchSplit(split, {
+      dataDir,
+      force: forceFlag,
+      onProgress: (downloaded, total) => {
+        const bar = progressBar(downloaded, total);
+        if (bar !== lastProgress) {
+          process.stderr.write(`\r  ${bar}`);
+          lastProgress = bar;
+        }
+      },
+    });
+
+    // Clear progress line
+    process.stderr.write('\r' + ' '.repeat(80) + '\r');
+
+    if (result.success) {
+      if (result.cached) {
+        log(`  ✓ ${split}: Already downloaded (${result.instanceCount} instances, ${formatBytes(result.sizeBytes)})`);
+      } else {
+        log(`  ✓ ${split}: Downloaded ${result.instanceCount} instances (${formatBytes(result.sizeBytes)}) in ${(result.durationMs / 1000).toFixed(1)}s`);
+      }
+      log(`    Path: ${result.filePath}`);
+    } else {
+      log(`  ✗ ${split}: Failed - ${result.error}`);
+    }
+    log('');
+  }
+
+  log('Done! You can now run experiments with:');
+  log(`  npx quality-gate-sgd experiment create --design=A --dataset=${splits[0]}`);
+}
+
+/**
  * Main experiment command dispatcher.
  */
 async function runExperimentCommand(args: string[]): Promise<void> {
@@ -1356,6 +1458,11 @@ async function runExperimentCommand(args: string[]): Promise<void> {
       runExperimentVisualize(args.slice(1));
       break;
 
+    case 'download':
+    case 'fetch':
+      await runExperimentDownload(args.slice(1));
+      break;
+
     default:
       log('Quality Gate SGD - Experiment Commands');
       log('======================================\n');
@@ -1368,7 +1475,8 @@ async function runExperimentCommand(args: string[]): Promise<void> {
       log('  list        List experiments or runs');
       log('  analyze     Analyze completed batch and test hypotheses');
       log('  report      Generate markdown analysis report');
-      log('  visualize   Show ASCII visualizations of results\n');
+      log('  visualize   Show ASCII visualizations of results');
+      log('  download    Download SWE-bench dataset splits\n');
       log('EXAMPLES:');
       log('  npx quality-gate-sgd experiment create --name="Gate Test" --design=A');
       log('  npx quality-gate-sgd experiment init-run --experiment=exp-xxx --condition=baseline --task=test-1');
@@ -1378,6 +1486,8 @@ async function runExperimentCommand(args: string[]): Promise<void> {
       log('  npx quality-gate-sgd experiment analyze --batch=batch-xxx');
       log('  npx quality-gate-sgd experiment report --batch=batch-xxx --output=report.md');
       log('  npx quality-gate-sgd experiment visualize --batch=batch-xxx --type=results');
+      log('  npx quality-gate-sgd experiment download --split=lite');
+      log('  npx quality-gate-sgd experiment download --status');
       break;
   }
 }

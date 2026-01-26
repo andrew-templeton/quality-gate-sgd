@@ -79,27 +79,15 @@ export function handleDimensionsResource(): {
 export function handleRulesResource(): {
   contents: Array<{ uri: string; mimeType: string; text: string }>;
 } {
-  try {
-    const rules = loadRules();
-    return {
-      contents: [{
-        uri: 'quality://rules',
-        mimeType: 'application/json',
-        text: JSON.stringify(rules, null, 2),
-      }],
-    };
-  } catch {
-    return {
-      contents: [{
-        uri: 'quality://rules',
-        mimeType: 'application/json',
-        text: JSON.stringify({
-          error: 'No rules.json found',
-          message: 'Run `npx quality-gate-sgd init` to create a rules file',
-        }, null, 2),
-      }],
-    };
-  }
+  // Load rules silently (zero-config mode will return defaults)
+  const rules = loadRules({ silent: true });
+  return {
+    contents: [{
+      uri: 'quality://rules',
+      mimeType: 'application/json',
+      text: JSON.stringify(rules, null, 2),
+    }],
+  };
 }
 
 export function handleFitnessResource(): {

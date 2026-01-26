@@ -6,21 +6,43 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
 import { getConfig } from './config.js';
+import { getDefaultRules, isEmbeddedDefaults } from './defaults.js';
 // =============================================================================
-// Rules Loading
+// Module State
 // =============================================================================
-export function loadRules() {
+// Track whether we're using embedded defaults (for CLI messaging)
+let _usingEmbeddedDefaults = false;
+/**
+ * Check if the currently loaded rules are embedded defaults.
+ */
+export function isUsingEmbeddedDefaults() {
+    return _usingEmbeddedDefaults;
+}
+export function loadRules(options = {}) {
     const config = getConfig();
+    const { coverageOnly = false, silent = false } = options;
     // Check if rulesFile is absolute or relative
     const rulesPath = path.isAbsolute(config.rulesFile)
         ? config.rulesFile
         : path.join(config.projectRoot, config.rulesFile);
     if (!fs.existsSync(rulesPath)) {
-        throw new Error(`Rules file not found: ${rulesPath}\n` +
-            'Create a rules.json file or copy from templates/rules.template.json');
+        // Zero-config mode: use embedded defaults
+        _usingEmbeddedDefaults = true;
+        const defaults = getDefaultRules(coverageOnly);
+        if (!silent) {
+            console.error(`[zero-config] No rules.json found, using embedded defaults (${coverageOnly ? 'coverage-only' : 'full'})`);
+            console.error('             Run "npx quality-gate-sgd init" to create a custom configuration\n');
+        }
+        return defaults;
     }
+    _usingEmbeddedDefaults = false;
     const content = fs.readFileSync(rulesPath, 'utf-8');
-    return JSON.parse(content);
+    const rules = JSON.parse(content);
+    // Check if loaded rules are actually embedded defaults (for testing)
+    if (isEmbeddedDefaults(rules)) {
+        _usingEmbeddedDefaults = true;
+    }
+    return rules;
 }
 export function computeRulesHash(rules) {
     const content = JSON.stringify(rules);
