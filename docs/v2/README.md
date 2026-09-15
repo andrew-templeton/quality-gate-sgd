@@ -2,7 +2,7 @@
 
 An operator needs a result that satisfies a particular set of requirements. V2 makes those requirements inspectable modules, composes them into a gate, accounts for evaluation and repair costs, and admits edits only when the selected evidence supports them.
 
-This is an opt-in development version (`2.0.0-dev.0`). The existing `quality-gate` CLI and root API remain available. The new library is exported as `v2`, with a separate `quality-gate-v2` CLI. It has no hosted dependency or automatic publishing step.
+This is development version `2.0.0-dev.1`. The generic library is exported directly and as `v2`, with the `quality-gate-v2` CLI. The legacy software root API and `quality-gate` CLI now belong to [quality-sgd-software](https://github.com/andrew-templeton/quality-sgd-software); see the [migration guide](MIGRATION.md). Core has no runtime package dependency or automatic publishing step.
 
 ```sh
 npm ci
@@ -43,7 +43,7 @@ The taxonomy is hierarchical and extensible by adding subpaths under these famil
 | Decision / utility | Which assessment changes the best action enough to pay for itself? | Conditional on supplied states, priors, likelihoods and utility. |
 | Control / reliability | Is this evidence current and reliable enough to authorize an update? | Requires an appropriate population and calibration protocol. |
 
-These are kinds of assertions, not a ranking of proof strength. The initial executable report adapters in this repository cover rendered geometry/fold reports and SonarQube reports. Other families are extension points; their existence in the taxonomy does not imply a shipped validated verifier.
+These are kinds of assertions, not a ranking of proof strength. The executable report adapter in this repository covers rendered geometry/fold reports. [SonarQube assertions](https://github.com/andrew-templeton/quality-sgd-sonarqube) are maintained externally. Other families are extension points; their existence in the taxonomy does not imply a shipped validated verifier.
 
 ## Composition and discoverability
 
@@ -67,7 +67,7 @@ The referenced IDs must exist in the supplied modules. `source.fidelity` and `re
 
 `discoverAssertions` matches declared input schema IDs and capabilities and supports a local text query. It reports missing inputs explicitly. A signature match identifies a candidate module; the runner still has to validate the actual data, assumptions and scope. A card's fixed output contract is `Observation`: status, addressed findings, evidence, optional loss bounds with units, and actual cost.
 
-The existing MCP server exposes `quality://v2/assertion-zoo` for assertion-family context and card semantics. It does not scan the repository, retrieve remote modules, or automatically install code.
+The transport-neutral `RESOURCES` and `readResource` exports describe `quality://v2/assertion-zoo` for assertion-family context and card semantics. A caller may register them with its own server. The CLI also exposes the taxonomy through `zoo`; core does not bundle the legacy software MCP server.
 
 ## What a conjunctive pass means
 
@@ -105,7 +105,7 @@ The adapter checks exact policy-required view coverage and the report's relation
 
 For the default external language/legibility example, see [Isogloss](https://github.com/andrew-templeton/isogloss/tree/codex/quality-sgd-module-example/integrations/quality-sgd). Follow that repository's integration instructions and supply its module alongside the other modules in your composition. An external module must bind its implementation version and relevant configuration into the assertion identity, state its text-proxy limitations, and preserve the engine's evidence and cost contracts.
 
-`sonarqubeModule` consumes an explicitly complete report bound to the current artifact. `sonarNudges` emits per-issue instructions and optional harness metadata. The caller must establish successful collection, fetch all required pages, and bind the report to the artifact revision before declaring it complete. Legacy collectors and ceiling rules are not qualified v2 evidence sources; their compatibility behavior must not be taken as proof of successful, complete collection.
+The external [SonarQube module](https://github.com/andrew-templeton/quality-sgd-sonarqube) consumes an explicitly complete report bound to the current artifact. Its `sonarNudges` API emits per-issue instructions and optional harness metadata. The caller must establish successful collection, fetch all required pages, and bind the report to the artifact revision before declaring it complete. Legacy collectors and ceiling rules are not qualified v2 evidence sources; their compatibility behavior must not be taken as proof of successful, complete collection.
 
 Repair harnesses and the bounded loop are optional library integrations; see [the executable loop and harness examples](REMEDIATION.md). Enabling a named harness is explicit; the default does not execute one. Repair output must be evaluated again before admission. Module configuration files are trusted executable local code, not sandboxed data. No assertion or remediation prompt should be allowed to enlarge its own execution privileges.
 

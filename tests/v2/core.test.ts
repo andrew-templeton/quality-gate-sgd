@@ -1,12 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
 import { BudgetLedger } from '../../src/v2/budget.js';
 import { compileGate, discoverAssertions, modelCard } from '../../src/v2/catalog.js';
-import { readResource, RESOURCES } from '../../src/mcp/resources.js';
+import { readResource, RESOURCES } from '../../src/v2/resources.js';
 import { evaluateGate } from '../../src/v2/evaluate.js';
 import { admitCandidate, initialLoopState, type AdmissionPolicy } from '../../src/v2/admission.js';
 import { assessExperiment, chooseAssessment, type DecisionModel, type AssessmentExperiment } from '../../src/v2/decision.js';
 import { planNudges } from '../../src/v2/nudges.js';
-import { renderedLegibilityModule, sonarqubeModule, sonarNudges, type RenderEvidence, type SonarReport } from '../../src/v2/modules.js';
+import { renderedLegibilityModule, type RenderEvidence } from '../../src/v2/modules.js';
 import { digest } from '../../src/v2/validation.js';
 import type { Assertion, AssertionCard, AssertionModule, Interval, Nudge, Observation } from '../../src/v2/types.js';
 
@@ -369,20 +369,5 @@ describe('bundled assertion adapters', () => {
     const missing = render(); missing.views.pop(); expect((await evaluateRender(missing)).status).toBe('unavailable');
     const screenshot = render(); screenshot.screenshotDigest = ''; expect((await evaluateRender(screenshot)).status).toBe('unavailable');
     const invalid = render(); invalid.views[0].folds[0].novel = ['unlisted']; expect((await evaluateRender(invalid)).status).toBe('unavailable');
-  });
-  it('converts current Sonar findings to addressed diagnostics and optional remediation metadata', async () => {
-    const report: SonarReport = { artifactDigest: 'current', complete: true, issues: [{ key: 'issue-1', rule: 'typescript:S2259', component: 'src/order.ts', line: 12, message: 'Possible null dereference.' }] };
-    const compiled = compileGate([sonarqubeModule(() => report)], ['sonarqube'], { required: ['sonarqube.issues'], advisory: [] });
-    const result = await evaluateGate(compiled, { artifact: { id: 'code', digest: 'current', data: {} }, environmentDigest: 'environment' }, new BudgetLedger({ evaluations: 10 }));
-    expect(result.status).toBe('fail'); expect(result.results[0].findings[0].address).toBe('src/order.ts:12');
-    const proposals = sonarNudges(report, { rounds: 1 });
-    expect(proposals[0].remediation).toMatchObject({ harnessId: 'claude-code', verification: ['sonarqube.issues', 'project-required-tests'] });
-    expect(proposals[0].effects[0].basis).toBe('hypothesis'); expect(planNudges(proposals).selected).toHaveLength(1);
-  });
-  it('rejects a clean but stale or incomplete Sonar report', async () => {
-    for (const report of [{ artifactDigest: 'old', complete: true, issues: [] }, { artifactDigest: 'current', complete: false, issues: [] }]) {
-      const compiled = compileGate([sonarqubeModule(() => report)], ['sonarqube'], { required: ['sonarqube.issues'], advisory: [] });
-      expect((await evaluateGate(compiled, { artifact: { id: 'code', digest: 'current', data: {} }, environmentDigest: 'environment' }, new BudgetLedger({ evaluations: 10 }))).status).toBe('unavailable');
-    }
   });
 });

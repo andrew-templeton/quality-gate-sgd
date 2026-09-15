@@ -1,37 +1,33 @@
 {
   "name": "quality-gate-sgd",
-  "version": "2.0.0-dev.0",
-  "description": "Composable quality assertions, calibrated comparisons, and budgeted improvement loops",
+  "version": "2.0.0-dev.1",
+  "description": "Domain-independent quality assertions, calibrated comparisons, and budgeted improvement loops",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "quality-gate": "./dist/cli.js",
     "quality-gate-v2": "./dist/v2/cli.js"
   },
   "scripts": {
-    "build": "tsc",
-    "test": "vitest run",
+    "build": "node scripts/clean-build.mjs && tsc",
+    "test": "vitest run && node --test tests/work-graph.test.mjs",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint src/ tests/",
     "lint:fix": "eslint src/ tests/ --fix",
     "prepublishOnly": "npm run build",
-    "quality-gate": "tsx src/cli.ts",
-    "list-issues": "tsx src/list-issues.ts",
-    "test:v2": "vitest run tests/v2"
+    "test:v2": "vitest run tests/v2",
+    "plan:generate": "node scripts/work-graph.mjs write",
+    "plan:check": "node scripts/work-graph.mjs check",
+    "check:package": "node scripts/check-package.mjs"
   },
   "keywords": [
     "quality",
     "gate",
-    "sonarqube",
-    "coverage",
     "llm",
     "ai",
     "sgd",
     "gradient-descent",
-    "code-quality",
-    "ci",
     "testing",
     "assertions",
     "evaluation",
@@ -53,18 +49,12 @@
   },
   "files": [
     "dist",
-    "templates",
-    "scripts",
     "README.md",
     "LICENSE",
     "docs/v2",
+    "docs/work",
     "examples/v2"
   ],
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.25.2",
-    "openai": "^6.16.0",
-    "typescript": "^5.0.0"
-  },
   "devDependencies": {
     "@types/node": "^20.0.0",
     "@typescript-eslint/eslint-plugin": "^8.53.0",
@@ -72,6 +62,7 @@
     "@vitest/coverage-v8": "^4.0.17",
     "eslint": "^9.39.2",
     "tsx": "^4.0.0",
-    "vitest": "^4.0.17"
+    "vitest": "^4.0.17",
+    "typescript": "^5.0.0"
   }
 }
