@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "apiVersion": "2.0.0-dev.1",
   "title": "Quality-SGD work graph",
-  "description": "A dependency-ordered plan for a reusable assertion engine and independently maintained quality modules. The stable API milestone covers protocol and execution guarantees; application-specific validity remains a separate obligation.",
+  "description": "A dependency-ordered plan for a reusable assertion engine and independently maintained quality modules. All tasks, including domain and empirical work outside the minimum stable API path, remain in the completion scope. The stable API milestone covers protocol and execution guarantees; application-specific validity remains a separate obligation. Scope and required evidence are mapped in docs/work/SCOPE.md.",
   "updatedAt": "2026-09-14",
   "stableMilestone": "stable-api-review",
   "repositories": [
@@ -247,7 +247,7 @@
       "title": "Bind implementation and semantic configuration",
       "owner": "core",
       "track": "stable-api",
-      "status": "planned",
+      "status": "active",
       "dependsOn": [
         "api-audit"
       ],
@@ -269,7 +269,7 @@
       "title": "Bind and invalidate qualification evidence",
       "owner": "core",
       "track": "stable-api",
-      "status": "planned",
+      "status": "active",
       "dependsOn": [
         "implementation-identity"
       ],
@@ -294,7 +294,7 @@
       "title": "Validate typed inputs before evaluation",
       "owner": "core",
       "track": "stable-api",
-      "status": "planned",
+      "status": "active",
       "dependsOn": [
         "api-audit"
       ],
@@ -316,7 +316,7 @@
       "title": "Share input contracts with discovery",
       "owner": "core",
       "track": "stable-api",
-      "status": "planned",
+      "status": "active",
       "dependsOn": [
         "input-bindings"
       ],
@@ -374,7 +374,7 @@
       "title": "Persist budgets and reservation identities",
       "owner": "core",
       "track": "stable-api",
-      "status": "planned",
+      "status": "active",
       "dependsOn": [
         "api-audit"
       ],
@@ -396,7 +396,7 @@
       "title": "Restore complete loop checkpoints",
       "owner": "core",
       "track": "stable-api",
-      "status": "planned",
+      "status": "active",
       "dependsOn": [
         "durable-ledger",
         "implementation-identity"
@@ -419,7 +419,7 @@
       "title": "Verify crash boundaries and idempotency",
       "owner": "core",
       "track": "stable-api",
-      "status": "planned",
+      "status": "active",
       "dependsOn": [
         "checkpoint-resume"
       ],
@@ -445,7 +445,7 @@
       "title": "Verify resumed spending and hysteresis",
       "owner": "core",
       "track": "stable-api",
-      "status": "planned",
+      "status": "active",
       "dependsOn": [
         "crash-idempotency"
       ],
@@ -527,7 +527,8 @@
       "acceptance": [
         "Expose documented assertion families, applicability, assumptions, excluded conclusions, evidence requirements and configuration through a consistent discoverable card vocabulary.",
         "Provide examples of conjunctive composition and optional facets for a specified audience; explain why shared labels or high scores do not imply interchangeable guarantees.",
-        "Document conflicts and context needed to choose a module without promoting an unqualified match as a validated verifier."
+        "Document conflicts and context needed to choose a module without promoting an unqualified match as a validated verifier.",
+        "Expose machine-readable hierarchy, input/output contracts and documentation-card examples for selected assertion subsets; a composed card preserves component assumptions, scope and excluded guarantees without inventing aggregate confidence."
       ],
       "evidence": [],
       "links": [
@@ -625,12 +626,15 @@
       "status": "planned",
       "dependsOn": [
         "isogloss-example",
-        "qualification-invalidation"
+        "qualification-invalidation",
+        "decision-density-disclosure",
+        "operator-alignment-game"
       ],
       "acceptance": [
         "Specify audience/background, artifacts, reader tasks and a fixed comparison protocol before assessing baseline versus proposed communication changes.",
         "Measure task-relevant comprehension and preservation of meaning alongside blinded preference; a word or quanta count alone cannot establish either.",
-        "Record uncertainty, exclusions, scope and evaluator/configuration identity in module evidence."
+        "Record uncertainty, exclusions, scope and evaluator/configuration identity in module evidence.",
+        "Keep source and answer keys outside the reader context; label simulated-reader evidence as simulated, retain failed and inconclusive comparisons, and do not promote it into a human-audience qualification claim."
       ],
       "evidence": [],
       "links": [
@@ -678,7 +682,8 @@
       "acceptance": [
         "Exercise conflicting interventions, incomparable cost/benefit units and protected objectives against explicit decision models and observable outcomes.",
         "Distinguish hypothesized, observed and identified effects; leave unsupported tradeoffs unresolved and require evidence before promoting an effect claim.",
-        "Document where conservative interval dominance and one-assessment expected value apply, without claiming global causal optimization."
+        "Document where conservative interval dominance and one-assessment expected value apply, without claiming global causal optimization.",
+        "Return an inspectable partial resolution trace with preferred, deferred and unresolved nudges, conflict reasons and required follow-up evidence; optional issue remedies remain separate from authorization to execute them."
       ],
       "evidence": [],
       "links": [
@@ -719,7 +724,11 @@
       "dependsOn": [
         "audience-calibration",
         "verifier-calibration",
-        "causal-conflict-validation"
+        "causal-conflict-validation",
+        "workflow-composition",
+        "operator-alignment-game",
+        "decision-density-disclosure",
+        "assessment-selection-costing"
       ],
       "acceptance": [
         "Evaluate selected conjunctive compositions against a specified baseline, task population and decision costs using a fixed evidence-use protocol.",
@@ -735,6 +744,262 @@
         {
           "label": "V2 guide",
           "url": "../v2/README.md"
+        }
+      ]
+    },
+    {
+      "id": "semantic-commitments",
+      "title": "Preserve source meaning and business arithmetic",
+      "owner": "core",
+      "track": "later",
+      "status": "planned",
+      "dependsOn": [
+        "implementation-identity",
+        "input-bindings",
+        "typed-prerequisite-outputs"
+      ],
+      "acceptance": [
+        "Provide a reusable source-commitment contract and addressed evidence for amounts, units, denominators, actors, populations, periods, scope, conditions, dependencies, uncertainty, claim strength, material costs and recommended actions.",
+        "Bind full-source and candidate evidence to their revisions; check available numerical relationships deterministically and keep source corrections explicit instead of silently treating source mistakes as facts.",
+        "Exercise faithful rewrites and counterexamples that change a denominator, omit a condition or unfavorable scenario, strengthen a causal claim, alter a population, misstate all-in cost or remove the action; a lower complexity score cannot override a required fidelity failure.",
+        "State which structured predicates are deterministic and which semantic judgments need scoped qualification; missing source coverage or required judgment evidence remains unavailable."
+      ],
+      "evidence": [],
+      "links": [
+        {
+          "label": "Scope and evidence traceability",
+          "url": "./SCOPE.md"
+        }
+      ]
+    },
+    {
+      "id": "rendered-fold-evidence",
+      "title": "Collect inspectable rendered fold evidence",
+      "owner": "core",
+      "track": "later",
+      "status": "planned",
+      "dependsOn": [
+        "input-bindings",
+        "implementation-identity"
+      ],
+      "acceptance": [
+        "Provide a reusable surface-evidence contract and an actual rendered example collector with source/data/render identity, viewport, entry route, interaction state and stable claim/component addresses.",
+        "Measure separate total decision-element and novel-concept inventories over required natural viewport windows, including sticky chrome, partial visibility, long content, narrow screens and open disclosures; retain inspectable membership behind every count.",
+        "Use trusted policy for view/state coverage and per-view caps; test padding, bin-boundary movement, candidate-provided limits and unverified diagram grouping so they cannot manufacture a passing result.",
+        "Collect rendered geometry and interaction evidence for overlap, clipping, overflow, action visibility, focus, keyboard and touch access; missing required renders or states remain unavailable rather than inferred from a text proxy."
+      ],
+      "evidence": [],
+      "links": [
+        {
+          "label": "Scope and evidence traceability",
+          "url": "./SCOPE.md"
+        }
+      ]
+    },
+    {
+      "id": "decision-density-disclosure",
+      "title": "Preserve useful decisions within fold budgets",
+      "owner": "core",
+      "track": "later",
+      "status": "planned",
+      "dependsOn": [
+        "semantic-commitments",
+        "rendered-fold-evidence",
+        "assertion-context"
+      ],
+      "acceptance": [
+        "Provide a reusable audience/task/view contract and conjunctive communication example that keeps fidelity, arithmetic, geometry, total quanta and novel quanta as independent requirements.",
+        "Compare baseline and candidates for understood decision-relevant relationships and available actions under fixed caps, retaining business-case complexity that serves the decision instead of rewarding fewer words or facts.",
+        "Keep the main view sufficient for value, material conditions and the next action; make supporting calculations and first-use definitions discoverable at the point of need through progressive disclosure, with independent entry routes and supported input methods exercised.",
+        "Demonstrate a targeted addressed nudge and full-gate admission, including rejected candidates that hide a material cost, remove an unfavorable scenario, add filler or shrink text; report the observed improvement and remaining alternatives without claiming a universal capacity bound or global optimum."
+      ],
+      "evidence": [],
+      "links": [
+        {
+          "label": "Scope and evidence traceability",
+          "url": "./SCOPE.md"
+        }
+      ]
+    },
+    {
+      "id": "evidence-lineage",
+      "title": "Invalidate evidence through shared dependency addresses",
+      "owner": "core",
+      "track": "later",
+      "status": "planned",
+      "dependsOn": [
+        "implementation-identity",
+        "typed-prerequisite-outputs",
+        "checkpoint-resume"
+      ],
+      "acceptance": [
+        "Define common assertion, claim, component and artifact addresses with explicit evidence dependency edges and lineage across source, derived data, renders and downstream judgments.",
+        "Invalidate affected evidence and its transitive dependents when child assets, source values, view/state configuration, audience or evaluator identity changes, even when a parent file is unchanged.",
+        "Verify unchanged independent evidence can be reused only under matching declared identities, while missing dependencies, stale renders, cycles and resumed stale observations cannot satisfy required assertions."
+      ],
+      "evidence": [],
+      "links": [
+        {
+          "label": "Scope and evidence traceability",
+          "url": "./SCOPE.md"
+        }
+      ]
+    },
+    {
+      "id": "workflow-composition",
+      "title": "Propose reviewable workflow module compositions",
+      "owner": "core",
+      "track": "later",
+      "status": "planned",
+      "dependsOn": [
+        "discovery-consistency",
+        "typed-prerequisite-outputs",
+        "assertion-context",
+        "external-conformance"
+      ],
+      "acceptance": [
+        "Accept a workflow input/output contract, declared task requirements and locally supplied module catalog; propose compatible prerequisite-ordered compositions with required assertions and optional facets.",
+        "Expose matching reasons, assumptions, missing inputs/capabilities, alternative modules, output handoffs, costs and unsupported requirements; proposed compatibility must use the same runtime contracts as execution.",
+        "Exercise a broader communication composition with the independently installed Isogloss facet and a software composition using external modules; configuration remains explicit and proposals cannot grant themselves qualification or execution authority."
+      ],
+      "evidence": [],
+      "links": [
+        {
+          "label": "Scope and evidence traceability",
+          "url": "./SCOPE.md"
+        }
+      ]
+    },
+    {
+      "id": "operator-alignment-game",
+      "title": "Make blinded operator calibration runnable",
+      "owner": "core",
+      "track": "later",
+      "status": "planned",
+      "dependsOn": [
+        "qualification-invalidation",
+        "workflow-composition"
+      ],
+      "acceptance": [
+        "Provide a reusable runnable comparison interface that presents baseline and composed candidates with blinded, order-balanced assignments and a fixed task, sampling and evidence-use protocol.",
+        "Keep evaluation keys and label authorities outside the reader context; collect choices, ties, abstentions and task answers without disclosing the expected result, and bind ballots to protocol and evaluator identities.",
+        "Accept partial ballots and report incomplete or inconclusive evidence honestly; reject incompatible, duplicated or improperly reused evidence, and separate preference alignment from correctness and comprehension.",
+        "Exercise the complete prepare, play, record, reveal and assess workflow with clearly labeled test participants; provide the real operator command without fabricating a human ballot or a superiority verdict."
+      ],
+      "evidence": [],
+      "links": [
+        {
+          "label": "Scope and evidence traceability",
+          "url": "./SCOPE.md"
+        }
+      ]
+    },
+    {
+      "id": "assessment-selection-costing",
+      "title": "Validate decision value and assessment spending",
+      "owner": "core",
+      "track": "later",
+      "status": "planned",
+      "dependsOn": [
+        "loop-costing-hysteresis",
+        "causal-conflict-validation",
+        "verifier-calibration"
+      ],
+      "acceptance": [
+        "Provide explicit finite assessment models with priors, likelihoods, actions, error consequences and declared utility units; compare selected assessments and stopping decisions with independently enumerated expected outcomes.",
+        "Demonstrate that Shannon information gain, posterior belief change and decision utility are distinct, including an informative assessment that cannot change the action and an uninformative or unjustified causal intervention.",
+        "Meter proposal, assessment and repair rounds in each configured resource unit and document any operator-supplied conversion into utility; reject unsupported unit comparisons and expose uncertainty, sensitivity and the no-assessment option.",
+        "Record actual outcomes for bounded scenarios and preserve unresolved tradeoffs, rather than inferring global optimality or identified causal effects from local scores."
+      ],
+      "evidence": [],
+      "links": [
+        {
+          "label": "Scope and evidence traceability",
+          "url": "./SCOPE.md"
+        }
+      ]
+    },
+    {
+      "id": "public-end-to-end",
+      "title": "Demonstrate complete externally composed workflows",
+      "owner": "core",
+      "track": "later",
+      "status": "planned",
+      "dependsOn": [
+        "stable-api-review",
+        "evidence-lineage",
+        "software-v2-qualification",
+        "sonar-provenance",
+        "remediation-validation",
+        "composition-calibration"
+      ],
+      "acceptance": [
+        "Publish runnable communication and software workflows from discovery and configuration through baseline, bounded nudges, optional repair, full-gate admission, interruption/resume and separately reported calibration results.",
+        "Use independently installed public module revisions, portable synthetic or explicitly publishable fixtures and reproducible commands; no local source checkout or private artifact is an undeclared dependency.",
+        "Record baseline and candidate evidence, rejection reasons, unavailable checks, round costs and final verdicts; demonstrate at least one accepted repair and one superficially attractive candidate rejected for a preserved requirement."
+      ],
+      "evidence": [],
+      "links": [
+        {
+          "label": "Scope and evidence traceability",
+          "url": "./SCOPE.md"
+        }
+      ]
+    },
+    {
+      "id": "full-scope-audit",
+      "title": "Verify and publish every work-graph outcome",
+      "owner": "core",
+      "track": "later",
+      "status": "planned",
+      "dependsOn": [
+        "foundation",
+        "api-audit",
+        "isogloss-example",
+        "software-publication",
+        "sonarqube-publication",
+        "core-extraction",
+        "migration-package-conformance",
+        "implementation-identity",
+        "qualification-invalidation",
+        "input-bindings",
+        "discovery-consistency",
+        "external-conformance",
+        "durable-ledger",
+        "checkpoint-resume",
+        "crash-idempotency",
+        "loop-costing-hysteresis",
+        "stable-api-review",
+        "typed-prerequisite-outputs",
+        "assertion-context",
+        "software-evidence-completeness",
+        "software-v2-qualification",
+        "sonar-provenance",
+        "audience-calibration",
+        "verifier-calibration",
+        "causal-conflict-validation",
+        "remediation-validation",
+        "composition-calibration",
+        "semantic-commitments",
+        "rendered-fold-evidence",
+        "decision-density-disclosure",
+        "evidence-lineage",
+        "workflow-composition",
+        "operator-alignment-game",
+        "assessment-selection-costing",
+        "public-end-to-end"
+      ],
+      "acceptance": [
+        "Audit every original and added task against its unchanged acceptance criteria using current source, command output, artifacts, public repository state and suitably scoped empirical evidence; missing or indirect evidence remains unfinished.",
+        "Run applicable builds, tests, package-boundary checks, installed-consumer workflows and graph validation on the final revisions; record module/host versions and all material limitations.",
+        "Check in and push the completed graph, implementation, guides and public validation artifacts to their owning public repositories; verify remote revisions and any required CI without importing private client data or strategy.",
+        "Distinguish minimum API stability from audience, verifier and composition utility claims, and retain development or unqualified labels wherever the evidence does not support promotion."
+      ],
+      "evidence": [],
+      "links": [
+        {
+          "label": "Scope and evidence traceability",
+          "url": "./SCOPE.md"
         }
       ]
     }
