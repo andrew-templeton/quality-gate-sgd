@@ -1,0 +1,76 @@
+[
+  {
+    "id": "quality-sgd-sonarqube@0.2.0-dev.0",
+    "name": "quality-sgd-sonarqube",
+    "version": "0.2.0-dev.0",
+    "size": 27879,
+    "unpackedSize": 91451,
+    "shasum": "3b791ea93ad99dab275a744cee251a8a997ba349",
+    "integrity": "sha512-kNsgvIdETVoSlQ9nDI/vqyVgT0Iwfu7r2804KvMOEk4RvoxmqZXPc5q5bhmOeLKV+xOn0HpEHD8rKWIYFf1pYg==",
+    "filename": "quality-sgd-sonarqube-0.2.0-dev.0.tgz",
+    "files": [
+      {
+        "path": "LICENSE",
+        "size": 10177,
+        "mode": 420
+      },
+      {
+        "path": "NOTICE",
+        "size": 880,
+        "mode": 420
+      },
+      {
+        "path": "README.md",
+        "size": 9359,
+        "mode": 420
+      },
+      {
+        "path": "collector.js",
+        "size": 14843,
+        "mode": 420
+      },
+      {
+        "path": "docs/evidence/sonar-live-2026-09-14.json",
+        "size": 14969,
+        "mode": 420
+      },
+      {
+        "path": "docs/PROVENANCE.md",
+        "size": 8592,
+        "mode": 420
+      },
+      {
+        "path": "examples/host.mjs",
+        "size": 1674,
+        "mode": 420
+      },
+      {
+        "path": "index.d.ts",
+        "size": 6881,
+        "mode": 420
+      },
+      {
+        "path": "index.js",
+        "size": 11221,
+        "mode": 420
+      },
+      {
+        "path": "json.js",
+        "size": 2775,
+        "mode": 420
+      },
+      {
+        "path": "package.json",
+        "size": 1313,
+        "mode": 420
+      },
+      {
+        "path": "provenance.js",
+        "size": 8767,
+        "mode": 420
+      }
+    ],
+    "entryCount": 12,
+    "bundled": []
+  }
+]

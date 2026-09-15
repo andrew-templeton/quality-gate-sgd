@@ -1,0 +1,621 @@
+{
+  "protocol": "quality-sgd.public-end-to-end-receipt/v1",
+  "completedAt": "2026-09-15T03:53:03.394Z",
+  "status": "pass",
+  "packages": [
+    {
+      "name": "quality-gate-sgd",
+      "suppliedFilename": "quality-gate-sgd-2.0.0-dev.3.tgz",
+      "tarballSha256": "1c1f9e844708ebb2ce28abeae6d9a5aa4e18bd9935cc94b694c36981c52a1847",
+      "installedFrom": "../packages/quality-gate-sgd.tgz",
+      "version": "2.0.0-dev.3",
+      "repository": "https://github.com/andrew-templeton/quality-gate-sgd.git"
+    },
+    {
+      "name": "isogloss",
+      "suppliedFilename": "isogloss-0.6.0-dev.0.tgz",
+      "tarballSha256": "1d3db4d574469fe505869bbcf5a23848765159f13b80fc8c99da1546c1304f81",
+      "installedFrom": "../packages/isogloss.tgz",
+      "version": "0.6.0-dev.0",
+      "repository": "git+https://github.com/andrew-templeton/isogloss.git"
+    },
+    {
+      "name": "quality-sgd-software",
+      "suppliedFilename": "quality-sgd-software-0.1.0-dev.2.tgz",
+      "tarballSha256": "d32d603a3c891ba6318a6c768e847ce49220987a62067e891923a62e6b0fc27b",
+      "installedFrom": "../packages/quality-sgd-software.tgz",
+      "version": "0.1.0-dev.2",
+      "repository": "https://github.com/andrew-templeton/quality-sgd-software.git"
+    },
+    {
+      "name": "quality-sgd-sonarqube",
+      "suppliedFilename": "quality-sgd-sonarqube-0.2.0-dev.0.tgz",
+      "tarballSha256": "a47cdf8633bb21faffaa8666559c6c3b73d9a2431a92b35f3f026babec19cbb4",
+      "installedFrom": "../packages/quality-sgd-sonarqube.tgz",
+      "version": "0.2.0-dev.0",
+      "repository": "https://github.com/andrew-templeton/quality-sgd-sonarqube.git"
+    }
+  ],
+  "orchestrationBootstrapSha256": "60de1b49584d22689453133da73f7df789b7bdf0059896798245a31eb51f440f",
+  "sourceFiles": [
+    {
+      "path": "examples/workflow-consumer.mjs",
+      "sha256": "816405178b2a7021f263a4bf301b5066d6c7c3ea4a0f4fbc55e35f24f8f6a102",
+      "origin": "installed-core-tarball"
+    },
+    {
+      "path": "examples/repair-validation/run.mjs",
+      "sha256": "5518a35071b72f790ae933bcc94f7199d961533517f4a0b1c227e5004023074a",
+      "origin": "installed-core-tarball"
+    },
+    {
+      "path": "examples/repair-validation/worker.mjs",
+      "sha256": "de09db04a6c71f30d1fd05ad2805f5707ab187d6ce9143051f0b9c8e551e4802",
+      "origin": "installed-core-tarball"
+    },
+    {
+      "path": "examples/rendered/collector.mjs",
+      "sha256": "6732b830fb9ebce89fdf83323708ca91275321db012dbac99153c1808097978b",
+      "origin": "installed-core-tarball"
+    },
+    {
+      "path": "examples/rendered/measure.mjs",
+      "sha256": "2417e1ac2a63e9d3019a0169b2d0765693ff12621be7a9b4e085f8e954ba14bd",
+      "origin": "installed-core-tarball"
+    },
+    {
+      "path": "examples/rendered/fixture.mjs",
+      "sha256": "5740a68b1306830f06fe82b5b578fd50a0136ba7ae24678a7428310463a61aeb",
+      "origin": "installed-core-tarball"
+    },
+    {
+      "path": "examples/rendered/run.mjs",
+      "sha256": "02e8a3179cff37cde8535386342189df162e2db39aeaf60606c4bf8448ae6a44",
+      "origin": "installed-core-tarball"
+    },
+    {
+      "path": "examples/rendered/composition.mjs",
+      "sha256": "ef86812e8ff4b57fe1ea6c0563b776741bf1dcbd285e02b2c11945b2b1d98aaf",
+      "origin": "installed-core-tarball"
+    },
+    {
+      "path": "examples/rendered/communication-source.mjs",
+      "sha256": "227bc0abf1a63d0b8012c05eb9fed45e664ce768f0728ffb664e8684ff4d51c2",
+      "origin": "installed-core-tarball"
+    },
+    {
+      "path": "examples/rendered/package-lock.json",
+      "sha256": "05afbeada88e4b0a1ff989e374a6b0ec38e2e6241fa019f2c699b111ab3e0756",
+      "origin": "installed-core-tarball"
+    },
+    {
+      "path": "examples/decision-program/program.mjs",
+      "sha256": "f1443deb183cf035aa18a072f29320307e617b0d73bef179def69b274be67894",
+      "origin": "installed-core-tarball"
+    },
+    {
+      "path": "examples/decision-program/protocol.json",
+      "sha256": "6f16f97e0e06815d02526cd4ca30dc680202acf102902f17ca9296178f252147",
+      "origin": "installed-core-tarball"
+    },
+    {
+      "path": "examples/public-end-to-end/installed.mjs",
+      "sha256": "873a6454d550d776e5dc2293f5fbb8125b5d9772daa44733bbfa03b710c55304",
+      "origin": "public-orchestration-bundle"
+    },
+    {
+      "path": "examples/public-end-to-end/durable.mjs",
+      "sha256": "36aba452f4b43651d9190751c7125ce238974e0bfc54bca6713223a32bb7863a",
+      "origin": "public-orchestration-bundle"
+    },
+    {
+      "path": "examples/public-end-to-end/durable-worker.mjs",
+      "sha256": "4cbb6c3cedf3d7cb7909c8a51ad70311648c9e1484b882636dd63b4c900ded9e",
+      "origin": "public-orchestration-bundle"
+    },
+    {
+      "path": "examples/public-end-to-end/patch-worker.mjs",
+      "sha256": "6df12fbf3d783f9dfd7f789cb211edbf4562e200aa36636b111969dd54e0a1cc",
+      "origin": "public-orchestration-bundle"
+    },
+    {
+      "path": "examples/public-end-to-end/finite.mjs",
+      "sha256": "8f18cbe8308ca0a5b0de15b8b289d0dc3611fcc91d35fc1f3fa10459d5e32e52",
+      "origin": "public-orchestration-bundle"
+    },
+    {
+      "path": "examples/public-end-to-end/sonar.mjs",
+      "sha256": "0821760c0bd6066e92cf1dce85d673d012b20042a589032a176e86e96fb0bb0b",
+      "origin": "public-orchestration-bundle"
+    }
+  ],
+  "installLockSha256": "179a263b15047ce88b179029b66bc0778cfccd75aa95ca947efb8a80323a5307",
+  "reportDigest": "3f419701d475acf85fac09a768be140a6352b32e66850a159609d948f264e12e",
+  "artifacts": {
+    "inputs.json": "ade51908bdeda259cd8dc131b45885dca704b321475267a7f1f9a026ca6affbc",
+    "report.json": "f62619d7c665901f8be46f06ae6e929a46669cb6cb9f0aac9a6db64216fa40f5",
+    "commands.json": "1374626c99dab54b338891a87c591d9d93f0642369ab18e99e432553f0fa8158",
+    "stage-commands.json": "14fc2585c813d57159054206da0c955832d1bdacc6a848ee35491a3334ebebb9",
+    "stages/repair.json": "eb725836753580fb525bb7acfce4f91651d8e7a890f883565108c1dfc9318432",
+    "stages/durable/summary.json": "9215792623a5ae92f2f7a7ca88b55d281b3a0d302948d3ceea685d2699411baf",
+    "stages/durable/journal.json": "0b9f5075a7c01c2c174cac04f903331f14e59cb3375f908aca7bf41cd276a563",
+    "stages/durable/crash-point.json": "f67646576ee95b78715ceccb6558366657b455f505637954028b3ab9bda11c5b",
+    "stages/durable/external-receipts.jsonl": "ecb0150febe0a1264dc50e5b1d6ff3d8e80f20fcbcf87e502698214d58803786",
+    "stages/sonar/report.json": "89958bfeba8b9b88cded2fa71f99d1281d172f00b3db1e043500509133439635",
+    "stages/finite/registration.json": "04986e478f20f0cf00245263d310975f1778b749139558a546dffca7ee24966d",
+    "stages/finite/observations.json": "e40fbe1d94b85b87a060f2dbe986e2b1ed569451d366f3476d1bd5431d539f9d",
+    "stages/finite/report.json": "1fe331b4e63f976894822de890fc10ad916fe16f874232ef0f0cd0616acce7ea",
+    "stages/finite/replay.json": "546cd150e4b94aed463dfca87073264d4a0fdd421f70d74667bb47af1d212d77",
+    "stages/rendered/composition.json": "20b7e3e5f62b00480751685433cca3937670d2f0ee0d29fe70ab430438be3275"
+  },
+  "scopes": {
+    "installedProtocolAndDiscovery": "verified by executed synthetic workflows through public package imports",
+    "repair": "controlled fixed JavaScript patches, actual ESLint and four behavior cases; no model repair success-rate estimate",
+    "durableResume": "actual SIGKILL after a persisted repair outcome, then required full-gate checks and budget-preserving resume",
+    "sonar": "local evaluation/replay of packaged signed prior live evidence; no new server analysis or current source recollection",
+    "finiteCalibration": "executed constructed finite census with reused cases and explicitly declared utility assumptions; no unseen-population qualification",
+    "renderedComposition": "actual browser geometry, authored fixture fidelity/arithmetic and conjunctive admission; no measured human utility",
+    "humanCalibration": {
+      "status": "unverified",
+      "realBallots": 0
+    },
+    "compositionUtility": {
+      "status": "unverified",
+      "realBallots": 0
+    }
+  },
+  "workflow": {
+    "cases": [
+      "independent-isogloss-communication-facet",
+      "independent-complete-software-module",
+      "explicit-required-and-optional-policy",
+      "runtime-compatible-inputs",
+      "version-mismatch-reported",
+      "no-execution-during-planning"
+    ],
+    "communication": {
+      "proposalStatus": "validated-inputs",
+      "evaluation": "pass",
+      "costs": {
+        "evaluations": 2
+      }
+    },
+    "software": {
+      "proposalStatus": "validated-inputs",
+      "evaluation": "pass",
+      "costs": {
+        "evaluations": 1
+      }
+    },
+    "scope": "Synthetic protocol and composition fixtures; no human comprehension or software-correctness qualification.",
+    "outcome": "pass"
+  },
+  "repair": {
+    "scope": "Controlled synthetic JavaScript patches, actual ESLint and behavior subprocesses. No model repair or human study.",
+    "hostContractDigest": "26e1c8c4e6a6939450467772f388c86e91d596e8031743231ce12155edb0f2cc",
+    "disabledWithoutExplicitEnablement": "disabled",
+    "independentCandidateWorkspaces": 2,
+    "baselineUnchanged": true,
+    "diagnosticTextExecuted": false,
+    "behaviorCases": [
+      {
+        "sourceDigest": "1cc050d2c05c905c40c541436585642998b7860bed7be0b2c831ca0a9e1603d0",
+        "actual": [
+          20,
+          120,
+          220,
+          10020
+        ],
+        "expected": [
+          20,
+          120,
+          220,
+          10020
+        ],
+        "status": "pass"
+      },
+      {
+        "sourceDigest": "0b3810ee278a238b59b2f1b4eda720074313a964e4ff37d730c20bc45f5e31ad",
+        "actual": [
+          0,
+          100,
+          200,
+          10000
+        ],
+        "expected": [
+          20,
+          120,
+          220,
+          10020
+        ],
+        "status": "fail"
+      },
+      {
+        "sourceDigest": "b0b7b15acc0946287054f7bcdbe5a4ca7533cc50f8f2a7f2441945f7fdb89814",
+        "actual": [
+          20,
+          120,
+          220,
+          10020
+        ],
+        "expected": [
+          20,
+          120,
+          220,
+          10020
+        ],
+        "status": "pass"
+      }
+    ],
+    "admissions": [
+      {
+        "round": 1,
+        "phase": "admission",
+        "status": "rejected",
+        "reason": "Required assertion regressed: fixture.charge-behavior",
+        "artifactDigest": "a961e3694a6b1fef99891307879fd89dc82f073c49361e916d43bb3d34f51a26",
+        "nudgeId": "superficial"
+      },
+      {
+        "round": 2,
+        "phase": "admission",
+        "status": "accepted",
+        "reason": "Hard defect repaired without required regressions",
+        "artifactDigest": "2734a1c1de4498cbe29dd692f90e0e3116122e73da57273b1796c634cdc0dc85",
+        "nudgeId": "faithful"
+      }
+    ],
+    "spent": {
+      "collections": 3,
+      "evaluations": 6,
+      "behaviorProcesses": 3,
+      "proposals": 2,
+      "repairProcesses": 2
+    },
+    "rounds": 2,
+    "finalVerdict": "pass",
+    "limitation": "Passing applies to the selected lint rule and four registered inputs; it is not whole-program correctness or an estimated repair success rate."
+  },
+  "durable": {
+    "crashPoint": "SIGKILL after the repair outcome is durably recorded, before its reserved cost is settled or postrepair assertions run.",
+    "crashSignal": "SIGKILL",
+    "resumed": true,
+    "gateDigest": "d59f616f17c1b2919c9dbdd84a18aa831824f5e74cec2f8f3cfb9d8767145142",
+    "evaluationContractDigest": "da12bf063ef132dedd626dde822624ec67c2bbe9c93002faf2dbf433b1dfe958",
+    "externalAssertionId": "software.typescript.complete-evidence",
+    "before": {
+      "spent": {
+        "collections": 1,
+        "evaluations": 2,
+        "behaviorProcesses": 1,
+        "proposals": 1
+      },
+      "outstanding": [
+        {
+          "id": "3b54b1e6-1db7-4e3a-8c08-a0ac8638335a:0:repair:1:9db3edb15cab7551b3bb86f59e4d399ddd25fa51707f4603ef5f91aa3539d7c8:remove-invalid-type",
+          "upperBound": {
+            "repairProcesses": 1,
+            "collections": 1
+          },
+          "status": "unknown"
+        }
+      ],
+      "checkpointPhase": "repair",
+      "round": 1
+    },
+    "after": {
+      "spent": {
+        "collections": 2,
+        "evaluations": 4,
+        "behaviorProcesses": 2,
+        "proposals": 1,
+        "repairProcesses": 1
+      },
+      "verdict": "pass",
+      "rounds": 1,
+      "repairDispatches": 1,
+      "repairReceipts": 1,
+      "collections": 2,
+      "behaviorSubprocesses": 2,
+      "completedReplayDispatches": 0,
+      "requiredPostrepairAssertions": [
+        {
+          "id": "software.typescript.complete-evidence",
+          "status": "pass"
+        },
+        {
+          "id": "public-e2e.charge-behavior",
+          "status": "pass"
+        }
+      ]
+    },
+    "receiptDigest": "a41cc7f68560000ae1482ce44f2c8ae765528028df0fb3d80137ef457833527f",
+    "stateDigest": "87e4d5415651acf1c4daea17bd15054b10cf777ccedac670be14745001cda0cf",
+    "scope": "One actual SIGKILL after a cached repair outcome and before settlement; broader core subprocess tests cover other crash phases and unknown-result reconciliation. Local single-writer filesystem only. Fixed synthetic repair, no model or general correctness claim."
+  },
+  "sonar": {
+    "kind": "public-package-historical-sonar-replay",
+    "outputDir": "/private/tmp/quality-sgd-public-e2e-final/stages/sonar",
+    "reportDigest": "0ed36bab99f11bda7612c0ea08568271cab2e8cc07c1a0ffc2d3459d90129a9b",
+    "evaluatorDigest": "96a462d6f646d79f7d8a4200b398721c8d4d5ad412f58d4fcc7c72e51b9d06cf",
+    "historicalRecordFileSha256": "9c5f0a3938f8cd47fdf30e4af3c6daafdb5d5c78198f2dd191aa4aedb2ff00d1",
+    "cases": [
+      {
+        "fixture": "test/fixtures/live-src",
+        "status": "fail",
+        "signature": "valid-relative-to-packaged-public-policy",
+        "tampered": "unavailable"
+      },
+      {
+        "fixture": "test/fixtures/live-clean",
+        "status": "pass",
+        "signature": "valid-relative-to-packaged-public-policy",
+        "tampered": "unavailable"
+      }
+    ],
+    "actualLocalEvaluations": 4,
+    "newServerContacts": 0,
+    "newAnalyses": 0,
+    "sourceFilesRecollected": false,
+    "interpretation": "This run verifies a packaged prior signed collection and executes new local host evaluations. It makes no new server contact, starts no analysis and recollects no source files. The pinned public policy comes from the installed example package; it is not an independently authenticated collector trust decision.",
+    "limitations": [
+      "The historical fixture files are not packaged, so this replay does not verify current source bytes against the recorded manifest.",
+      "Signatures authenticate recorded evidence only relative to the packaged public key and the assumed trustworthy original collector/server.",
+      "A replay does not establish current server state, source freshness, scanner precision/recall, application correctness, or broad verifier qualification."
+    ]
+  },
+  "finite": {
+    "kind": "executed-public-package-finite-program",
+    "outputDir": "/private/tmp/quality-sgd-public-e2e-final/stages/finite",
+    "reportDigest": "40dd559828ef6d9f8a2ed4d1004db669c2d64f702cd39da7f9db7503d4e61f1e",
+    "registrationDigest": "1dece6419749ea2bdbbea01b05fdf43a5013cf08a568b241e77d3ebf2e60f63e",
+    "replayDigest": "8a2b111026fb6839dc916a53d3f16fef0e4131ffdf9a19d3e8cebd6ec59dd932",
+    "population": {
+      "members": 224,
+      "acceptable": 32,
+      "unacceptable": 192,
+      "scope": "Exactly all ordered a,b in {0,1,2,3}, total in {0,1,2,3,4,5,6}, color in {A,B}; 224 equally weighted structured records"
+    },
+    "census": {
+      "exact": "meets-finite-thresholds",
+      "approximate": "fails-finite-thresholds",
+      "outage": "incomplete-census"
+    },
+    "invocations": {
+      "assessment_steps": 1589,
+      "proposal_steps": 8,
+      "repair_steps": 5
+    },
+    "loops": [
+      {
+        "scenario": "repair-after-protected-rejection",
+        "stopReason": "pass",
+        "rounds": 2
+      },
+      {
+        "scenario": "unresolved",
+        "stopReason": "stalled",
+        "rounds": 1
+      },
+      {
+        "scenario": "repair-budget",
+        "stopReason": "budget",
+        "rounds": 2
+      },
+      {
+        "scenario": "round-limit",
+        "stopReason": "round-limit",
+        "rounds": 1
+      },
+      {
+        "scenario": "disabled-remedy",
+        "stopReason": "incomplete",
+        "rounds": 1
+      },
+      {
+        "scenario": "color-hypothesis",
+        "stopReason": "stalled",
+        "rounds": 1
+      }
+    ],
+    "scope": "Reusable constructed control population. Evaluators and cases are designed together; repeated runs are expected. No held-out or confirmatory sampling claim. Definition is loaded and bound before each execution; the local registration digest is not a trusted preregistration timestamp.",
+    "limitations": [
+      "Human comprehension, reader preference, semantic extraction or prose fidelity",
+      "Calibration for any input outside the exact finite population",
+      "Business causal effects, learned utilities, monetary or token spending",
+      "Global policy optimality beyond the enumerated one-assessment model",
+      "Automatic identification from observation, or execution permission from remedy metadata"
+    ]
+  },
+  "rendered": {
+    "contractDigest": "158623363ff8f154f234808e700d6ac5e1345944a744e1ea12898c599ca6d7dc",
+    "baseline": "fail",
+    "comparisons": [
+      {
+        "variant": "improved",
+        "verdict": "pass",
+        "accepted": true,
+        "reason": "Hard defect repaired without required regressions"
+      },
+      {
+        "variant": "hidden-cost",
+        "verdict": "fail",
+        "accepted": false,
+        "reason": "Required assertion regressed: source.commitments"
+      },
+      {
+        "variant": "removed-downside",
+        "verdict": "fail",
+        "accepted": false,
+        "reason": "Required assertion regressed: source.commitments"
+      },
+      {
+        "variant": "filler",
+        "verdict": "fail",
+        "accepted": false,
+        "reason": "Required assertion regressed: surface.geometry"
+      },
+      {
+        "variant": "small-text",
+        "verdict": "fail",
+        "accepted": false,
+        "reason": "Required assertion regressed: surface.geometry"
+      }
+    ],
+    "spent": {
+      "renderCollections": 6,
+      "evaluations": 60
+    },
+    "readerEvidence": {
+      "audience": "Business decision-makers unfamiliar with technical jargon",
+      "realResponses": 0,
+      "verdict": "unverified"
+    }
+  },
+  "costs": {
+    "workflowDeclaredUpperBounds": {
+      "communication": {
+        "evaluations": 2
+      },
+      "software": {
+        "evaluations": 1
+      }
+    },
+    "controlledRepair": {
+      "collections": 3,
+      "evaluations": 6,
+      "behaviorProcesses": 3,
+      "proposals": 2,
+      "repairProcesses": 2
+    },
+    "durableRun": {
+      "collections": 2,
+      "evaluations": 4,
+      "behaviorProcesses": 2,
+      "proposals": 1,
+      "repairProcesses": 1
+    },
+    "rendered": {
+      "renderCollections": 6,
+      "evaluations": 60
+    },
+    "finite": {
+      "assessment_steps": 1589,
+      "proposal_steps": 8,
+      "repair_steps": 5
+    },
+    "sonar": {
+      "evaluations": 4,
+      "newAnalyses": 0
+    },
+    "interpretation": "Separate stage-specific units. No monetary conversion or model/token spending is inferred. Command wall times are separately observed."
+  },
+  "commands": [
+    {
+      "command": "npm",
+      "args": [
+        "install",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund",
+        "../packages/quality-gate-sgd.tgz",
+        "../packages/isogloss.tgz",
+        "../packages/quality-sgd-software.tgz",
+        "../packages/quality-sgd-sonarqube.tgz",
+        "playwright@1.63.0",
+        "eslint@9.39.2",
+        "typescript@5.9.3"
+      ],
+      "cwd": "consumer",
+      "timeoutMs": 180000,
+      "code": 0,
+      "signal": null,
+      "elapsedMilliseconds": 2400.1547499999997,
+      "stdoutDigest": "305b174726f7b47194ddec29cfb4f02813752c41296b7dade441affb6a484f26",
+      "stderrDigest": "bcc6bca6c2daff2c9131106b5821b0653379209354fe81ab0b23f0eb31e043fc",
+      "overflow": false,
+      "timedOut": false
+    },
+    {
+      "command": "/Users/andrewtempleton/.nvm/versions/node/v22.23.2/bin/node",
+      "args": [
+        "node_modules/playwright/cli.js",
+        "install",
+        "chromium"
+      ],
+      "cwd": "consumer",
+      "timeoutMs": 180000,
+      "code": 0,
+      "signal": null,
+      "elapsedMilliseconds": 257.09666700000025,
+      "stdoutDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "overflow": false,
+      "timedOut": false
+    },
+    {
+      "command": "/Users/andrewtempleton/.nvm/versions/node/v22.23.2/bin/node",
+      "args": [
+        "examples/public-end-to-end/installed.mjs",
+        "/private/tmp/quality-sgd-public-e2e-final"
+      ],
+      "cwd": "consumer",
+      "timeoutMs": 300000,
+      "code": 0,
+      "signal": null,
+      "elapsedMilliseconds": 34304.969417,
+      "stdoutDigest": "5585c1285dbbf604d2975c0073073e8b6400d0dc17a283778cc9b266e598faf8",
+      "stderrDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "overflow": false,
+      "timedOut": false
+    }
+  ],
+  "stageCommands": [
+    {
+      "stage": "workflow",
+      "command": "/Users/andrewtempleton/.nvm/versions/node/v22.23.2/bin/node",
+      "args": [
+        "/private/tmp/quality-sgd-public-e2e-final/consumer/examples/workflow-consumer.mjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMilliseconds": 1035.899166,
+      "stdoutDigest": "5542686502417fd70878d5e7be914c172fd17b06cdf0dbca901df002e6e33478",
+      "stderrDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "stage": "repair",
+      "command": "/Users/andrewtempleton/.nvm/versions/node/v22.23.2/bin/node",
+      "args": [
+        "/private/tmp/quality-sgd-public-e2e-final/consumer/examples/repair-validation/run.mjs",
+        "/private/tmp/quality-sgd-public-e2e-final/stages/repair.json"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMilliseconds": 959.8097090000001,
+      "stdoutDigest": "af2874a6996c866933a7b177a1eaa644b43fac58c5dd23944b344702416fb983",
+      "stderrDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "stage": "rendered",
+      "command": "/Users/andrewtempleton/.nvm/versions/node/v22.23.2/bin/node",
+      "args": [
+        "/private/tmp/quality-sgd-public-e2e-final/consumer/examples/rendered/composition.mjs",
+        "/private/tmp/quality-sgd-public-e2e-final/stages/rendered"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMilliseconds": 28572.246541999997,
+      "stdoutDigest": "5cc58eb7e61c6ce401ddc303cc20c2ac8dd7eb953bee81487cc77bc8f81015cd",
+      "stderrDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "interpretation": "Receipt of the actual completed installed-consumer run. File integrity and observed expected outcomes were checked locally. Reproducing creates a new consumer and new timestamps/operation IDs; these hashes do not independently authenticate execution or registration timing.",
+  "limitations": [
+    "The assertion zoo remains compositional: passing one module never proves the other facets.",
+    "The physical browser device, readers, model repairs, live Sonar server and unseen software inputs are outside this executed scope.",
+    "The install lock and supplied tarball hashes identify this consumer; registry transitive dependency resolution is recorded in its package-lock.json.",
+    "Durability uses the documented local single-writer filesystem model. Other crash boundaries and unknown outcomes are exercised by the dedicated core subprocess suite."
+  ],
+  "receiptDigest": "707356ac582f9b4abfbdcd5c0d9ee376f84623cf45686b7a1979dfd305028f15"
+}

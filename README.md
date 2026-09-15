@@ -35,6 +35,8 @@ The communication example is a synthetic integration fixture. A passing fixture 
 
 The core does not install or re-export these external implementations. Software-specific imports and the old `quality-gate` CLI move to their owner; see the [migration guide](docs/v2/MIGRATION.md). Public Git repositories are available as source checkouts; this change does not publish new npm registry versions.
 
+The [public installed-package demonstration](docs/v2/PUBLIC-END-TO-END.md) runs discovery, controlled repair, interruption/resume and rendered communication with separately installed modules. The [acceptance audit](docs/work/AUDIT.md) records completed criteria and the remaining reader-evidence obligations.
+
 Start with the [v2 guide](docs/v2/README.md), [workflow composition](docs/v2/WORKFLOWS.md), [assertion context](docs/v2/ASSERTION-CONTEXT.md), and [validation record](docs/v2/VALIDATION.md). The [communication example](docs/v2/COMMUNICATION.md) combines source, browser and audience/task contracts; the [finite decision program](docs/v2/DECISION-PROGRAM.md) records bounded calibration, conflicts and costs. The [legacy software documentation](https://github.com/andrew-templeton/quality-sgd-software) explains the original metric and rule APIs.
 
 A composed pass means that the required predicates and their prerequisites passed under their declared assumptions. It does not establish universal adequacy, independent confidence, or guaranteed convergence. The historical [theory](docs/theory/CLAIMS.md) and [paper](paper/quality-gate-sgd.tex) remain research context; software implementation references now belong to the external software repository.

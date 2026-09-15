@@ -38,6 +38,8 @@ Some claims could require additional human participation or independently source
 
 Portable examples use synthetic or explicitly publishable source material. The public graph does not require publishing recovered conversations, named readers, private client documents or private planning records. Module implementations and their public evidence belong to the declared owning repositories. Isogloss remains an external facet rather than a bundled core implementation.
 
+The [current acceptance audit](AUDIT.md) maps every ordered criterion and keeps actual reader understanding and composition utility unfinished. Implementation and browser mechanics do not substitute for these observations.
+
 ## Completion procedure
 
 For each task, inspect its exact acceptance criteria in [graph.json](./graph.json), identify the source or runtime evidence that could prove each criterion, run or inspect that evidence at the final relevant revision, and record limitations alongside results. A link, green check or card declaration does not authenticate the claim by itself.

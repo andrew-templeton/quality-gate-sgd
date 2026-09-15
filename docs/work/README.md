@@ -4,7 +4,7 @@
 
 A dependency-ordered plan for a reusable assertion engine and independently maintained quality modules. All tasks, including domain and empirical work outside the minimum stable API path, remain in the completion scope. The stable API milestone covers protocol and execution guarantees; application-specific validity remains a separate obligation. Scope and required evidence are mapped in docs/work/SCOPE.md.
 
-Updated 2026-09-14. Current development API: `2.0.0-dev.2`. 36 tasks: 0 planned, 5 active, 31 done.
+Updated 2026-09-14. Current development API: `2.0.0-dev.3`. 36 tasks: 0 planned, 5 active, 31 done.
 
 Edit [graph.json](./graph.json), then run `npm run plan:generate` and `npm run plan:check`. IDs are stable. `dependsOn` lists prerequisites; every arrow points from prerequisite to dependent. A done task requires evidence and done prerequisites. Evidence links are reviewable records, not automatically authenticated proofs.
 
@@ -15,7 +15,7 @@ No duration or monetary estimates are implied by this graph. Evaluation spending
 | ID | Public repository | Responsibility |
 | --- | --- | --- |
 | `core` | [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) | Generic composition, contracts, budgets, decisions, calibration, admission and optional remediation; communication report example; work graph. |
-| `software` | [quality-sgd-software](https://github.com/andrew-templeton/quality-sgd-software) | Legacy software metrics/rules, CLI/MCP, source addressing, software experiments and Python research; future complete-evidence v2 adapters. |
+| `software` | [quality-sgd-software](https://github.com/andrew-templeton/quality-sgd-software) | Legacy software metrics/rules, CLI/MCP, source addressing, software experiments and Python research; independently qualified v2 report predicates and complete-evidence collectors. |
 | `sonarqube` | [quality-sgd-sonarqube](https://github.com/andrew-templeton/quality-sgd-sonarqube) | External SonarQube report assertion, issue nudges, remediation metadata and module conformance. |
 | `isogloss` | [isogloss](https://github.com/andrew-templeton/isogloss) | External audience and text-legibility implementation, default linked integration example and its domain evidence. |
 
@@ -25,18 +25,18 @@ Repository URLs identify intended ownership. Publication is established by the c
 
 These unfinished tasks have no unfinished prerequisites. Readiness does not imply implementation or approval of their eventual claims.
 
-- [`stable-api-review`](#stable-api-review) — Review the minimum stable API contract (active; core).
-- [`audience-calibration`](#audience-calibration) — Evaluate audience-specific legibility (active; isogloss).
+- [`decision-density-disclosure`](#decision-density-disclosure) — Preserve useful decisions within fold budgets (active; core).
 
 Active work still awaiting prerequisites:
 
-- [`composition-calibration`](#composition-calibration) awaits [`audience-calibration`](#audience-calibration).
-- [`public-end-to-end`](#public-end-to-end) awaits [`stable-api-review`](#stable-api-review), [`composition-calibration`](#composition-calibration).
-- [`full-scope-audit`](#full-scope-audit) awaits [`stable-api-review`](#stable-api-review), [`audience-calibration`](#audience-calibration), [`composition-calibration`](#composition-calibration), [`public-end-to-end`](#public-end-to-end).
+- [`audience-calibration`](#audience-calibration) awaits [`decision-density-disclosure`](#decision-density-disclosure).
+- [`composition-calibration`](#composition-calibration) awaits [`audience-calibration`](#audience-calibration), [`decision-density-disclosure`](#decision-density-disclosure).
+- [`public-end-to-end`](#public-end-to-end) awaits [`composition-calibration`](#composition-calibration).
+- [`full-scope-audit`](#full-scope-audit) awaits [`audience-calibration`](#audience-calibration), [`composition-calibration`](#composition-calibration), [`decision-density-disclosure`](#decision-density-disclosure), [`public-end-to-end`](#public-end-to-end).
 
 ## Minimum stable API path
 
-[`stable-api-review`](#stable-api-review) is **ready for review**. The required path is its transitive prerequisite closure; 0 prerequisite tasks remain unfinished. Completing this path supports API stability within its stated scope, not universal verifier validity.
+[`stable-api-review`](#stable-api-review) is **done**. The required path is its transitive prerequisite closure; 0 prerequisite tasks remain unfinished. Completing this path supports API stability within its stated scope, not universal verifier validity.
 
 All milestone prerequisites are done; the milestone still needs its own acceptance evidence unless already marked done.
 
@@ -65,7 +65,7 @@ flowchart TD
     task_checkpoint_resume["checkpoint-resume<br/>Restore complete loop checkpoints"]:::done
     task_crash_idempotency["crash-idempotency<br/>Verify crash boundaries and idempotency"]:::done
     task_loop_costing_hysteresis["loop-costing-hysteresis<br/>Verify resumed spending and hysteresis"]:::done
-    task_stable_api_review["stable-api-review<br/>Review the minimum stable API contract"]:::active
+    task_stable_api_review["stable-api-review<br/>Review the minimum stable API contract"]:::done
   end
   subgraph extensions["Examples and later domain or empirical work"]
     task_typed_prerequisite_outputs["typed-prerequisite-outputs<br/>Compose typed prerequisite outputs"]:::done
@@ -80,7 +80,7 @@ flowchart TD
     task_composition_calibration["composition-calibration<br/>Evaluate composed gates against baseline"]:::active
     task_semantic_commitments["semantic-commitments<br/>Preserve source meaning and business arithmetic"]:::done
     task_rendered_fold_evidence["rendered-fold-evidence<br/>Collect inspectable rendered fold evidence"]:::done
-    task_decision_density_disclosure["decision-density-disclosure<br/>Preserve useful decisions within fold budgets"]:::done
+    task_decision_density_disclosure["decision-density-disclosure<br/>Preserve useful decisions within fold budgets"]:::active
     task_evidence_lineage["evidence-lineage<br/>Invalidate evidence through shared dependency addresses"]:::done
     task_workflow_composition["workflow-composition<br/>Propose reviewable workflow module compositions"]:::done
     task_operator_alignment_game["operator-alignment-game<br/>Make blinded operator calibration runnable"]:::done
@@ -468,7 +468,7 @@ Context: [Consumer API review](../v2/API-REVIEW.md); [Implementation validation]
 <a id="stable-api-review"></a>
 ### stable-api-review: Review the minimum stable API contract
 
-**active** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · stable-api · minimum stable path
+**done** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · stable-api · minimum stable path
 
 Prerequisites: [`external-conformance`](#external-conformance), [`loop-costing-hysteresis`](#loop-costing-hysteresis).
 
@@ -478,7 +478,7 @@ Acceptance criteria:
 - Publish versioning, supported execution scope, migration policy and precise guarantees with passing acceptance evidence for every prerequisite.
 - Retain the development label until this review passes; protocol stability does not qualify a module for every audience or business use.
 
-Evidence: not yet recorded.
+Evidence: [Combined contract acceptance, compatibility and execution scope](../v2/STABLE-API-AUDIT.md); [Final dev.3 installed artifacts and passing public CI](../v2/EXTERNAL-CONFORMANCE.md).
 
 Context: [Consumer API review](../v2/API-REVIEW.md).
 
@@ -580,7 +580,7 @@ Acceptance criteria:
 - Record uncertainty, exclusions, scope and evaluator/configuration identity in module evidence.
 - Keep source and answer keys outside the reader context; label simulated-reader evidence as simulated, retain failed and inconclusive comparisons, and do not promote it into a human-audience qualification claim.
 
-Evidence: not yet recorded.
+Evidence: [Prepared rendered business-reader protocol and automated browser evidence; zero real responses](https://github.com/andrew-templeton/isogloss/tree/02e6630e0cfda250e294ad026ad11bb0137791ff/studies/rendered-reader).
 
 Context: [Calibration contract](../v2/CALIBRATION.md); [Isogloss integration](https://github.com/andrew-templeton/isogloss/tree/codex/quality-sgd-module-example/integrations/quality-sgd).
 
@@ -649,7 +649,7 @@ Acceptance criteria:
 - Measure whether added facets improve relevant outcomes and expose interactions, correlated errors and reader burden; do not infer composite confidence by multiplying unsupported component estimates.
 - Keep module validity, preference alignment and composition utility as separately reported claims with explicit applicability.
 
-Evidence: not yet recorded.
+Evidence: [Executed component conjunction and rejected regression cases; human utility remains unverified](../v2/COMMUNICATION.md); [Fixed exploratory whole-layout reader contrast; observations pending](https://github.com/andrew-templeton/isogloss/tree/02e6630e0cfda250e294ad026ad11bb0137791ff/studies/rendered-reader).
 
 Context: [Calibration contract](../v2/CALIBRATION.md); [V2 guide](../v2/README.md).
 
@@ -692,7 +692,7 @@ Context: [Scope and evidence traceability](./SCOPE.md).
 <a id="decision-density-disclosure"></a>
 ### decision-density-disclosure: Preserve useful decisions within fold budgets
 
-**done** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
+**active** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
 
 Prerequisites: [`semantic-commitments`](#semantic-commitments), [`rendered-fold-evidence`](#rendered-fold-evidence), [`assertion-context`](#assertion-context).
 
@@ -703,7 +703,7 @@ Acceptance criteria:
 - Keep the main view sufficient for value, material conditions and the next action; make supporting calculations and first-use definitions discoverable at the point of need through progressive disclosure, with independent entry routes and supported input methods exercised.
 - Demonstrate a targeted addressed nudge and full-gate admission, including rejected candidates that hide a material cost, remove an unfavorable scenario, add filler or shrink text; report the observed improvement and remaining alternatives without claiming a universal capacity bound or global optimum.
 
-Evidence: [Audience/task/view contract and executed conjunctive communication cases](../v2/COMMUNICATION.md).
+Evidence: [Implemented audience/task/view contract and rendered conjunction; understood relationships still await reader observations](../v2/COMMUNICATION.md); [Reader protocol prepared to measure understood relationships; criterion remains open](https://github.com/andrew-templeton/isogloss/tree/02e6630e0cfda250e294ad026ad11bb0137791ff/studies/rendered-reader).
 
 Context: [Scope and evidence traceability](./SCOPE.md).
 
@@ -790,7 +790,7 @@ Acceptance criteria:
 - Use independently installed public module revisions, portable synthetic or explicitly publishable fixtures and reproducible commands; no local source checkout or private artifact is an undeclared dependency.
 - Record baseline and candidate evidence, rejection reasons, unavailable checks, round costs and final verdicts; demonstrate at least one accepted repair and one superficially attractive candidate rejected for a preserved requirement.
 
-Evidence: not yet recorded.
+Evidence: [Installed workflows, actual crash/recovery and separate unverified human scopes; calibration prerequisite remains open](../v2/PUBLIC-END-TO-END.md).
 
 Context: [Scope and evidence traceability](./SCOPE.md).
 
@@ -808,6 +808,6 @@ Acceptance criteria:
 - Check in and push the completed graph, implementation, guides and public validation artifacts to their owning public repositories; verify remote revisions and any required CI without importing private client data or strategy.
 - Distinguish minimum API stability from audience, verifier and composition utility claims, and retain development or unqualified labels wherever the evidence does not support promotion.
 
-Evidence: not yet recorded.
+Evidence: [Partial criterion-by-criterion audit; actual reader obligations remain open](./AUDIT.md).
 
 Context: [Scope and evidence traceability](./SCOPE.md).

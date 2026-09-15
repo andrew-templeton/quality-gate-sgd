@@ -1,0 +1,412 @@
+{
+  "schemaVersion": "quality-sgd.external-conformance-record/v1",
+  "startedAt": "2026-09-15T03:53:43.511Z",
+  "node": "v22.23.2",
+  "platform": "darwin",
+  "status": "pass",
+  "scope": "Fresh independent package installations; protocol and declaration conformance only. No new reader, semantic, scanner-accuracy or business-utility qualification.",
+  "artifacts": {
+    "quality-gate-sgd": {
+      "path": "$CORE_PACKAGE/quality-gate-sgd-2.0.0-dev.3.tgz",
+      "version": "2.0.0-dev.3",
+      "sha256": "1c1f9e844708ebb2ce28abeae6d9a5aa4e18bd9935cc94b694c36981c52a1847",
+      "sourceRevision": "5b97e70323ec299bb80ff201368c9eee48ffbe86"
+    },
+    "isogloss": {
+      "path": "$ISOGLOSS_PACKAGE/isogloss-0.6.0-dev.0.tgz",
+      "version": "0.6.0-dev.0",
+      "sha256": "1d3db4d574469fe505869bbcf5a23848765159f13b80fc8c99da1546c1304f81",
+      "sourceRevision": "5947611"
+    },
+    "quality-sgd-software": {
+      "path": "$SOFTWARE_PACKAGE/quality-sgd-software-0.1.0-dev.2.tgz",
+      "version": "0.1.0-dev.2",
+      "sha256": "d32d603a3c891ba6318a6c768e847ce49220987a62067e891923a62e6b0fc27b",
+      "sourceRevision": "13308ba910bd0f64db5e242de692e0af592539ce"
+    },
+    "quality-sgd-sonarqube": {
+      "path": "$CONFORMANCE/quality-sgd-sonarqube-0.2.0-dev.0.tgz",
+      "version": "0.2.0-dev.0",
+      "sha256": "a47cdf8633bb21faffaa8666559c6c3b73d9a2431a92b35f3f026babec19cbb4",
+      "sourceRevision": "b5fd533cdef1d814139c5e324fa9039ebd472d7c"
+    }
+  },
+  "commands": [
+    {
+      "name": "sonar-clean",
+      "command": "git",
+      "args": [
+        "status",
+        "--porcelain"
+      ],
+      "cwd": "$SONAR_CHECKOUT",
+      "startedAt": "2026-09-15T03:53:43.514Z",
+      "exitCode": 0,
+      "stdout": "sonar-clean.stdout.txt",
+      "completedAt": "2026-09-15T03:53:43.527Z"
+    },
+    {
+      "name": "sonar-revision",
+      "command": "git",
+      "args": [
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "$SONAR_CHECKOUT",
+      "startedAt": "2026-09-15T03:53:43.528Z",
+      "exitCode": 0,
+      "stdout": "sonar-revision.stdout.txt",
+      "completedAt": "2026-09-15T03:53:43.537Z"
+    },
+    {
+      "name": "sonar-pack",
+      "command": "npm",
+      "args": [
+        "pack",
+        "--ignore-scripts",
+        "--json",
+        "--pack-destination",
+        "$CONFORMANCE"
+      ],
+      "cwd": "$SONAR_CHECKOUT",
+      "startedAt": "2026-09-15T03:53:43.537Z",
+      "exitCode": 0,
+      "stdout": "sonar-pack.stdout.txt",
+      "completedAt": "2026-09-15T03:53:43.731Z"
+    },
+    {
+      "name": "isogloss-install",
+      "command": "npm",
+      "args": [
+        "install",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund",
+        "$CORE_PACKAGE/quality-gate-sgd-2.0.0-dev.3.tgz",
+        "$ISOGLOSS_PACKAGE/isogloss-0.6.0-dev.0.tgz",
+        "typescript@5.9.3",
+        "@types/node@20.19.29"
+      ],
+      "cwd": "$CONFORMANCE/isogloss/z-tool",
+      "startedAt": "2026-09-15T03:53:43.731Z",
+      "exitCode": 0,
+      "stdout": "isogloss-install.stdout.txt",
+      "completedAt": "2026-09-15T03:53:44.501Z"
+    },
+    {
+      "name": "isogloss-protocol",
+      "command": "node",
+      "args": [
+        "check-isogloss.mjs",
+        "node_modules/quality-gate-sgd/dist/index.js"
+      ],
+      "cwd": "$CONFORMANCE/isogloss/z-tool",
+      "startedAt": "2026-09-15T03:53:44.502Z",
+      "exitCode": 0,
+      "stdout": "isogloss-protocol.stdout.txt",
+      "completedAt": "2026-09-15T03:53:44.557Z"
+    },
+    {
+      "name": "isogloss-types",
+      "command": "node",
+      "args": [
+        "node_modules/typescript/bin/tsc",
+        "--strict",
+        "--noEmit",
+        "--target",
+        "ES2022",
+        "--module",
+        "NodeNext",
+        "--moduleResolution",
+        "NodeNext",
+        "--lib",
+        "ES2022,DOM",
+        "--types",
+        "node",
+        "isogloss-consumer.mts"
+      ],
+      "cwd": "$CONFORMANCE/isogloss/z-tool",
+      "startedAt": "2026-09-15T03:53:44.557Z",
+      "exitCode": 0,
+      "stdout": "isogloss-types.stdout.txt",
+      "completedAt": "2026-09-15T03:53:45.505Z"
+    },
+    {
+      "name": "software-install",
+      "command": "npm",
+      "args": [
+        "install",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund",
+        "$CORE_PACKAGE/quality-gate-sgd-2.0.0-dev.3.tgz",
+        "$SOFTWARE_PACKAGE/quality-sgd-software-0.1.0-dev.2.tgz",
+        "eslint@9.39.2",
+        "typescript@5.9.3",
+        "@types/node@20.19.29"
+      ],
+      "cwd": "$CONFORMANCE/software/z-tool",
+      "startedAt": "2026-09-15T03:53:45.506Z",
+      "exitCode": 0,
+      "stdout": "software-install.stdout.txt",
+      "completedAt": "2026-09-15T03:53:47.731Z"
+    },
+    {
+      "name": "software-protocol",
+      "command": "node",
+      "args": [
+        "check-software.mjs"
+      ],
+      "cwd": "$CONFORMANCE/software/z-tool",
+      "startedAt": "2026-09-15T03:53:47.732Z",
+      "exitCode": 0,
+      "stdout": "software-protocol.stdout.txt",
+      "completedAt": "2026-09-15T03:53:49.577Z"
+    },
+    {
+      "name": "software-and-core-types",
+      "command": "node",
+      "args": [
+        "node_modules/typescript/bin/tsc",
+        "--strict",
+        "--noEmit",
+        "--target",
+        "ES2022",
+        "--module",
+        "NodeNext",
+        "--moduleResolution",
+        "NodeNext",
+        "--lib",
+        "ES2022,DOM",
+        "--types",
+        "node",
+        "software-consumer.mts",
+        "core-consumer.mts"
+      ],
+      "cwd": "$CONFORMANCE/software/z-tool",
+      "startedAt": "2026-09-15T03:53:49.577Z",
+      "exitCode": 0,
+      "stdout": "software-and-core-types.stdout.txt",
+      "completedAt": "2026-09-15T03:53:51.815Z"
+    },
+    {
+      "name": "sonarqube-install",
+      "command": "npm",
+      "args": [
+        "install",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund",
+        "$CORE_PACKAGE/quality-gate-sgd-2.0.0-dev.3.tgz",
+        "$CONFORMANCE/quality-sgd-sonarqube-0.2.0-dev.0.tgz",
+        "typescript@5.9.3",
+        "@types/node@20.19.29"
+      ],
+      "cwd": "$CONFORMANCE/sonarqube/z-tool",
+      "startedAt": "2026-09-15T03:53:51.816Z",
+      "exitCode": 0,
+      "stdout": "sonarqube-install.stdout.txt",
+      "completedAt": "2026-09-15T03:53:52.403Z"
+    },
+    {
+      "name": "sonarqube-protocol",
+      "command": "node",
+      "args": [
+        "check-sonarqube.mjs"
+      ],
+      "cwd": "$CONFORMANCE/sonarqube/z-tool",
+      "startedAt": "2026-09-15T03:53:52.404Z",
+      "exitCode": 0,
+      "stdout": "sonarqube-protocol.stdout.txt",
+      "completedAt": "2026-09-15T03:53:52.460Z"
+    },
+    {
+      "name": "sonarqube-types",
+      "command": "node",
+      "args": [
+        "node_modules/typescript/bin/tsc",
+        "--strict",
+        "--noEmit",
+        "--target",
+        "ES2022",
+        "--module",
+        "NodeNext",
+        "--moduleResolution",
+        "NodeNext",
+        "--lib",
+        "ES2022,DOM",
+        "--types",
+        "node",
+        "sonarqube-consumer.mts"
+      ],
+      "cwd": "$CONFORMANCE/sonarqube/z-tool",
+      "startedAt": "2026-09-15T03:53:52.461Z",
+      "exitCode": 0,
+      "stdout": "sonarqube-types.stdout.txt",
+      "completedAt": "2026-09-15T03:53:53.405Z"
+    },
+    {
+      "name": "sonar-clean-after",
+      "command": "git",
+      "args": [
+        "status",
+        "--porcelain"
+      ],
+      "cwd": "$SONAR_CHECKOUT",
+      "startedAt": "2026-09-15T03:53:53.405Z",
+      "exitCode": 0,
+      "stdout": "sonar-clean-after.stdout.txt",
+      "completedAt": "2026-09-15T03:53:53.418Z"
+    }
+  ],
+  "results": {
+    "isogloss": {
+      "consumerDirectory": "$CONFORMANCE/isogloss/z-tool",
+      "packageLockSha256": "4abefd9cb0b55516bec18c486fe04e2e100a3da96b918b13eada694d186c2f3a",
+      "status": "pass",
+      "protocol": {
+        "status": "passed",
+        "strictProtocol": "quality-sgd.assertion/v1",
+        "evaluatorDigest": "12f7981d5d7815b15acbe4cb0e24409ebc81ff000fd3d8968441c104753f92fa",
+        "positiveCases": 1,
+        "negativeCases": 1,
+        "zeroDispatchInputFailures": 7,
+        "identityChanges": 5,
+        "staleQualificationRejected": true,
+        "prerequisiteBlocking": true,
+        "scope": "Installed protocol conformance only; no reader or semantic qualification."
+      },
+      "typeFixturesPassed": 1,
+      "scriptSha256": "f1755883e2708724cdfd8bdede14a8629c6dee6084a95832e34d4b9ad0ca9c7b"
+    },
+    "software": {
+      "consumerDirectory": "$CONFORMANCE/software/z-tool",
+      "packageLockSha256": "bebbbf0b3dbd0fcc1eabcdf473f4e0bb5ad7b83d1669b7be2fe41ad6712478e9",
+      "status": "pass",
+      "protocol": {
+        "host": "quality-gate-sgd",
+        "software": "quality-sgd-software",
+        "cases": [
+          "complete-pass",
+          "diagnostic-fail",
+          "missing-shape-preflight",
+          "version-preflight",
+          "discovery-capabilities",
+          "semantic-identity-change",
+          "qualification-invalidation",
+          "stale-revision",
+          "prerequisite-blocking",
+          "installed-eslint-path-order-clean-and-failing"
+        ],
+        "outcome": "pass"
+      },
+      "groupedProtocolCasesPassed": 10,
+      "installedEslintCases": {
+        "clean": "pass",
+        "diagnostic": "fail",
+        "collection": "complete-for-both",
+        "sourceSortsBeforeTool": true
+      },
+      "typeFixturesPassed": 2,
+      "scriptSha256": "a8ea1722e94608b5fe5cf909795d1a0c9b9b5ed0e5d54b3bd831d48f542de3d8"
+    },
+    "sonarqube": {
+      "consumerDirectory": "$CONFORMANCE/sonarqube/z-tool",
+      "packageLockSha256": "1b98ec861f59ae640a6e617e4980de20fbf46c92fea8a3c3141cc8013f0a548b",
+      "status": "pass",
+      "protocol": {
+        "cases": 8,
+        "discovery": true,
+        "identity": true,
+        "qualificationInvalidation": true,
+        "prerequisiteBlocking": true,
+        "remediationData": true
+      },
+      "typeFixturesPassed": 1,
+      "scriptSha256": "f799d0f1e8d0bc3492025298eaf01152a8a04f77b544f10227b8f93b0163ca79"
+    }
+  },
+  "completedAt": "2026-09-15T03:53:53.419Z",
+  "counts": {
+    "installedConsumersPassed": 3,
+    "publicTypeFixturesPassed": 4,
+    "isogloss": {
+      "positive": 1,
+      "negative": 1,
+      "zeroDispatchInputFailures": 7,
+      "identityChanges": 5,
+      "staleQualificationRejected": true,
+      "prerequisiteBlocking": true
+    },
+    "software": {
+      "groupedProtocolCases": 10,
+      "actualEslintOutcomes": 2
+    },
+    "sonarqube": {
+      "statusPreflightCases": 8,
+      "discovery": true,
+      "identity": true,
+      "qualificationInvalidation": true,
+      "prerequisiteBlocking": true,
+      "unexecutedRemediationData": true
+    }
+  },
+  "publication": {
+    "originalRecordSha256": "cd915c9371330e9977e134cd6ac4b079d608e9b12ebf37ddbbef08561518234a",
+    "pathNormalization": "Operator-specific absolute directories replaced with named placeholders. Versions, input hashes, exit codes, outcomes and times unchanged. This is a retained execution record, not a trusted attestation.",
+    "stdoutFiles": [
+      {
+        "path": "isogloss-install.stdout.txt",
+        "sha256": "ed3cf240d19f96067543d9413834995eed01b847a0dffbfb7553264b7292c81f"
+      },
+      {
+        "path": "isogloss-protocol.stdout.txt",
+        "sha256": "9d55581d5c4cba2a08b6506c4b12832e243f7b70ced539117c22193e21b74c83"
+      },
+      {
+        "path": "isogloss-types.stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "software-and-core-types.stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "software-install.stdout.txt",
+        "sha256": "f815c3342bf690bab2ab7b14fa3d8cc8e95d05ad1bd0484eeb7db38ca326c448"
+      },
+      {
+        "path": "software-protocol.stdout.txt",
+        "sha256": "e83a5dbb93b4f72d405f98ac9520e36bd2a14c596cd60a484c9fb440affd7980"
+      },
+      {
+        "path": "sonar-clean-after.stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "sonar-clean.stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "sonar-pack.stdout.txt",
+        "sha256": "fdcb22aa80fc6f7de951c079b3884fddb0ff2f3d04ac7fddc116c2a9e81f70d3"
+      },
+      {
+        "path": "sonar-revision.stdout.txt",
+        "sha256": "ec2e293aaf60bffe895673de1eca644b4e33b29ff99a7d2887454b6850dd94ff"
+      },
+      {
+        "path": "sonarqube-install.stdout.txt",
+        "sha256": "2df80918b2287ff2310400c3ae5889b174656ec4277328b02ffccb4c04944618"
+      },
+      {
+        "path": "sonarqube-protocol.stdout.txt",
+        "sha256": "0a6bd44110a11412ebc2e1979265b2cf1c381287b6bf8af95fd372801fd33f6d"
+      },
+      {
+        "path": "sonarqube-types.stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ]
+  }
+}
