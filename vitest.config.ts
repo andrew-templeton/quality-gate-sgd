@@ -3,7 +3,8 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   test: {
     globals: true,
-    exclude: ['**/node_modules/**', '**/dist/**', '**/tests/fixtures/**'],
+    // Optional examples own their dependency/tool-specific runners (for example node:test + Chromium).
+    exclude: ['**/node_modules/**', '**/dist/**', '**/tests/fixtures/**', 'examples/**', 'tests/work-graph.test.mjs'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'json-summary', 'lcov'],

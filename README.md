@@ -1,275 +1,42 @@
 # quality-gate-sgd
 
-> Deterministic quality gates for stochastic gradient descent behavior from LLM agents
+Composable quality assertions, documented guarantees, and budgeted improvement loops.
 
-## The Core Insight
+## Development engine
 
-**The way to get deterministic results from a stochastic work unit (like an LLM) is to make the exit gate on the process (more) deterministic.**
+The core composes independently maintained assertion modules into required/advisory gates. It provides assertion cards, a discoverable taxonomy, independent cost units, finite decision-value calculations, conservative nudge conflict handling, admission with deadbands/cooldowns/cycle detection, calibration primitives, and optional repair orchestration.
 
-This package provides quality gates that create **gradient descent-like behavior** for LLM coding agents. When an agent iteratively fixes code to pass quality gates, it naturally descends toward higher quality solutions-without explicit optimization algorithms.
+The API is a development release (`2.0.0-dev.3`). The [combined API audit](docs/v2/STABLE-API-AUDIT.md) records the hardened public contracts, verified execution scope and compatibility policy. The [directed work graph](docs/work/README.md) links implementation, validation and release dependencies; [graph.json](docs/work/graph.json) is its machine-readable source.
 
-## Why This Works
-
-For gradient descent behavior to emerge from deterministic gates, three properties must hold:
-
-1. **Quantitative Measurement** - Metrics must be numeric with a clear "good" direction
-   - Coverage: higher is better
-   - Bug count: lower is better
-
-2. **Pure Function** - Same code state → same metric values
-   - No randomness in measurement
-   - Reproducible results
-
-3. **Local Continuity** - Small code changes → small metric changes
-   - No discontinuous cliffs
-   - Following feedback improves scores
-
-When these properties hold, an LLM agent iterating against quality gates exhibits **stochastic gradient descent** behavior-the agent's inherent randomness provides exploration, while the deterministic gates provide the descent direction.
-
-## Installation
-
-```bash
-npm install quality-gate-sgd
+```sh
+npm ci
+npm run build
+npm test
+npm run plan:check
+npm run check:package
+node dist/v2/cli.js run examples/v2/communication.mjs
 ```
 
-## Quick Start
-
-### 1. Create Rules Configuration
-
-```bash
-# Copy the template
-cp node_modules/quality-gate-sgd/templates/rules.template.json rules.json
+```js
+import { v2 } from 'quality-gate-sgd';
+// Direct imports such as { compileGate, BudgetLedger } are also available.
 ```
 
-Edit `rules.json` for your project:
+The communication example is a synthetic integration fixture. A passing fixture checks composition and accounting, not browser pixels or reader comprehension.
 
-```json
-{
-  "version": "1.0.0",
-  "description": "My Project Quality Rules",
-  "rules": {
-    "floors": {
-      "coverage.unit.branches": 70
-    },
-    "ceilings": {
-      "sonarqube.blocker": 0,
-      "sonarqube.critical": 0
-    },
-    "monotonic": [
-      { "direction": "up", "metrics": ["coverage.unit.branches"] },
-      { "direction": "down", "metrics": ["sonarqube.bugs"] }
-    ],
-    "requiredScripts": ["test", "lint"]
-  }
-}
-```
+## Independently maintained modules
 
-### 2. Run the Quality Gate
+| Repository | Responsibility |
+| --- | --- |
+| [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) | Generic contracts, composition, budgets, calibration, candidate admission and the communication render-report predicate |
+| [quality-sgd-software](https://github.com/andrew-templeton/quality-sgd-software) | Existing software collectors, legacy rules, CLI/MCP, symbol addressing and software experiment infrastructure |
+| [quality-sgd-sonarqube](https://github.com/andrew-templeton/quality-sgd-sonarqube) | External SonarQube v2 report assertion and optional remediation nudges |
+| [Isogloss](https://github.com/andrew-templeton/isogloss/tree/codex/quality-sgd-module-example/integrations/quality-sgd) | Default external language/legibility example, owned and versioned with its implementation |
 
-```bash
-npx quality-gate-sgd
-```
+The core does not install or re-export these external implementations. Software-specific imports and the old `quality-gate` CLI move to their owner; see the [migration guide](docs/v2/MIGRATION.md). Public Git repositories are available as source checkouts; this change does not publish new npm registry versions.
 
-### 3. View SonarQube Issues
+The [public installed-package demonstration](docs/v2/PUBLIC-END-TO-END.md) runs discovery, controlled repair, interruption/resume and rendered communication with separately installed modules. The [acceptance audit](docs/work/AUDIT.md) records completed criteria and the remaining reader-evidence obligations.
 
-```bash
-npx quality-gate-sgd list-issues -severity=MAJOR
-```
+Start with the [v2 guide](docs/v2/README.md), [workflow composition](docs/v2/WORKFLOWS.md), [assertion context](docs/v2/ASSERTION-CONTEXT.md), and [validation record](docs/v2/VALIDATION.md). The [communication example](docs/v2/COMMUNICATION.md) combines source, browser and audience/task contracts; the [finite decision program](docs/v2/DECISION-PROGRAM.md) records bounded calibration, conflicts and costs. The [legacy software documentation](https://github.com/andrew-templeton/quality-sgd-software) explains the original metric and rule APIs.
 
-## Rule Types
-
-### Floors
-Minimum thresholds that must be met:
-```json
-"floors": {
-  "coverage.unit.branches": 70,
-  "coverage.unit.statements": 80
-}
-```
-
-### Ceilings
-Maximum thresholds that must not be exceeded:
-```json
-"ceilings": {
-  "sonarqube.blocker": 0,
-  "sonarqube.critical": 0,
-  "sonarqube.major": 10
-}
-```
-
-### Monotonic (Ratcheting)
-Metrics that must not regress:
-```json
-"monotonic": [
-  { "direction": "up", "metrics": ["coverage.unit.branches"] },
-  { "direction": "down", "metrics": ["sonarqube.bugs", "sonarqube.vulnerabilities"] }
-]
-```
-
-### Required Scripts
-npm scripts that must pass:
-```json
-"requiredScripts": ["test", "lint", "build"]
-```
-
-## Available Metrics
-
-### Coverage Metrics
-- `coverage.unit.*` - Unit test coverage
-- `coverage.lambda.*` - Integration/Lambda test coverage
-- `coverage.union.*` - Merged coverage from all suites
-
-Each suite has: `branches`, `statements`, `functions`, `lines`
-
-### SonarQube Metrics
-- `sonarqube.bugs`, `sonarqube.vulnerabilities`, `sonarqube.codeSmells`
-- `sonarqube.blocker`, `sonarqube.critical`, `sonarqube.major`, `sonarqube.minor`, `sonarqube.info`
-- `sonarqube.coverage`, `sonarqube.duplications`
-
-### TypeScript & ESLint
-- `typescript.errors`, `typescript.warnings`
-- `eslint.errors`, `eslint.warnings`
-
-## The SGD Framework
-
-### Metric Classification
-
-Not all metrics are equal for gradient descent. We classify them by their role:
-
-| Category | Creates Gradient? | Examples |
-|-----|----------|-----|
-| **Objective Metrics** | Yes | coverage, bugs, codeSmells |
-| **Weighting Metrics** | No | impact, degree, severity |
-
-**Objective metrics** are what you optimize-they form the loss function.
-
-**Weighting metrics** focus the optimization-they tell you *where* to optimize first.
-
-### Smoothness Ranking
-
-Metrics with higher granularity create smoother gradients:
-
-| Tier | Metric | Why |
-|---|----|---|
-| 1 | `coverage.lines` | N=thousands, ~0.03% per line |
-| 1 | `duplications %` | Gradual refactoring |
-| 2 | `coverage.branches` | N=hundreds, ~0.5% per branch |
-| 3 | `sonarqube.blocker` | N<10, discrete cliffs |
-
-Prefer percentage-based metrics with large denominators for smoother descent.
-
-### Priority Function
-
-For LLM agent guidance, we compute file priority as:
-
-```
-priority = w_cov × coverageGap + w_ease × easeOfTesting + w_impact × importance + w_sev × severityScore
-```
-
-Where:
-- **coverageGap** = 1 - coverage (needs more tests)
-- **easeOfTesting** = 1 / (1 + degree) (leaf nodes are easier)
-- **importance** = indirectDependents / max (critical code)
-- **severityScore** = weighted sum of violations
-
-This creates a unified priority that balances what needs testing, what's easy to test, and what's most important to test.
-
-## Programmatic API
-
-```typescript
-import {
-  loadRules,
-  evaluateRules,
-  extractAllMetrics,
-  buildDependencyGraph,
-  prioritizeFiles,
-} from 'quality-gate-sgd';
-
-// Run quality gate
-const rules = loadRules();
-const metrics = extractAllMetrics(['test', 'lint']);
-const result = evaluateRules(rules, metrics);
-
-console.log(result.status); // 'pass' or 'fail'
-console.log(result.failedRules); // Array of failures
-
-// Analyze dependencies for test prioritization
-const graph = buildDependencyGraph();
-const prioritized = prioritizeFiles(graph, result.failedRules);
-
-console.log(prioritized[0].file.path); // Highest priority file
-console.log(prioritized[0].priority);  // Priority score
-```
-
-## Configuration
-
-### Environment Variables
-
-| Variable | Default | Description |
-|-----|-----|-------|
-| `SONARQUBE_URL` | `http://localhost:9000` | SonarQube server |
-| `SONARQUBE_PROJECT_KEY` | Auto-detected | Project key |
-| `QUALITY_RULES_FILE` | `rules.json` | Rules file path |
-| `QUALITY_CODE_PATHSPECS` | `src/,tests/,scripts/` | Paths for cache hashing |
-| `QUALITY_CACHE_FILE` | `.quality-gate-cache.json` | Cache file |
-
-### SonarQube Setup
-
-1. Start SonarQube (Docker recommended):
-   ```bash
-   docker-compose -f docker-compose.sonarqube.yml up -d
-   ```
-
-2. Create a project and generate a token
-
-3. Save token:
-   ```bash
-   echo "your-token" > .sonarqube-token
-   ```
-
-4. Create `sonar-project.properties`:
-   ```properties
-   sonar.projectKey=my-project
-   sonar.sources=src
-   sonar.tests=tests
-   sonar.javascript.lcov.reportPaths=coverage/lcov.info
-   ```
-
-## Caching
-
-The quality gate uses intelligent caching:
-
-- **Clean working tree**: Cache key = commit hash
-- **Uncommitted changes**: Cache key = `wip:` + SHA256 of code diffs
-- **Rules change**: Cache invalidated when rules.json changes
-
-Cache stores metrics and evaluation results to avoid redundant runs.
-
-## For LLM Agent Authors
-
-If you're building an LLM coding agent, this package provides:
-
-1. **Deterministic gates** that create gradient direction
-2. **Priority computation** to guide which files to work on
-3. **Dependency analysis** to understand code structure
-4. **Severity weights** to prioritize violations
-
-The key insight: *Your agent's inherent stochasticity provides exploration; our gates provide the descent direction.*
-
-See [docs/CONCEPT.md](docs/CONCEPT.md) for the full mathematical framework.
-
----
-
-## Academic Paper (WORKING DRAFT)
-
-The theoretical foundations are documented in a LaTeX paper: **[paper/quality-gate-sgd.tex](paper/quality-gate-sgd.tex)**
-
-⚠️ **Draft status**: Not peer-reviewed. Novel claims await empirical validation.
-
-Covers: Quality Geometry, Convergence Theorem, Discrete Differentiability, Metric Topology, Empirical Validation Plan (RQ1-RQ6).
-
-Claim inventory: [docs/theory/CLAIMS.md](docs/theory/CLAIMS.md)
-
-## License
-
-Apache-2.0
+A composed pass means that the required predicates and their prerequisites passed under their declared assumptions. It does not establish universal adequacy, independent confidence, or guaranteed convergence. The historical [theory](docs/theory/CLAIMS.md) and [paper](paper/quality-gate-sgd.tex) remain research context; software implementation references now belong to the external software repository.

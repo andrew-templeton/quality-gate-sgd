@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "strictProtocol": "quality-sgd.assertion/v1",
+  "evaluatorDigest": "12f7981d5d7815b15acbe4cb0e24409ebc81ff000fd3d8968441c104753f92fa",
+  "positiveCases": 1,
+  "negativeCases": 1,
+  "zeroDispatchInputFailures": 7,
+  "identityChanges": 5,
+  "staleQualificationRejected": true,
+  "prerequisiteBlocking": true,
+  "scope": "Installed protocol conformance only; no reader or semantic qualification."
+}

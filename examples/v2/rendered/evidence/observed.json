@@ -1,0 +1,1558 @@
+{
+  "browser": "153.0.8010.12",
+  "collectedAt": "2026-09-15T03:38:58.630Z",
+  "collectorDigest": "5a31ecd195dded51f2851702f2309d04e82a8e738ce92d419f0f05dc6d5a0092",
+  "receipts": [
+    {
+      "variant": "baseline",
+      "artifactDigest": "2abd34b8f3587b5a4ad5dd9b94dea234d245e1491c27380c11f5ce87bd5f8c8c",
+      "renderDigest": "0bb48a7ef9ec02271cc8b7baeb2207055cb523ec5f6b9e2898def924d4fc2d48",
+      "retainedCaptures": [
+        {
+          "state": "wide/closed/keyboard",
+          "id": "viewport-0",
+          "scrollTop": 0,
+          "digest": "6245e428cb09ce38e03d5d691e78095c31b73a2da561586c5c7c022b1d5f3ee5",
+          "path": "wide-closed-keyboard-viewport-0.png"
+        },
+        {
+          "state": "wide/open/keyboard",
+          "id": "viewport-0",
+          "scrollTop": 0,
+          "digest": "615fd71090e92fd8e6109d3475823557845088f4ab42af8136c9c59a26cd852f",
+          "path": "wide-open-keyboard-viewport-0.png"
+        },
+        {
+          "state": "narrow/closed/touch",
+          "id": "viewport-0",
+          "scrollTop": 0,
+          "digest": "f904b27edf939cee048b6a795e4a360663423fc5a6ebbf76f8012cea476ded2e",
+          "path": "narrow-closed-touch-viewport-0.png"
+        },
+        {
+          "state": "narrow/open/touch",
+          "id": "viewport-0",
+          "scrollTop": 0,
+          "digest": "5da45e0fd2a84468d80f5290d4cfb842b782766ab32a396a8ff61bf4bc5a2ef0",
+          "path": "narrow-open-touch-viewport-0.png"
+        },
+        {
+          "state": "wide/entry/keyboard",
+          "id": "viewport-0",
+          "scrollTop": 0,
+          "digest": "916bbac4ed3443f93d1b2bbb3670cf21b562fd875c0d255bed6ddf59499876b7",
+          "path": "wide-entry-keyboard-viewport-0.png"
+        },
+        {
+          "state": "narrow/entry/touch",
+          "id": "viewport-0",
+          "scrollTop": 0,
+          "digest": "313a231becc0adf462f288557fb8531bc7f5ebd820261668b889c26914b556e3",
+          "path": "narrow-entry-touch-viewport-0.png"
+        }
+      ],
+      "verifiedCaptureCount": 30,
+      "note": "All screenshot bytes were verified during the real run. This compact record retains every required state top and the improved long narrow ending; regenerate artifacts for the complete per-membership PNG set."
+    },
+    {
+      "variant": "improved",
+      "artifactDigest": "2c1d955c816e1806f6fd3913240ece124290f9c84c849bb6b8123b6db7481d1e",
+      "renderDigest": "9053b194b529a72599812cf5fdbfe81145991cf8f8026bb54ce6209c0b89a94c",
+      "retainedCaptures": [
+        {
+          "state": "wide/closed/keyboard",
+          "id": "viewport-0",
+          "scrollTop": 0,
+          "digest": "c51d38b12c88b66cbbb07f1ff28e21ea04b40d74b43bfabd4033cd0f5d812265",
+          "path": "wide-closed-keyboard-viewport-0.png"
+        },
+        {
+          "state": "wide/open/keyboard",
+          "id": "viewport-0",
+          "scrollTop": 0,
+          "digest": "1dfb6103b4f6d953b8f212fa68ca50e63fe685a2ce085b141c3a2c0dbf8fa793",
+          "path": "wide-open-keyboard-viewport-0.png"
+        },
+        {
+          "state": "narrow/closed/touch",
+          "id": "viewport-0",
+          "scrollTop": 0,
+          "digest": "4b24e7809ad1980ae08d7ebc810eb862a93c9806f0b8760cbf3b1e0f6892cc18",
+          "path": "narrow-closed-touch-viewport-0.png"
+        },
+        {
+          "state": "narrow/open/touch",
+          "id": "viewport-0",
+          "scrollTop": 0,
+          "digest": "85599f791c36aeb4dbdc112cddb7a4fcb750f59be1a3da23ae1c9ca2acf8e922",
+          "path": "narrow-open-touch-viewport-0.png"
+        },
+        {
+          "state": "narrow/open/touch",
+          "id": "viewport-546",
+          "scrollTop": 546,
+          "digest": "063c23aff21cf10596d1ff1f7e0799b0806e8bad241440ef715be437c5f74bf0",
+          "path": "narrow-open-touch-viewport-546.png"
+        },
+        {
+          "state": "wide/entry/keyboard",
+          "id": "viewport-0",
+          "scrollTop": 0,
+          "digest": "a925512b63c893fbadc0d242cbee94452e94cfc3afa0ec130ac9a94abb42d8fe",
+          "path": "wide-entry-keyboard-viewport-0.png"
+        },
+        {
+          "state": "narrow/entry/touch",
+          "id": "viewport-0",
+          "scrollTop": 0,
+          "digest": "96c95ea86c556578f2bd6bfb6e2219ed959a48b9b4e6101c7c3c5ad1bede3a00",
+          "path": "narrow-entry-touch-viewport-0.png"
+        }
+      ],
+      "verifiedCaptureCount": 60,
+      "note": "All screenshot bytes were verified during the real run. This compact record retains every required state top and the improved long narrow ending; regenerate artifacts for the complete per-membership PNG set."
+    }
+  ],
+  "fixtures": [
+    {
+      "variant": "baseline",
+      "status": "fail",
+      "artifactDigest": "2abd34b8f3587b5a4ad5dd9b94dea234d245e1491c27380c11f5ce87bd5f8c8c",
+      "renderDigest": "0bb48a7ef9ec02271cc8b7baeb2207055cb523ec5f6b9e2898def924d4fc2d48",
+      "facets": [
+        {
+          "id": "surface.geometry",
+          "status": "pass",
+          "findings": 0
+        },
+        {
+          "id": "surface.inventory",
+          "status": "pass",
+          "findings": 0
+        },
+        {
+          "id": "surface.total-budget",
+          "status": "fail",
+          "findings": 90
+        },
+        {
+          "id": "surface.novel-budget",
+          "status": "pass",
+          "findings": 0
+        }
+      ],
+      "states": [
+        {
+          "id": "wide/closed/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 5,
+          "captures": 3,
+          "documentHeight": 799,
+          "peakTotal": 12,
+          "peakNovel": 2
+        },
+        {
+          "id": "wide/open/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 5,
+          "captures": 3,
+          "documentHeight": 799,
+          "peakTotal": 12,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/closed/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 25,
+          "captures": 7,
+          "documentHeight": 1012,
+          "peakTotal": 12,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/open/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 25,
+          "captures": 7,
+          "documentHeight": 1012,
+          "peakTotal": 12,
+          "peakNovel": 2
+        },
+        {
+          "id": "wide/entry/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 5,
+          "captures": 3,
+          "documentHeight": 799,
+          "peakTotal": 12,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/entry/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 25,
+          "captures": 7,
+          "documentHeight": 1012,
+          "peakTotal": 12,
+          "peakNovel": 2
+        }
+      ]
+    },
+    {
+      "variant": "improved",
+      "status": "pass",
+      "artifactDigest": "2c1d955c816e1806f6fd3913240ece124290f9c84c849bb6b8123b6db7481d1e",
+      "renderDigest": "9053b194b529a72599812cf5fdbfe81145991cf8f8026bb54ce6209c0b89a94c",
+      "facets": [
+        {
+          "id": "surface.geometry",
+          "status": "pass",
+          "findings": 0
+        },
+        {
+          "id": "surface.inventory",
+          "status": "pass",
+          "findings": 0
+        },
+        {
+          "id": "surface.total-budget",
+          "status": "pass",
+          "findings": 0
+        },
+        {
+          "id": "surface.novel-budget",
+          "status": "pass",
+          "findings": 0
+        }
+      ],
+      "states": [
+        {
+          "id": "wide/closed/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 1,
+          "captures": 1,
+          "documentHeight": 760,
+          "peakTotal": 7,
+          "peakNovel": 1
+        },
+        {
+          "id": "wide/open/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 40,
+          "captures": 14,
+          "documentHeight": 1263,
+          "peakTotal": 9,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/closed/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 1,
+          "captures": 1,
+          "documentHeight": 844,
+          "peakTotal": 7,
+          "peakNovel": 1
+        },
+        {
+          "id": "narrow/open/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 66,
+          "captures": 15,
+          "documentHeight": 1390,
+          "peakTotal": 9,
+          "peakNovel": 2
+        },
+        {
+          "id": "wide/entry/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 40,
+          "captures": 14,
+          "documentHeight": 1263,
+          "peakTotal": 9,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/entry/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 66,
+          "captures": 15,
+          "documentHeight": 1390,
+          "peakTotal": 9,
+          "peakNovel": 2
+        }
+      ]
+    },
+    {
+      "variant": "padding",
+      "status": "fail",
+      "artifactDigest": "258e9a85c753e5c23da2e55732d92174f2bfdce622bb35f73ff953b4a013e3d0",
+      "renderDigest": "2e6416e24b7460e2adb90bd28d7c9c8361dd0c4fc47d2c268703fa1c8c0babd4",
+      "facets": [
+        {
+          "id": "surface.geometry",
+          "status": "fail",
+          "findings": 12
+        },
+        {
+          "id": "surface.inventory",
+          "status": "fail",
+          "findings": 36
+        },
+        {
+          "id": "surface.total-budget",
+          "status": "pass",
+          "findings": 0
+        },
+        {
+          "id": "surface.novel-budget",
+          "status": "pass",
+          "findings": 0
+        }
+      ],
+      "states": [
+        {
+          "id": "wide/closed/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 23,
+          "captures": 12,
+          "documentHeight": 1659,
+          "peakTotal": 6,
+          "peakNovel": 1
+        },
+        {
+          "id": "wide/open/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 55,
+          "captures": 21,
+          "documentHeight": 2213,
+          "peakTotal": 9,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/closed/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 46,
+          "captures": 12,
+          "documentHeight": 1671,
+          "peakTotal": 6,
+          "peakNovel": 1
+        },
+        {
+          "id": "narrow/open/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 107,
+          "captures": 22,
+          "documentHeight": 2340,
+          "peakTotal": 9,
+          "peakNovel": 2
+        },
+        {
+          "id": "wide/entry/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 55,
+          "captures": 21,
+          "documentHeight": 2213,
+          "peakTotal": 9,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/entry/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 107,
+          "captures": 22,
+          "documentHeight": 2340,
+          "peakTotal": 9,
+          "peakNovel": 2
+        }
+      ]
+    },
+    {
+      "variant": "boundary",
+      "status": "fail",
+      "artifactDigest": "85cabd1eb999d7b2454c6919020e3559896e1368184482019fe90de01eb4ceba",
+      "renderDigest": "0b40f490aeb6c2601d340e42bdafe897175a3880c0cb4e078efab4062d2d6801",
+      "facets": [
+        {
+          "id": "surface.geometry",
+          "status": "fail",
+          "findings": 11
+        },
+        {
+          "id": "surface.inventory",
+          "status": "fail",
+          "findings": 9
+        },
+        {
+          "id": "surface.total-budget",
+          "status": "fail",
+          "findings": 153
+        },
+        {
+          "id": "surface.novel-budget",
+          "status": "pass",
+          "findings": 0
+        }
+      ],
+      "states": [
+        {
+          "id": "wide/closed/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 31,
+          "captures": 9,
+          "documentHeight": 1187,
+          "peakTotal": 12,
+          "peakNovel": 2
+        },
+        {
+          "id": "wide/open/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 31,
+          "captures": 9,
+          "documentHeight": 1187,
+          "peakTotal": 12,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/closed/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 56,
+          "captures": 13,
+          "documentHeight": 1400,
+          "peakTotal": 12,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/open/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 56,
+          "captures": 13,
+          "documentHeight": 1400,
+          "peakTotal": 12,
+          "peakNovel": 2
+        },
+        {
+          "id": "wide/entry/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 31,
+          "captures": 9,
+          "documentHeight": 1187,
+          "peakTotal": 12,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/entry/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 56,
+          "captures": 13,
+          "documentHeight": 1400,
+          "peakTotal": 12,
+          "peakNovel": 2
+        }
+      ]
+    },
+    {
+      "variant": "candidate-caps",
+      "status": "fail",
+      "artifactDigest": "cc7028f4812bf43a7a0d1ba334c35d7f013d90877130a76bca16d811c6c6d287",
+      "renderDigest": "bc83b99b89b04e4969a141eba56e79966aec6ee60a276d8653e95c8f1dfc3449",
+      "facets": [
+        {
+          "id": "surface.geometry",
+          "status": "pass",
+          "findings": 0
+        },
+        {
+          "id": "surface.inventory",
+          "status": "pass",
+          "findings": 0
+        },
+        {
+          "id": "surface.total-budget",
+          "status": "fail",
+          "findings": 90
+        },
+        {
+          "id": "surface.novel-budget",
+          "status": "pass",
+          "findings": 0
+        }
+      ],
+      "states": [
+        {
+          "id": "wide/closed/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 5,
+          "captures": 3,
+          "documentHeight": 799,
+          "peakTotal": 12,
+          "peakNovel": 2
+        },
+        {
+          "id": "wide/open/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 5,
+          "captures": 3,
+          "documentHeight": 799,
+          "peakTotal": 12,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/closed/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 25,
+          "captures": 7,
+          "documentHeight": 1012,
+          "peakTotal": 12,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/open/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 25,
+          "captures": 7,
+          "documentHeight": 1012,
+          "peakTotal": 12,
+          "peakNovel": 2
+        },
+        {
+          "id": "wide/entry/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 5,
+          "captures": 3,
+          "documentHeight": 799,
+          "peakTotal": 12,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/entry/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 25,
+          "captures": 7,
+          "documentHeight": 1012,
+          "peakTotal": 12,
+          "peakNovel": 2
+        }
+      ]
+    },
+    {
+      "variant": "diagram",
+      "status": "fail",
+      "artifactDigest": "dc93d2add8baa9b69d0c4ce72aa6117136ec7dac1ee33918c7c3f85c3617443f",
+      "renderDigest": "1d47c0286d35a78561e6e08957323a3a77e62243a263b219f4b0ccdc4b607141",
+      "facets": [
+        {
+          "id": "surface.geometry",
+          "status": "fail",
+          "findings": 6
+        },
+        {
+          "id": "surface.inventory",
+          "status": "pass",
+          "findings": 0
+        },
+        {
+          "id": "surface.total-budget",
+          "status": "fail",
+          "findings": 90
+        },
+        {
+          "id": "surface.novel-budget",
+          "status": "pass",
+          "findings": 0
+        }
+      ],
+      "states": [
+        {
+          "id": "wide/closed/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 5,
+          "captures": 3,
+          "documentHeight": 799,
+          "peakTotal": 12,
+          "peakNovel": 2
+        },
+        {
+          "id": "wide/open/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 5,
+          "captures": 3,
+          "documentHeight": 799,
+          "peakTotal": 12,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/closed/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 25,
+          "captures": 7,
+          "documentHeight": 1012,
+          "peakTotal": 12,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/open/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 25,
+          "captures": 7,
+          "documentHeight": 1012,
+          "peakTotal": 12,
+          "peakNovel": 2
+        },
+        {
+          "id": "wide/entry/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 5,
+          "captures": 3,
+          "documentHeight": 799,
+          "peakTotal": 12,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/entry/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 25,
+          "captures": 7,
+          "documentHeight": 1012,
+          "peakTotal": 12,
+          "peakNovel": 2
+        }
+      ]
+    },
+    {
+      "variant": "small-text",
+      "status": "fail",
+      "artifactDigest": "8e79a55b2beaba7280e37c89136da9e7bc7f2fe2eda9053a576d1531d6b3b3f8",
+      "renderDigest": "20035f137f814076d544bbf29e78405645f7a123fe9d491a032cb30c737e8f7c",
+      "facets": [
+        {
+          "id": "surface.geometry",
+          "status": "fail",
+          "findings": 72
+        },
+        {
+          "id": "surface.inventory",
+          "status": "pass",
+          "findings": 0
+        },
+        {
+          "id": "surface.total-budget",
+          "status": "fail",
+          "findings": 6
+        },
+        {
+          "id": "surface.novel-budget",
+          "status": "pass",
+          "findings": 0
+        }
+      ],
+      "states": [
+        {
+          "id": "wide/closed/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 1,
+          "captures": 1,
+          "documentHeight": 760,
+          "peakTotal": 12,
+          "peakNovel": 2
+        },
+        {
+          "id": "wide/open/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 1,
+          "captures": 1,
+          "documentHeight": 760,
+          "peakTotal": 12,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/closed/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 1,
+          "captures": 1,
+          "documentHeight": 844,
+          "peakTotal": 12,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/open/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 1,
+          "captures": 1,
+          "documentHeight": 844,
+          "peakTotal": 12,
+          "peakNovel": 2
+        },
+        {
+          "id": "wide/entry/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 1,
+          "captures": 1,
+          "documentHeight": 760,
+          "peakTotal": 12,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/entry/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 1,
+          "captures": 1,
+          "documentHeight": 844,
+          "peakTotal": 12,
+          "peakNovel": 2
+        }
+      ]
+    },
+    {
+      "variant": "hidden-cost",
+      "status": "fail",
+      "artifactDigest": "55887402ad1ab1c7f805bcf8f5b92c6c21c201b6e0d168220c6d257de4dd4bb4",
+      "renderDigest": "921542e0e05b1a3beaec0da6d77ea12812899546365cdfe32ac384e9c6247425",
+      "facets": [
+        {
+          "id": "surface.geometry",
+          "status": "pass",
+          "findings": 0
+        },
+        {
+          "id": "surface.inventory",
+          "status": "fail",
+          "findings": 12
+        },
+        {
+          "id": "surface.total-budget",
+          "status": "pass",
+          "findings": 0
+        },
+        {
+          "id": "surface.novel-budget",
+          "status": "pass",
+          "findings": 0
+        }
+      ],
+      "states": [
+        {
+          "id": "wide/closed/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 1,
+          "captures": 1,
+          "documentHeight": 760,
+          "peakTotal": 6,
+          "peakNovel": 1
+        },
+        {
+          "id": "wide/open/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 35,
+          "captures": 13,
+          "documentHeight": 1201,
+          "peakTotal": 9,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/closed/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 1,
+          "captures": 1,
+          "documentHeight": 844,
+          "peakTotal": 6,
+          "peakNovel": 1
+        },
+        {
+          "id": "narrow/open/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 59,
+          "captures": 13,
+          "documentHeight": 1314,
+          "peakTotal": 9,
+          "peakNovel": 2
+        },
+        {
+          "id": "wide/entry/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 35,
+          "captures": 13,
+          "documentHeight": 1201,
+          "peakTotal": 9,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/entry/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 59,
+          "captures": 13,
+          "documentHeight": 1314,
+          "peakTotal": 9,
+          "peakNovel": 2
+        }
+      ]
+    },
+    {
+      "variant": "removed-downside",
+      "status": "fail",
+      "artifactDigest": "0ad01a858d679e6dce6255686e2c973b5317cb38b0edeb869ca8978787ed06ee",
+      "renderDigest": "8b3cb6d0d7f0f1f93a74b0690dbcad9969685062a1ec251833cfe7deeacb0a80",
+      "facets": [
+        {
+          "id": "surface.geometry",
+          "status": "pass",
+          "findings": 0
+        },
+        {
+          "id": "surface.inventory",
+          "status": "fail",
+          "findings": 12
+        },
+        {
+          "id": "surface.total-budget",
+          "status": "pass",
+          "findings": 0
+        },
+        {
+          "id": "surface.novel-budget",
+          "status": "pass",
+          "findings": 0
+        }
+      ],
+      "states": [
+        {
+          "id": "wide/closed/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 1,
+          "captures": 1,
+          "documentHeight": 760,
+          "peakTotal": 6,
+          "peakNovel": 1
+        },
+        {
+          "id": "wide/open/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 35,
+          "captures": 13,
+          "documentHeight": 1201,
+          "peakTotal": 9,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/closed/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 1,
+          "captures": 1,
+          "documentHeight": 844,
+          "peakTotal": 6,
+          "peakNovel": 1
+        },
+        {
+          "id": "narrow/open/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 58,
+          "captures": 13,
+          "documentHeight": 1314,
+          "peakTotal": 9,
+          "peakNovel": 2
+        },
+        {
+          "id": "wide/entry/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 35,
+          "captures": 13,
+          "documentHeight": 1201,
+          "peakTotal": 9,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/entry/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 58,
+          "captures": 13,
+          "documentHeight": 1314,
+          "peakTotal": 9,
+          "peakNovel": 2
+        }
+      ]
+    },
+    {
+      "variant": "filler",
+      "status": "fail",
+      "artifactDigest": "965ebf1a15192f720b78790a7f3254e15cf54c6adceb9355e9faefa5fbfc65e4",
+      "renderDigest": "ad5e21d4d94b29911bc0f3db69b7f0d1f4caf9a1139ef44fb518e46d9231457a",
+      "facets": [
+        {
+          "id": "surface.geometry",
+          "status": "fail",
+          "findings": 6
+        },
+        {
+          "id": "surface.inventory",
+          "status": "pass",
+          "findings": 0
+        },
+        {
+          "id": "surface.total-budget",
+          "status": "pass",
+          "findings": 0
+        },
+        {
+          "id": "surface.novel-budget",
+          "status": "pass",
+          "findings": 0
+        }
+      ],
+      "states": [
+        {
+          "id": "wide/closed/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 3,
+          "captures": 2,
+          "documentHeight": 772,
+          "peakTotal": 7,
+          "peakNovel": 1
+        },
+        {
+          "id": "wide/open/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 42,
+          "captures": 15,
+          "documentHeight": 1326,
+          "peakTotal": 9,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/closed/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 1,
+          "captures": 1,
+          "documentHeight": 844,
+          "peakTotal": 7,
+          "peakNovel": 1
+        },
+        {
+          "id": "narrow/open/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 75,
+          "captures": 18,
+          "documentHeight": 1475,
+          "peakTotal": 9,
+          "peakNovel": 2
+        },
+        {
+          "id": "wide/entry/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 42,
+          "captures": 15,
+          "documentHeight": 1326,
+          "peakTotal": 9,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/entry/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 75,
+          "captures": 18,
+          "documentHeight": 1475,
+          "peakTotal": 9,
+          "peakNovel": 2
+        }
+      ]
+    },
+    {
+      "variant": "overlap",
+      "status": "fail",
+      "artifactDigest": "5b1f7325535b518bf349f818ebc785a14e2ae712faba35a413dff200030df80f",
+      "renderDigest": "d370f59eb2f63e4adc9c07ea1df43bc74c39fc4264caa1bab684b41e4cf25484",
+      "facets": [
+        {
+          "id": "surface.geometry",
+          "status": "fail",
+          "findings": 9
+        },
+        {
+          "id": "surface.inventory",
+          "status": "pass",
+          "findings": 0
+        },
+        {
+          "id": "surface.total-budget",
+          "status": "fail",
+          "findings": 22
+        },
+        {
+          "id": "surface.novel-budget",
+          "status": "pass",
+          "findings": 0
+        }
+      ],
+      "states": [
+        {
+          "id": "wide/closed/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 1,
+          "captures": 1,
+          "documentHeight": 760,
+          "peakTotal": 7,
+          "peakNovel": 1
+        },
+        {
+          "id": "wide/open/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 37,
+          "captures": 14,
+          "documentHeight": 1201,
+          "peakTotal": 10,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/closed/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 1,
+          "captures": 1,
+          "documentHeight": 844,
+          "peakTotal": 7,
+          "peakNovel": 1
+        },
+        {
+          "id": "narrow/open/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 65,
+          "captures": 14,
+          "documentHeight": 1339,
+          "peakTotal": 10,
+          "peakNovel": 2
+        },
+        {
+          "id": "wide/entry/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 37,
+          "captures": 14,
+          "documentHeight": 1201,
+          "peakTotal": 10,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/entry/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 65,
+          "captures": 14,
+          "documentHeight": 1339,
+          "peakTotal": 10,
+          "peakNovel": 2
+        }
+      ]
+    },
+    {
+      "variant": "clipping",
+      "status": "fail",
+      "artifactDigest": "d83f056731f5a0083630bf7fdc7124b6552d6642c574ac1c7761ddbcd738ac69",
+      "renderDigest": "65bf3d42c998bdf7005aa631234c2ea7eea33e0b9747f60bd0459f5ab16b852f",
+      "facets": [
+        {
+          "id": "surface.geometry",
+          "status": "fail",
+          "findings": 12
+        },
+        {
+          "id": "surface.inventory",
+          "status": "pass",
+          "findings": 0
+        },
+        {
+          "id": "surface.total-budget",
+          "status": "fail",
+          "findings": 24
+        },
+        {
+          "id": "surface.novel-budget",
+          "status": "pass",
+          "findings": 0
+        }
+      ],
+      "states": [
+        {
+          "id": "wide/closed/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 1,
+          "captures": 1,
+          "documentHeight": 760,
+          "peakTotal": 7,
+          "peakNovel": 1
+        },
+        {
+          "id": "wide/open/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 36,
+          "captures": 14,
+          "documentHeight": 1236,
+          "peakTotal": 10,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/closed/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 1,
+          "captures": 1,
+          "documentHeight": 844,
+          "peakTotal": 7,
+          "peakNovel": 1
+        },
+        {
+          "id": "narrow/open/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 65,
+          "captures": 14,
+          "documentHeight": 1339,
+          "peakTotal": 10,
+          "peakNovel": 2
+        },
+        {
+          "id": "wide/entry/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 36,
+          "captures": 14,
+          "documentHeight": 1236,
+          "peakTotal": 10,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/entry/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 65,
+          "captures": 14,
+          "documentHeight": 1339,
+          "peakTotal": 10,
+          "peakNovel": 2
+        }
+      ]
+    },
+    {
+      "variant": "overflow",
+      "status": "fail",
+      "artifactDigest": "ecef9927958de0f66842a0b4c515bbdea0dc3815271098e7c079f219ac272d03",
+      "renderDigest": "9f721998508e7c09a277c0bf26cc63f58670a17808c691564e629604eac77d6f",
+      "facets": [
+        {
+          "id": "surface.geometry",
+          "status": "fail",
+          "findings": 31
+        },
+        {
+          "id": "surface.inventory",
+          "status": "pass",
+          "findings": 0
+        },
+        {
+          "id": "surface.total-budget",
+          "status": "fail",
+          "findings": 52
+        },
+        {
+          "id": "surface.novel-budget",
+          "status": "pass",
+          "findings": 0
+        }
+      ],
+      "states": [
+        {
+          "id": "wide/closed/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 1,
+          "captures": 1,
+          "documentHeight": 760,
+          "peakTotal": 7,
+          "peakNovel": 1
+        },
+        {
+          "id": "wide/open/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 31,
+          "captures": 14,
+          "documentHeight": 1182,
+          "peakTotal": 10,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/closed/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 1,
+          "captures": 1,
+          "documentHeight": 844,
+          "peakTotal": 7,
+          "peakNovel": 1
+        },
+        {
+          "id": "narrow/open/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 22,
+          "captures": 9,
+          "documentHeight": 1058,
+          "peakTotal": 12,
+          "peakNovel": 2
+        },
+        {
+          "id": "wide/entry/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 31,
+          "captures": 14,
+          "documentHeight": 1182,
+          "peakTotal": 10,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/entry/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 22,
+          "captures": 9,
+          "documentHeight": 1058,
+          "peakTotal": 12,
+          "peakNovel": 2
+        }
+      ]
+    },
+    {
+      "variant": "bad-focus",
+      "status": "fail",
+      "artifactDigest": "443878edf3315cd53d8e2ea1468f996a90609e58de8800ec84b609637be671f4",
+      "renderDigest": "846b35df37fd2d1e162838bc68d3cfa1fde1cf1bd780c09887bf1b78e5cab3b7",
+      "facets": [
+        {
+          "id": "surface.geometry",
+          "status": "fail",
+          "findings": 6
+        },
+        {
+          "id": "surface.inventory",
+          "status": "pass",
+          "findings": 0
+        },
+        {
+          "id": "surface.total-budget",
+          "status": "pass",
+          "findings": 0
+        },
+        {
+          "id": "surface.novel-budget",
+          "status": "pass",
+          "findings": 0
+        }
+      ],
+      "states": [
+        {
+          "id": "wide/closed/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 1,
+          "captures": 1,
+          "documentHeight": 760,
+          "peakTotal": 7,
+          "peakNovel": 1
+        },
+        {
+          "id": "wide/open/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 40,
+          "captures": 14,
+          "documentHeight": 1263,
+          "peakTotal": 9,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/closed/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 1,
+          "captures": 1,
+          "documentHeight": 844,
+          "peakTotal": 7,
+          "peakNovel": 1
+        },
+        {
+          "id": "narrow/open/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 66,
+          "captures": 15,
+          "documentHeight": 1390,
+          "peakTotal": 9,
+          "peakNovel": 2
+        },
+        {
+          "id": "wide/entry/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 40,
+          "captures": 14,
+          "documentHeight": 1263,
+          "peakTotal": 9,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/entry/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 66,
+          "captures": 15,
+          "documentHeight": 1390,
+          "peakTotal": 9,
+          "peakNovel": 2
+        }
+      ]
+    },
+    {
+      "variant": "bad-keyboard",
+      "status": "fail",
+      "artifactDigest": "f6d99f4c62fc884b5eadcf916e02ec6a572a697b50eb51f22636959faa3e5065",
+      "renderDigest": "0c9613fe1808d3aa6caa3dc39c800504ed171f2d847a0a373e82e389f747bc15",
+      "facets": [
+        {
+          "id": "surface.geometry",
+          "status": "fail",
+          "findings": 3
+        },
+        {
+          "id": "surface.inventory",
+          "status": "pass",
+          "findings": 0
+        },
+        {
+          "id": "surface.total-budget",
+          "status": "pass",
+          "findings": 0
+        },
+        {
+          "id": "surface.novel-budget",
+          "status": "pass",
+          "findings": 0
+        }
+      ],
+      "states": [
+        {
+          "id": "wide/closed/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 1,
+          "captures": 1,
+          "documentHeight": 760,
+          "peakTotal": 7,
+          "peakNovel": 1
+        },
+        {
+          "id": "wide/open/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 40,
+          "captures": 14,
+          "documentHeight": 1263,
+          "peakTotal": 9,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/closed/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 1,
+          "captures": 1,
+          "documentHeight": 844,
+          "peakTotal": 7,
+          "peakNovel": 1
+        },
+        {
+          "id": "narrow/open/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 66,
+          "captures": 15,
+          "documentHeight": 1390,
+          "peakTotal": 9,
+          "peakNovel": 2
+        },
+        {
+          "id": "wide/entry/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 40,
+          "captures": 14,
+          "documentHeight": 1263,
+          "peakTotal": 9,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/entry/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 66,
+          "captures": 15,
+          "documentHeight": 1390,
+          "peakTotal": 9,
+          "peakNovel": 2
+        }
+      ]
+    },
+    {
+      "variant": "bad-touch",
+      "status": "fail",
+      "artifactDigest": "3306fda835905dcca5928892ca806d4bc8bec4692706d167ad657da708a67661",
+      "renderDigest": "db5bef78281f400f3618db2e354311886c8013349e952444f5f97bbb42b2f137",
+      "facets": [
+        {
+          "id": "surface.geometry",
+          "status": "fail",
+          "findings": 12
+        },
+        {
+          "id": "surface.inventory",
+          "status": "pass",
+          "findings": 0
+        },
+        {
+          "id": "surface.total-budget",
+          "status": "fail",
+          "findings": 10
+        },
+        {
+          "id": "surface.novel-budget",
+          "status": "pass",
+          "findings": 0
+        }
+      ],
+      "states": [
+        {
+          "id": "wide/closed/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 1,
+          "captures": 1,
+          "documentHeight": 760,
+          "peakTotal": 7,
+          "peakNovel": 1
+        },
+        {
+          "id": "wide/open/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 37,
+          "captures": 14,
+          "documentHeight": 1234,
+          "peakTotal": 10,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/closed/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 1,
+          "captures": 1,
+          "documentHeight": 844,
+          "peakTotal": 7,
+          "peakNovel": 1
+        },
+        {
+          "id": "narrow/open/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 69,
+          "captures": 14,
+          "documentHeight": 1362,
+          "peakTotal": 10,
+          "peakNovel": 2
+        },
+        {
+          "id": "wide/entry/keyboard",
+          "complete": true,
+          "unavailable": [],
+          "windows": 37,
+          "captures": 14,
+          "documentHeight": 1234,
+          "peakTotal": 10,
+          "peakNovel": 2
+        },
+        {
+          "id": "narrow/entry/touch",
+          "complete": true,
+          "unavailable": [],
+          "windows": 69,
+          "captures": 14,
+          "documentHeight": 1362,
+          "peakTotal": 10,
+          "peakNovel": 2
+        }
+      ]
+    }
+  ]
+}

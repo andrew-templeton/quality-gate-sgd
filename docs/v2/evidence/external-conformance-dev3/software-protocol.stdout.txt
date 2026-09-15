@@ -1,0 +1,1 @@
+{"host":"quality-gate-sgd","software":"quality-sgd-software","cases":["complete-pass","diagnostic-fail","missing-shape-preflight","version-preflight","discovery-capabilities","semantic-identity-change","qualification-invalidation","stale-revision","prerequisite-blocking","installed-eslint-path-order-clean-and-failing"],"outcome":"pass"}
