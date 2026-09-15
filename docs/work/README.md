@@ -4,7 +4,7 @@
 
 A dependency-ordered plan for a reusable assertion engine and independently maintained quality modules. All tasks, including domain and empirical work outside the minimum stable API path, remain in the completion scope. The stable API milestone covers protocol and execution guarantees; application-specific validity remains a separate obligation. Scope and required evidence are mapped in docs/work/SCOPE.md.
 
-Updated 2026-09-14. Current development API: `2.0.0-dev.2`. 36 tasks: 13 planned, 7 active, 16 done.
+Updated 2026-09-14. Current development API: `2.0.0-dev.2`. 36 tasks: 0 planned, 5 active, 31 done.
 
 Edit [graph.json](./graph.json), then run `npm run plan:generate` and `npm run plan:check`. IDs are stable. `dependsOn` lists prerequisites; every arrow points from prerequisite to dependent. A done task requires evidence and done prerequisites. Evidence links are reviewable records, not automatically authenticated proofs.
 
@@ -25,28 +25,20 @@ Repository URLs identify intended ownership. Publication is established by the c
 
 These unfinished tasks have no unfinished prerequisites. Readiness does not imply implementation or approval of their eventual claims.
 
-- [`external-conformance`](#external-conformance) — Run independent module conformance (active; core).
-- [`assertion-context`](#assertion-context) — Make guarantees and assertion context discoverable (planned; core).
-- [`software-evidence-completeness`](#software-evidence-completeness) — Establish software collection completeness (active; software).
-- [`sonar-provenance`](#sonar-provenance) — Strengthen Sonar report provenance and scope (active; sonarqube).
-- [`verifier-calibration`](#verifier-calibration) — Collect scoped verifier validity evidence (planned; core).
-- [`causal-conflict-validation`](#causal-conflict-validation) — Validate conflicting nudge decisions (planned; core).
-- [`remediation-validation`](#remediation-validation) — Validate optional repair and verification (planned; core).
-- [`semantic-commitments`](#semantic-commitments) — Preserve source meaning and business arithmetic (planned; core).
-- [`rendered-fold-evidence`](#rendered-fold-evidence) — Collect inspectable rendered fold evidence (planned; core).
-- [`evidence-lineage`](#evidence-lineage) — Invalidate evidence through shared dependency addresses (active; core).
+- [`stable-api-review`](#stable-api-review) — Review the minimum stable API contract (active; core).
+- [`audience-calibration`](#audience-calibration) — Evaluate audience-specific legibility (active; isogloss).
 
 Active work still awaiting prerequisites:
 
-- [`software-v2-qualification`](#software-v2-qualification) awaits [`software-evidence-completeness`](#software-evidence-completeness).
-- [`audience-calibration`](#audience-calibration) awaits [`decision-density-disclosure`](#decision-density-disclosure), [`operator-alignment-game`](#operator-alignment-game).
-- [`operator-alignment-game`](#operator-alignment-game) awaits [`workflow-composition`](#workflow-composition).
+- [`composition-calibration`](#composition-calibration) awaits [`audience-calibration`](#audience-calibration).
+- [`public-end-to-end`](#public-end-to-end) awaits [`stable-api-review`](#stable-api-review), [`composition-calibration`](#composition-calibration).
+- [`full-scope-audit`](#full-scope-audit) awaits [`stable-api-review`](#stable-api-review), [`audience-calibration`](#audience-calibration), [`composition-calibration`](#composition-calibration), [`public-end-to-end`](#public-end-to-end).
 
 ## Minimum stable API path
 
-[`stable-api-review`](#stable-api-review) is **blocked**. The required path is its transitive prerequisite closure; 1 prerequisite tasks remain unfinished. Completing this path supports API stability within its stated scope, not universal verifier validity.
+[`stable-api-review`](#stable-api-review) is **ready for review**. The required path is its transitive prerequisite closure; 0 prerequisite tasks remain unfinished. Completing this path supports API stability within its stated scope, not universal verifier validity.
 
-- [`external-conformance`](#external-conformance) — active.
+All milestone prerequisites are done; the milestone still needs its own acceptance evidence unless already marked done.
 
 Later domain and empirical work is shown separately. Those tasks do not block the minimum protocol milestone; using their results in a consequential application still requires the relevant evidence.
 
@@ -68,33 +60,33 @@ flowchart TD
     task_qualification_invalidation["qualification-invalidation<br/>Bind and invalidate qualification evidence"]:::done
     task_input_bindings["input-bindings<br/>Validate typed inputs before evaluation"]:::done
     task_discovery_consistency["discovery-consistency<br/>Share input contracts with discovery"]:::done
-    task_external_conformance["external-conformance<br/>Run independent module conformance"]:::active
+    task_external_conformance["external-conformance<br/>Run independent module conformance"]:::done
     task_durable_ledger["durable-ledger<br/>Persist budgets and reservation identities"]:::done
     task_checkpoint_resume["checkpoint-resume<br/>Restore complete loop checkpoints"]:::done
     task_crash_idempotency["crash-idempotency<br/>Verify crash boundaries and idempotency"]:::done
     task_loop_costing_hysteresis["loop-costing-hysteresis<br/>Verify resumed spending and hysteresis"]:::done
-    task_stable_api_review["stable-api-review<br/>Review the minimum stable API contract"]:::planned
+    task_stable_api_review["stable-api-review<br/>Review the minimum stable API contract"]:::active
   end
   subgraph extensions["Examples and later domain or empirical work"]
     task_typed_prerequisite_outputs["typed-prerequisite-outputs<br/>Compose typed prerequisite outputs"]:::done
-    task_assertion_context["assertion-context<br/>Make guarantees and assertion context discoverable"]:::planned
-    task_software_evidence_completeness["software-evidence-completeness<br/>Establish software collection completeness"]:::active
-    task_software_v2_qualification["software-v2-qualification<br/>Qualify software gates as v2 modules"]:::active
-    task_sonar_provenance["sonar-provenance<br/>Strengthen Sonar report provenance and scope"]:::active
+    task_assertion_context["assertion-context<br/>Make guarantees and assertion context discoverable"]:::done
+    task_software_evidence_completeness["software-evidence-completeness<br/>Establish software collection completeness"]:::done
+    task_software_v2_qualification["software-v2-qualification<br/>Qualify software gates as v2 modules"]:::done
+    task_sonar_provenance["sonar-provenance<br/>Strengthen Sonar report provenance and scope"]:::done
     task_audience_calibration["audience-calibration<br/>Evaluate audience-specific legibility"]:::active
-    task_verifier_calibration["verifier-calibration<br/>Collect scoped verifier validity evidence"]:::planned
-    task_causal_conflict_validation["causal-conflict-validation<br/>Validate conflicting nudge decisions"]:::planned
-    task_remediation_validation["remediation-validation<br/>Validate optional repair and verification"]:::planned
-    task_composition_calibration["composition-calibration<br/>Evaluate composed gates against baseline"]:::planned
-    task_semantic_commitments["semantic-commitments<br/>Preserve source meaning and business arithmetic"]:::planned
-    task_rendered_fold_evidence["rendered-fold-evidence<br/>Collect inspectable rendered fold evidence"]:::planned
-    task_decision_density_disclosure["decision-density-disclosure<br/>Preserve useful decisions within fold budgets"]:::planned
-    task_evidence_lineage["evidence-lineage<br/>Invalidate evidence through shared dependency addresses"]:::active
-    task_workflow_composition["workflow-composition<br/>Propose reviewable workflow module compositions"]:::planned
-    task_operator_alignment_game["operator-alignment-game<br/>Make blinded operator calibration runnable"]:::active
-    task_assessment_selection_costing["assessment-selection-costing<br/>Validate decision value and assessment spending"]:::planned
-    task_public_end_to_end["public-end-to-end<br/>Demonstrate complete externally composed workflows"]:::planned
-    task_full_scope_audit["full-scope-audit<br/>Verify and publish every work-graph outcome"]:::planned
+    task_verifier_calibration["verifier-calibration<br/>Collect scoped verifier validity evidence"]:::done
+    task_causal_conflict_validation["causal-conflict-validation<br/>Validate conflicting nudge decisions"]:::done
+    task_remediation_validation["remediation-validation<br/>Validate optional repair and verification"]:::done
+    task_composition_calibration["composition-calibration<br/>Evaluate composed gates against baseline"]:::active
+    task_semantic_commitments["semantic-commitments<br/>Preserve source meaning and business arithmetic"]:::done
+    task_rendered_fold_evidence["rendered-fold-evidence<br/>Collect inspectable rendered fold evidence"]:::done
+    task_decision_density_disclosure["decision-density-disclosure<br/>Preserve useful decisions within fold budgets"]:::done
+    task_evidence_lineage["evidence-lineage<br/>Invalidate evidence through shared dependency addresses"]:::done
+    task_workflow_composition["workflow-composition<br/>Propose reviewable workflow module compositions"]:::done
+    task_operator_alignment_game["operator-alignment-game<br/>Make blinded operator calibration runnable"]:::done
+    task_assessment_selection_costing["assessment-selection-costing<br/>Validate decision value and assessment spending"]:::done
+    task_public_end_to_end["public-end-to-end<br/>Demonstrate complete externally composed workflows"]:::active
+    task_full_scope_audit["full-scope-audit<br/>Verify and publish every work-graph outcome"]:::active
   end
   task_foundation --> task_api_audit
   task_foundation --> task_isogloss_example
@@ -391,7 +383,7 @@ Context: [Consumer API review](../v2/API-REVIEW.md); [V2 guide](../v2/README.md)
 <a id="external-conformance"></a>
 ### external-conformance: Run independent module conformance
 
-**active** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · stable-api · minimum stable path
+**done** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · stable-api · minimum stable path
 
 Prerequisites: [`migration-package-conformance`](#migration-package-conformance), [`isogloss-example`](#isogloss-example), [`qualification-invalidation`](#qualification-invalidation), [`discovery-consistency`](#discovery-consistency).
 
@@ -401,7 +393,7 @@ Acceptance criteria:
 - Cover valid/invalid/version-mismatched inputs, unavailable evidence, identity changes, qualification invalidation and prerequisite blocking.
 - Record compatible module/host revisions and migration behavior; a passing protocol check makes no new domain-validity claim.
 
-Evidence: not yet recorded.
+Evidence: [Independent public package protocol verification](../v2/EXTERNAL-CONFORMANCE.md).
 
 Context: [Consumer API review](../v2/API-REVIEW.md); [SonarQube module](https://github.com/andrew-templeton/quality-sgd-sonarqube); [Isogloss module](https://github.com/andrew-templeton/isogloss).
 
@@ -476,7 +468,7 @@ Context: [Consumer API review](../v2/API-REVIEW.md); [Implementation validation]
 <a id="stable-api-review"></a>
 ### stable-api-review: Review the minimum stable API contract
 
-**planned** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · stable-api · minimum stable path
+**active** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · stable-api · minimum stable path
 
 Prerequisites: [`external-conformance`](#external-conformance), [`loop-costing-hysteresis`](#loop-costing-hysteresis).
 
@@ -509,7 +501,7 @@ Context: [V2 guide](../v2/README.md); [Consumer API review](../v2/API-REVIEW.md)
 <a id="assertion-context"></a>
 ### assertion-context: Make guarantees and assertion context discoverable
 
-**planned** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
+**done** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
 
 Prerequisites: [`implementation-identity`](#implementation-identity), [`input-bindings`](#input-bindings).
 
@@ -520,14 +512,14 @@ Acceptance criteria:
 - Document conflicts and context needed to choose a module without promoting an unqualified match as a validated verifier.
 - Expose machine-readable hierarchy, input/output contracts and documentation-card examples for selected assertion subsets; a composed card preserves component assumptions, scope and excluded guarantees without inventing aggregate confidence.
 
-Evidence: not yet recorded.
+Evidence: [Assertion vocabulary, per-module context and composition cards](../v2/ASSERTION-CONTEXT.md).
 
 Context: [V2 guide](../v2/README.md); [Transport-neutral resources](../../src/v2/resources.ts).
 
 <a id="software-evidence-completeness"></a>
 ### software-evidence-completeness: Establish software collection completeness
 
-**active** · [quality-sgd-software](https://github.com/andrew-templeton/quality-sgd-software) · later · outside minimum stable path
+**done** · [quality-sgd-software](https://github.com/andrew-templeton/quality-sgd-software) · later · outside minimum stable path
 
 Prerequisites: [`software-publication`](#software-publication), [`input-bindings`](#input-bindings).
 
@@ -537,14 +529,14 @@ Acceptance criteria:
 - Missing commands/reports/metrics, partial scans and stale revisions remain unavailable instead of satisfying a required ceiling through omission.
 - Test actual subprocess failure and incomplete scope cases; preserve the distinction between legacy compatibility and the stronger v2 contract.
 
-Evidence: not yet recorded.
+Evidence: [Published complete collectors and path-order regression](https://github.com/andrew-templeton/quality-sgd-software/blob/13308ba/docs/VALIDATION.md).
 
 Context: [Consumer API review](../v2/API-REVIEW.md); [Software repository](https://github.com/andrew-templeton/quality-sgd-software).
 
 <a id="software-v2-qualification"></a>
 ### software-v2-qualification: Qualify software gates as v2 modules
 
-**active** · [quality-sgd-software](https://github.com/andrew-templeton/quality-sgd-software) · later · outside minimum stable path
+**done** · [quality-sgd-software](https://github.com/andrew-templeton/quality-sgd-software) · later · outside minimum stable path
 
 Prerequisites: [`software-evidence-completeness`](#software-evidence-completeness), [`qualification-invalidation`](#qualification-invalidation).
 
@@ -554,14 +546,14 @@ Acceptance criteria:
 - Bind qualification to implementation, scope and evidence provenance; use relevant labeled cases or established deterministic report predicates.
 - Demonstrate host conformance and document unqualified legacy features rather than granting qualification to the entire extraction.
 
-Evidence: not yet recorded.
+Evidence: [Scoped deterministic v2 predicates and installed host evidence](https://github.com/andrew-templeton/quality-sgd-software/blob/13308ba/docs/V2-QUALIFICATION.md).
 
 Context: [Calibration contract](../v2/CALIBRATION.md); [Software repository](https://github.com/andrew-templeton/quality-sgd-software).
 
 <a id="sonar-provenance"></a>
 ### sonar-provenance: Strengthen Sonar report provenance and scope
 
-**active** · [quality-sgd-sonarqube](https://github.com/andrew-templeton/quality-sgd-sonarqube) · later · outside minimum stable path
+**done** · [quality-sgd-sonarqube](https://github.com/andrew-templeton/quality-sgd-sonarqube) · later · outside minimum stable path
 
 Prerequisites: [`sonarqube-publication`](#sonarqube-publication), [`input-bindings`](#input-bindings).
 
@@ -570,7 +562,7 @@ Acceptance criteria:
 - Define optional authenticated collection evidence binding a server analysis and complete pagination/scope to the assessed artifact revision.
 - Test truncated, stale, mismatched and unavailable reports; keep the existing report-only predicate accurately labeled when stronger collection evidence is absent.
 
-Evidence: not yet recorded.
+Evidence: [Published authenticated Sonar collection and actual live evidence](https://github.com/andrew-templeton/quality-sgd-sonarqube/blob/b5fd533/docs/PROVENANCE.md).
 
 Context: [SonarQube repository](https://github.com/andrew-templeton/quality-sgd-sonarqube).
 
@@ -595,7 +587,7 @@ Context: [Calibration contract](../v2/CALIBRATION.md); [Isogloss integration](ht
 <a id="verifier-calibration"></a>
 ### verifier-calibration: Collect scoped verifier validity evidence
 
-**planned** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
+**done** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
 
 Prerequisites: [`qualification-invalidation`](#qualification-invalidation).
 
@@ -605,14 +597,14 @@ Acceptance criteria:
 - Prespecify sampling, dependence assumptions, evidence use and acceptance thresholds; report bounds and incomplete evidence without converting preference wins to correctness claims.
 - Publish a reusable evidence record example tied to evaluator identity, while each external verifier owns its substantive validity claim.
 
-Evidence: not yet recorded.
+Evidence: [Executed finite census, scoped error rates and missingness bounds](../v2/DECISION-PROGRAM.md); [Independent mathematical and accounting review](../v2/DECISION-REVIEW.md).
 
 Context: [Calibration contract](../v2/CALIBRATION.md).
 
 <a id="causal-conflict-validation"></a>
 ### causal-conflict-validation: Validate conflicting nudge decisions
 
-**planned** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
+**done** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
 
 Prerequisites: [`foundation`](#foundation).
 
@@ -623,14 +615,14 @@ Acceptance criteria:
 - Document where conservative interval dominance and one-assessment expected value apply, without claiming global causal optimization.
 - Return an inspectable partial resolution trace with preferred, deferred and unresolved nudges, conflict reasons and required follow-up evidence; optional issue remedies remain separate from authorization to execute them.
 
-Evidence: not yet recorded.
+Evidence: [Finite interventions, partial conflict traces and actual loop outcomes](../v2/DECISION-PROGRAM.md).
 
 Context: [V2 guide](../v2/README.md).
 
 <a id="remediation-validation"></a>
 ### remediation-validation: Validate optional repair and verification
 
-**planned** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
+**done** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
 
 Prerequisites: [`foundation`](#foundation).
 
@@ -640,14 +632,14 @@ Acceptance criteria:
 - Show that an assertion-provided remediation prompt cannot enable execution or grant its own candidate admission.
 - Evaluate repairs on representative module issues with failures preserved as evidence, including cases where a superficially clean result changes intended behavior.
 
-Evidence: not yet recorded.
+Evidence: [Executed isolated repairs and full-gate rejection/admission](../../examples/v2/repair-validation/README.md).
 
 Context: [Remediation contract](../v2/REMEDIATION.md).
 
 <a id="composition-calibration"></a>
 ### composition-calibration: Evaluate composed gates against baseline
 
-**planned** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
+**active** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
 
 Prerequisites: [`audience-calibration`](#audience-calibration), [`verifier-calibration`](#verifier-calibration), [`causal-conflict-validation`](#causal-conflict-validation), [`workflow-composition`](#workflow-composition), [`operator-alignment-game`](#operator-alignment-game), [`decision-density-disclosure`](#decision-density-disclosure), [`assessment-selection-costing`](#assessment-selection-costing).
 
@@ -664,7 +656,7 @@ Context: [Calibration contract](../v2/CALIBRATION.md); [V2 guide](../v2/README.m
 <a id="semantic-commitments"></a>
 ### semantic-commitments: Preserve source meaning and business arithmetic
 
-**planned** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
+**done** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
 
 Prerequisites: [`implementation-identity`](#implementation-identity), [`input-bindings`](#input-bindings), [`typed-prerequisite-outputs`](#typed-prerequisite-outputs).
 
@@ -675,14 +667,14 @@ Acceptance criteria:
 - Exercise faithful rewrites and counterexamples that change a denominator, omit a condition or unfavorable scenario, strengthen a causal claim, alter a population, misstate all-in cost or remove the action; a lower complexity score cannot override a required fidelity failure.
 - State which structured predicates are deterministic and which semantic judgments need scoped qualification; missing source coverage or required judgment evidence remains unavailable.
 
-Evidence: not yet recorded.
+Evidence: [Structured fidelity, explicit source corrections and business arithmetic](../v2/COMMITMENTS.md).
 
 Context: [Scope and evidence traceability](./SCOPE.md).
 
 <a id="rendered-fold-evidence"></a>
 ### rendered-fold-evidence: Collect inspectable rendered fold evidence
 
-**planned** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
+**done** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
 
 Prerequisites: [`input-bindings`](#input-bindings), [`implementation-identity`](#implementation-identity).
 
@@ -693,14 +685,14 @@ Acceptance criteria:
 - Use trusted policy for view/state coverage and per-view caps; test padding, bin-boundary movement, candidate-provided limits and unverified diagram grouping so they cannot manufacture a passing result.
 - Collect rendered geometry and interaction evidence for overlap, clipping, overflow, action visibility, focus, keyboard and touch access; missing required renders or states remain unavailable rather than inferred from a text proxy.
 
-Evidence: not yet recorded.
+Evidence: [Actual browser collection, typed facet receipts and retained pixels](../v2/SURFACES.md).
 
 Context: [Scope and evidence traceability](./SCOPE.md).
 
 <a id="decision-density-disclosure"></a>
 ### decision-density-disclosure: Preserve useful decisions within fold budgets
 
-**planned** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
+**done** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
 
 Prerequisites: [`semantic-commitments`](#semantic-commitments), [`rendered-fold-evidence`](#rendered-fold-evidence), [`assertion-context`](#assertion-context).
 
@@ -711,14 +703,14 @@ Acceptance criteria:
 - Keep the main view sufficient for value, material conditions and the next action; make supporting calculations and first-use definitions discoverable at the point of need through progressive disclosure, with independent entry routes and supported input methods exercised.
 - Demonstrate a targeted addressed nudge and full-gate admission, including rejected candidates that hide a material cost, remove an unfavorable scenario, add filler or shrink text; report the observed improvement and remaining alternatives without claiming a universal capacity bound or global optimum.
 
-Evidence: not yet recorded.
+Evidence: [Audience/task/view contract and executed conjunctive communication cases](../v2/COMMUNICATION.md).
 
 Context: [Scope and evidence traceability](./SCOPE.md).
 
 <a id="evidence-lineage"></a>
 ### evidence-lineage: Invalidate evidence through shared dependency addresses
 
-**active** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
+**done** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
 
 Prerequisites: [`implementation-identity`](#implementation-identity), [`typed-prerequisite-outputs`](#typed-prerequisite-outputs), [`checkpoint-resume`](#checkpoint-resume).
 
@@ -728,14 +720,14 @@ Acceptance criteria:
 - Invalidate affected evidence and its transitive dependents when child assets, source values, view/state configuration, audience or evaluator identity changes, even when a parent file is unchanged.
 - Verify unchanged independent evidence can be reused only under matching declared identities, while missing dependencies, stale renders, cycles and resumed stale observations cannot satisfy required assertions.
 
-Evidence: not yet recorded.
+Evidence: [Dependency revisions, receipts and durable stale-evidence rejection](../v2/LINEAGE.md).
 
 Context: [Scope and evidence traceability](./SCOPE.md).
 
 <a id="workflow-composition"></a>
 ### workflow-composition: Propose reviewable workflow module compositions
 
-**planned** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
+**done** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
 
 Prerequisites: [`discovery-consistency`](#discovery-consistency), [`typed-prerequisite-outputs`](#typed-prerequisite-outputs), [`assertion-context`](#assertion-context), [`external-conformance`](#external-conformance).
 
@@ -745,14 +737,14 @@ Acceptance criteria:
 - Expose matching reasons, assumptions, missing inputs/capabilities, alternative modules, output handoffs, costs and unsupported requirements; proposed compatibility must use the same runtime contracts as execution.
 - Exercise a broader communication composition with the independently installed Isogloss facet and a software composition using external modules; configuration remains explicit and proposals cannot grant themselves qualification or execution authority.
 
-Evidence: not yet recorded.
+Evidence: [Public workflow contract and installed external composition checks](../v2/WORKFLOWS.md).
 
 Context: [Scope and evidence traceability](./SCOPE.md).
 
 <a id="operator-alignment-game"></a>
 ### operator-alignment-game: Make blinded operator calibration runnable
 
-**active** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
+**done** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
 
 Prerequisites: [`qualification-invalidation`](#qualification-invalidation), [`workflow-composition`](#workflow-composition).
 
@@ -763,14 +755,14 @@ Acceptance criteria:
 - Accept partial ballots and report incomplete or inconclusive evidence honestly; reject incompatible, duplicated or improperly reused evidence, and separate preference alignment from correctness and comprehension.
 - Exercise the complete prepare, play, record, reveal and assess workflow with clearly labeled test participants; provide the real operator command without fabricating a human ballot or a superiority verdict.
 
-Evidence: not yet recorded.
+Evidence: [Staged blinded reader workflow and explicit test-actor boundaries](https://github.com/andrew-templeton/isogloss/tree/5947611/studies/reader-alignment).
 
 Context: [Scope and evidence traceability](./SCOPE.md).
 
 <a id="assessment-selection-costing"></a>
 ### assessment-selection-costing: Validate decision value and assessment spending
 
-**planned** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
+**done** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
 
 Prerequisites: [`loop-costing-hysteresis`](#loop-costing-hysteresis), [`causal-conflict-validation`](#causal-conflict-validation), [`verifier-calibration`](#verifier-calibration).
 
@@ -781,14 +773,14 @@ Acceptance criteria:
 - Meter proposal, assessment and repair rounds in each configured resource unit and document any operator-supplied conversion into utility; reject unsupported unit comparisons and expose uncertainty, sensitivity and the no-assessment option.
 - Record actual outcomes for bounded scenarios and preserve unresolved tradeoffs, rather than inferring global optimality or identified causal effects from local scores.
 
-Evidence: not yet recorded.
+Evidence: [Independent finite policy enumeration, stopping and literal resource costs](../v2/DECISION-PROGRAM.md).
 
 Context: [Scope and evidence traceability](./SCOPE.md).
 
 <a id="public-end-to-end"></a>
 ### public-end-to-end: Demonstrate complete externally composed workflows
 
-**planned** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
+**active** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
 
 Prerequisites: [`stable-api-review`](#stable-api-review), [`evidence-lineage`](#evidence-lineage), [`software-v2-qualification`](#software-v2-qualification), [`sonar-provenance`](#sonar-provenance), [`remediation-validation`](#remediation-validation), [`composition-calibration`](#composition-calibration).
 
@@ -805,7 +797,7 @@ Context: [Scope and evidence traceability](./SCOPE.md).
 <a id="full-scope-audit"></a>
 ### full-scope-audit: Verify and publish every work-graph outcome
 
-**planned** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
+**active** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
 
 Prerequisites: [`foundation`](#foundation), [`api-audit`](#api-audit), [`isogloss-example`](#isogloss-example), [`software-publication`](#software-publication), [`sonarqube-publication`](#sonarqube-publication), [`core-extraction`](#core-extraction), [`migration-package-conformance`](#migration-package-conformance), [`implementation-identity`](#implementation-identity), [`qualification-invalidation`](#qualification-invalidation), [`input-bindings`](#input-bindings), [`discovery-consistency`](#discovery-consistency), [`external-conformance`](#external-conformance), [`durable-ledger`](#durable-ledger), [`checkpoint-resume`](#checkpoint-resume), [`crash-idempotency`](#crash-idempotency), [`loop-costing-hysteresis`](#loop-costing-hysteresis), [`stable-api-review`](#stable-api-review), [`typed-prerequisite-outputs`](#typed-prerequisite-outputs), [`assertion-context`](#assertion-context), [`software-evidence-completeness`](#software-evidence-completeness), [`software-v2-qualification`](#software-v2-qualification), [`sonar-provenance`](#sonar-provenance), [`audience-calibration`](#audience-calibration), [`verifier-calibration`](#verifier-calibration), [`causal-conflict-validation`](#causal-conflict-validation), [`remediation-validation`](#remediation-validation), [`composition-calibration`](#composition-calibration), [`semantic-commitments`](#semantic-commitments), [`rendered-fold-evidence`](#rendered-fold-evidence), [`decision-density-disclosure`](#decision-density-disclosure), [`evidence-lineage`](#evidence-lineage), [`workflow-composition`](#workflow-composition), [`operator-alignment-game`](#operator-alignment-game), [`assessment-selection-costing`](#assessment-selection-costing), [`public-end-to-end`](#public-end-to-end).
 

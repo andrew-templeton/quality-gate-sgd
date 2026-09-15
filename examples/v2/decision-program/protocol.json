@@ -1,0 +1,62 @@
+{
+  "id": "finite-arithmetic-decision-program",
+  "version": "1",
+  "population": {
+    "scope": "Exactly all ordered a,b in {0,1,2,3}, total in {0,1,2,3,4,5,6}, color in {A,B}; 224 equally weighted structured records",
+    "a": [0, 1, 2, 3],
+    "b": [0, 1, 2, 3],
+    "total": [0, 1, 2, 3, 4, 5, 6],
+    "color": ["A", "B"],
+    "reference": "Acceptable iff BigInt(a) + BigInt(b) equals BigInt(total). Color has no effect on acceptability. This is a mathematical specification of supplied records, not prose interpretation or business truth.",
+    "weighting": "Uniform over the 224 records for decision utility; uniform within each label for error rates",
+    "sampling": "Complete enumeration; no random sampling and no independent-person or independent-draw assumption",
+    "evidenceUse": "Reusable constructed control population. Evaluators and cases are designed together; repeated runs are expected. No held-out or confirmatory sampling claim. Definition is loaded and bound before each execution; the local registration digest is not a trusted preregistration timestamp."
+  },
+  "calibration": {
+    "maximumFalseAcceptRate": 0,
+    "maximumFalseRejectRate": 0,
+    "variants": ["exact", "approximate", "outage"],
+    "outage": {
+      "skipCase": "0:0:0:A",
+      "unavailableWhenA": 3,
+      "throwOnCase": "2:2:4:A",
+      "purpose": "Deliberately configured fault injection; retain absent, explicitly unavailable, and thrown outcomes without relabeling them."
+    }
+  },
+  "decisions": {
+    "unit": "declared-utility-points",
+    "perspective": "Operator accepting or rejecting one uniformly drawn record from this exact finite population",
+    "horizon": "One decision after at most one assessment",
+    "falseAcceptCost": 10,
+    "falseRejectCost": 2,
+    "assessmentCost": 0.1,
+    "conversion": "One actually executed assessment dispatch is assigned 0.1 utility points by the example operator. This is a declared exchange rate, not measured financial value, latency, token spend, or business loss.",
+    "sensitivityFalseAcceptCosts": [1, 10, 30],
+    "sensitivityFalseRejectCosts": [0.5, 2, 5],
+    "sensitivityAssessmentCosts": [0, 0.1, 0.3, 1],
+    "uncertainty": {
+      "falseRejectCost": [0.5, 2],
+      "assessmentCost": [0.1, 0.3],
+      "interpretation": "Operator-supplied uncertainty rectangle, not a confidence interval or posterior. Selection that changes over the rectangle remains unresolved."
+    }
+  },
+  "loops": {
+    "baseline": {"a": 3, "b": 3, "total": 0, "color": "A"},
+    "protectedTotal": 3,
+    "limits": {"assessment_steps": 20, "proposal_steps": 4, "repair_steps": 4},
+    "maxRounds": 4,
+    "unitDefinitions": {
+      "assessment_steps": "One actual assertion dispatch, including an explicit unavailable return or thrown attempt",
+      "proposal_steps": "One actual proposal-function invocation",
+      "repair_steps": "One actual candidate-generator invocation",
+      "rounds": "Core loop attempted rounds, reported independently of the three budget dimensions"
+    }
+  },
+  "claimsExcluded": [
+    "Human comprehension, reader preference, semantic extraction or prose fidelity",
+    "Calibration for any input outside the exact finite population",
+    "Business causal effects, learned utilities, monetary or token spending",
+    "Global policy optimality beyond the enumerated one-assessment model",
+    "Automatic identification from observation, or execution permission from remedy metadata"
+  ]
+}

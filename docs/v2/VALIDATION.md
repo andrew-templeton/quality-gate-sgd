@@ -1,6 +1,20 @@
 # V2 validation record
 
-## Current contract and durability follow-up
+## Consolidated dev.3 verification
+
+Development version `2.0.0-dev.3` combines the strict assertion protocol, typed prerequisite evidence, durable execution, assertion context, dependency lineage, workflow proposals, source commitments, surface evidence and audience/task conjunction. The integrated clean build, emitted public type checks, **320 core tests in 21 files plus 12 graph tests**, graph validation and actual package-boundary inspection passed. Core has no runtime dependencies. ESLint reported zero errors and 21 non-null-assertion warnings in test fixtures. Optional browser examples use their own runner and dependency package; they are not silently required by the core test command.
+
+The [combined API audit](STABLE-API-AUDIT.md) records resolved descriptor, output-envelope, sample-validation and collector-order findings. [Independent conformance](EXTERNAL-CONFORMANCE.md) records separately installed Isogloss, software and Sonar versions, artifacts and exact tested scopes. The [actual repair experiment](../../examples/v2/repair-validation/README.md) rejects a lint-clean behavior regression, then admits a faithful isolated repair while preserving the baseline and resource ledger.
+
+The optional Chromium suite passed **16 tests across 16 fixture variants and six required states per variant**. The overloaded baseline fails, the disclosure candidate passes, and all fourteen adverse variants fail; missing evidence remains unavailable. The retained source/data/environment and thirteen PNG artifacts were independently replayed against the current host, and desktop/mobile images were visually inspected. The [surface guide](SURFACES.md) states collector trust, stationary DOM and verified integer-scroll limitations. A replay-helper review fixed a gate-digest/evaluation-digest comparison error; unchanged-record read-only replay now passes without falsely claiming evaluator drift.
+
+The [full communication conjunction](COMMUNICATION.md) actually evaluated six rendered variants. The disclosure candidate was admitted; hidden cost, removed downside, filler and tiny type were rejected under the same source, audience/task and surface policy. Its record includes all component cards, typed output lineage, rejection reasons and sixty evaluation/six render-collection charges. Source inventories are authored fixture annotations. No semantic extractor or real reader was thereby qualified.
+
+The [finite decision program](DECISION-PROGRAM.md) executed 1,589 assessment steps, eight proposal steps and five repairs over its declared census and loops. [Independent review](DECISION-REVIEW.md) recounted error denominators, all 36 expected-value policy comparisons, controlled effects and resource totals. Its error/decision claims apply only to the explicitly enumerated 224 integer records and stated utility assumptions, without sampling or human-population confidence.
+
+Actual audience and composition-utility validation remain open: the chosen population is business decision-makers unfamiliar with technical jargon, and there are zero real reader responses. The [work graph](../work/README.md) keeps those tasks and their dependent final audit unfinished. Public Git source publication does not imply an npm registry release, deployment or general verifier qualification.
+
+## Earlier dev.2 contract and durability follow-up
 
 Development version `2.0.0-dev.2`, September 14, 2026, adds strict standard assertion identity, qualification invalidation, executable input bindings, shared discovery compatibility and optional local single-writer durable execution. Public source publication does not imply npm registry publication.
 
@@ -10,7 +24,7 @@ The protocol tests change build identity, nested configuration, applicability, c
 
 The crash tests kill actual Node processes around reservation, dispatch, recorded outcome, settlement, evaluation and admission. Their separate fsynced fixture ledger checks observed evaluations, tokens, cents and rounds against restored accounting. Unknown external outcomes remain reserved, repeated resume does not dispatch a second repair, and independently recovered fixture receipts permit reconciliation. The tests also preserve deadbands, cooldowns, required nonregression, stall/cycle/budget stops and attempted-artifact history. [DURABLE-EXECUTION.md](DURABLE-EXECUTION.md) states the supported local POSIX writer model and its limits.
 
-Independent strict-protocol external conformance, the combined stable API review and domain/reader validation remain open in the [36-task graph](../work/README.md). The earlier dev.1 external consumer results below apply to those recorded revisions; they are not evidence for strict dev.2 compatibility. No new real reader outcome, live server scan or empirical semantic qualification is claimed by this core batch.
+At the time of this earlier batch, strict external conformance, the combined API review and domain/reader validation remained open. Subsequent evidence is recorded above and in the [36-task graph](../work/README.md). The dev.1 external consumer results below apply only to those recorded revisions. This earlier core batch claimed no new real reader outcome, live server scan or empirical semantic qualification.
 
 ## Typed output follow-up
 

@@ -1,10 +1,10 @@
 # V2 consumer API review
 
-Reviewed September 14, 2026, for development version `2.0.0-dev.0`; repository ownership updated for `2.0.0-dev.1`. The `2.0.0-dev.2` follow-up implements the identity/input and local durability contracts described below; independent module conformance and the combined stability review remain pending.
+Originally reviewed September 14, 2026, for development version `2.0.0-dev.0`; repository ownership changed in `2.0.0-dev.1`. The `2.0.0-dev.2` and `2.0.0-dev.3` follow-ups implement the identity/input and local durability contracts described below. The [combined acceptance audit](STABLE-API-AUDIT.md) records current dispositions and independently installed module evidence. The original criteria below remain intact for traceability.
 
 ## Verdict
 
-Keep the compositional engine in this repository and continue publishing it as a development API. The basic separation between assertions, evidence, composition, budgets and candidate admission is useful. The contract is not yet ready to freeze as a stable API for independently maintained verifiers.
+Keep the compositional engine in this repository and continue publishing reviewed development source versions. The original audit found the independently maintained module contract incomplete; its explicit identity, executable input/discovery and durable-run requirements now have direct implementations and acceptance evidence. The [current audit](STABLE-API-AUDIT.md) defines the verified interoperability boundary and migration policy. New helpers remain development APIs, and protocol acceptance does not qualify an arbitrary verifier or business use.
 
 This review considered actual consumer behavior, including a class-based assertion, changed evaluator configuration, a render-policy change and a legacy collector with a missing command. Passing the existing test suite does not establish plugin interoperability or the validity of a quality judgment. The age of the model that helped write a component is also not evidence for or against its correctness.
 

@@ -1,0 +1,4027 @@
+{
+  "policy": {
+    "version": "business-fixture-provisional-1",
+    "collectorDigest": "5a31ecd195dded51f2851702f2309d04e82a8e738ce92d419f0f05dc6d5a0092",
+    "scrollModel": "integer-css-pixels",
+    "knownConcepts": [],
+    "elements": [
+      {
+        "id": "savings",
+        "address": "claim/business/savings",
+        "text": "Expected annual savings: $120,000 for 10 stores.",
+        "concepts": [],
+        "defines": []
+      },
+      {
+        "id": "cost",
+        "address": "claim/business/cost",
+        "text": "All-in annual cost: $40,000, including support.",
+        "concepts": [],
+        "defines": []
+      },
+      {
+        "id": "net",
+        "address": "claim/business/net",
+        "text": "Expected net benefit: $80,000 per year.",
+        "concepts": [],
+        "defines": []
+      },
+      {
+        "id": "condition",
+        "address": "claim/business/condition",
+        "text": "Proceed only after the inventory join (matching product records) passes a 2-week pilot.",
+        "concepts": [
+          "inventory-join"
+        ],
+        "defines": [
+          "inventory-join"
+        ]
+      },
+      {
+        "id": "downside",
+        "address": "claim/business/downside",
+        "text": "If savings fall to $30,000, the annual net loss is $10,000.",
+        "concepts": [],
+        "defines": []
+      },
+      {
+        "id": "approve",
+        "address": "component/decision/request-review",
+        "text": "Request pilot review",
+        "concepts": [],
+        "defines": []
+      },
+      {
+        "id": "disclosure",
+        "address": "component/decision/calculations",
+        "text": "How the estimates work",
+        "concepts": [],
+        "defines": []
+      },
+      {
+        "id": "calculation",
+        "address": "claim/calculation/net",
+        "text": "$120,000 expected annual savings − $40,000 all-in annual cost = $80,000 expected annual net benefit.",
+        "concepts": [],
+        "defines": []
+      },
+      {
+        "id": "denominator",
+        "address": "claim/calculation/denominator",
+        "text": "10 stores × $12,000 expected savings per store per year = $120,000 expected savings per year.",
+        "concepts": [],
+        "defines": []
+      },
+      {
+        "id": "forecast",
+        "address": "claim/calculation/uncertainty",
+        "text": "Expected savings are a forecast, not measured results.",
+        "concepts": [],
+        "defines": []
+      },
+      {
+        "id": "sensitivity",
+        "address": "claim/calculation/sensitivity",
+        "text": "A sensitivity case checks how the decision changes when savings differ.",
+        "concepts": [
+          "sensitivity-case"
+        ],
+        "defines": [
+          "sensitivity-case"
+        ]
+      },
+      {
+        "id": "downside-calculation",
+        "address": "claim/calculation/downside",
+        "text": "$30,000 downside annual savings − $40,000 all-in annual cost = a $10,000 annual net loss.",
+        "concepts": [],
+        "defines": []
+      }
+    ],
+    "states": [
+      {
+        "id": "wide/closed/keyboard",
+        "route": "/decision",
+        "viewport": {
+          "width": 1100,
+          "height": 760
+        },
+        "input": "keyboard",
+        "interaction": "closed",
+        "requiredElements": [
+          "savings",
+          "cost",
+          "net",
+          "condition",
+          "downside",
+          "approve",
+          "disclosure"
+        ],
+        "entryElements": [
+          "savings",
+          "cost",
+          "net",
+          "condition",
+          "downside",
+          "approve",
+          "disclosure"
+        ],
+        "actions": [
+          "approve",
+          "disclosure"
+        ],
+        "maxTotal": 7,
+        "maxNovel": 2,
+        "minFontPx": 16,
+        "minTargetPx": 44,
+        "maxBlankGapPx": 150,
+        "maxScrollScreens": 1.2
+      },
+      {
+        "id": "wide/open/keyboard",
+        "route": "/decision",
+        "viewport": {
+          "width": 1100,
+          "height": 760
+        },
+        "input": "keyboard",
+        "interaction": "open",
+        "requiredElements": [
+          "savings",
+          "cost",
+          "net",
+          "condition",
+          "downside",
+          "approve",
+          "disclosure",
+          "calculation",
+          "denominator",
+          "forecast",
+          "sensitivity",
+          "downside-calculation"
+        ],
+        "entryElements": [
+          "savings",
+          "cost",
+          "net",
+          "condition",
+          "downside",
+          "approve",
+          "disclosure"
+        ],
+        "actions": [
+          "approve",
+          "disclosure"
+        ],
+        "maxTotal": 9,
+        "maxNovel": 2,
+        "minFontPx": 16,
+        "minTargetPx": 44,
+        "maxBlankGapPx": 150,
+        "maxScrollScreens": 2.2
+      },
+      {
+        "id": "narrow/closed/touch",
+        "route": "/decision",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "input": "touch",
+        "interaction": "closed",
+        "requiredElements": [
+          "savings",
+          "cost",
+          "net",
+          "condition",
+          "downside",
+          "approve",
+          "disclosure"
+        ],
+        "entryElements": [
+          "savings",
+          "cost",
+          "net",
+          "condition",
+          "downside",
+          "approve",
+          "disclosure"
+        ],
+        "actions": [
+          "approve",
+          "disclosure"
+        ],
+        "maxTotal": 7,
+        "maxNovel": 2,
+        "minFontPx": 16,
+        "minTargetPx": 44,
+        "maxBlankGapPx": 150,
+        "maxScrollScreens": 1.2
+      },
+      {
+        "id": "narrow/open/touch",
+        "route": "/decision",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "input": "touch",
+        "interaction": "open",
+        "requiredElements": [
+          "savings",
+          "cost",
+          "net",
+          "condition",
+          "downside",
+          "approve",
+          "disclosure",
+          "calculation",
+          "denominator",
+          "forecast",
+          "sensitivity",
+          "downside-calculation"
+        ],
+        "entryElements": [
+          "savings",
+          "cost",
+          "net",
+          "condition",
+          "downside",
+          "approve",
+          "disclosure"
+        ],
+        "actions": [
+          "approve",
+          "disclosure"
+        ],
+        "maxTotal": 9,
+        "maxNovel": 2,
+        "minFontPx": 16,
+        "minTargetPx": 44,
+        "maxBlankGapPx": 150,
+        "maxScrollScreens": 2.2
+      },
+      {
+        "id": "wide/entry/keyboard",
+        "route": "/decision?disclosure=calculations",
+        "viewport": {
+          "width": 1100,
+          "height": 760
+        },
+        "input": "keyboard",
+        "interaction": "open",
+        "requiredElements": [
+          "savings",
+          "cost",
+          "net",
+          "condition",
+          "downside",
+          "approve",
+          "disclosure",
+          "calculation",
+          "denominator",
+          "forecast",
+          "sensitivity",
+          "downside-calculation"
+        ],
+        "entryElements": [
+          "savings",
+          "cost",
+          "net",
+          "condition",
+          "downside",
+          "approve",
+          "disclosure"
+        ],
+        "actions": [
+          "approve",
+          "disclosure"
+        ],
+        "maxTotal": 9,
+        "maxNovel": 2,
+        "minFontPx": 16,
+        "minTargetPx": 44,
+        "maxBlankGapPx": 150,
+        "maxScrollScreens": 2.2
+      },
+      {
+        "id": "narrow/entry/touch",
+        "route": "/decision?disclosure=calculations",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "input": "touch",
+        "interaction": "open",
+        "requiredElements": [
+          "savings",
+          "cost",
+          "net",
+          "condition",
+          "downside",
+          "approve",
+          "disclosure",
+          "calculation",
+          "denominator",
+          "forecast",
+          "sensitivity",
+          "downside-calculation"
+        ],
+        "entryElements": [
+          "savings",
+          "cost",
+          "net",
+          "condition",
+          "downside",
+          "approve",
+          "disclosure"
+        ],
+        "actions": [
+          "approve",
+          "disclosure"
+        ],
+        "maxTotal": 9,
+        "maxNovel": 2,
+        "minFontPx": 16,
+        "minTargetPx": 44,
+        "maxBlankGapPx": 150,
+        "maxScrollScreens": 2.2
+      }
+    ]
+  },
+  "sourceManifest": [
+    {
+      "route": "/decision",
+      "bodyDigest": "9cf0217a439c5d8a8fe893039654a96fb988ad533c48b87988884fe8b0459b3e"
+    },
+    {
+      "route": "/decision?disclosure=calculations",
+      "bodyDigest": "9cf0217a439c5d8a8fe893039654a96fb988ad533c48b87988884fe8b0459b3e"
+    }
+  ],
+  "data": {
+    "stores": 10,
+    "annualSavings": 120000,
+    "annualCost": 40000,
+    "annualNet": 80000,
+    "downsideSavings": 30000,
+    "downsideNet": -10000,
+    "currency": "USD",
+    "period": "year",
+    "pilotWeeks": 2
+  },
+  "environment": {
+    "browser": "153.0.8010.12",
+    "platformEvidence": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "platform": "MacIntel",
+      "fontProbe": 239.16796875,
+      "fonts": []
+    },
+    "policyDigest": "07b169c1324b88d4175c94de1fa545ae447aee4c39236cfd1deffd4fed09edd3",
+    "viewportModel": "integer-css-pixels-dpr1-zoom1",
+    "locale": "en-US",
+    "timezone": "UTC",
+    "colorScheme": "light",
+    "reducedMotion": "reduce"
+  },
+  "report": {
+    "protocol": "quality-sgd.surface-evidence/v1",
+    "scrollModel": "integer-css-pixels",
+    "artifactDigest": "2abd34b8f3587b5a4ad5dd9b94dea234d245e1491c27380c11f5ce87bd5f8c8c",
+    "environmentDigest": "e9108bdb96b6bb1bcc4f2e5b96db73e2bfc313a7f2464824f459cd013d1a7d0e",
+    "sourceDigest": "9842e0cb149996d51ba83d6cb96d7efbe0cf4e7749167df83f51dc2b1cef9c71",
+    "dataDigest": "e0ad1486b9103c87532d041df3fa045c8ac9dccda310bca7cabc2ae4374f0779",
+    "collectorDigest": "5a31ecd195dded51f2851702f2309d04e82a8e738ce92d419f0f05dc6d5a0092",
+    "policyDigest": "07b169c1324b88d4175c94de1fa545ae447aee4c39236cfd1deffd4fed09edd3",
+    "browser": "153.0.8010.12",
+    "states": [
+      {
+        "id": "wide/closed/keyboard",
+        "route": "/decision",
+        "viewport": {
+          "width": 1100,
+          "height": 760
+        },
+        "input": "keyboard",
+        "interaction": "closed",
+        "complete": true,
+        "unavailable": [],
+        "documentHeight": 799,
+        "chromeHeight": 56,
+        "anchors": [
+          {
+            "id": "main/0",
+            "top": 64
+          },
+          {
+            "id": "h1/1",
+            "top": 105
+          },
+          {
+            "id": "decision",
+            "top": 148
+          },
+          {
+            "id": "estimates",
+            "top": 434
+          },
+          {
+            "id": "h2/4",
+            "top": 446
+          }
+        ],
+        "elements": [
+          {
+            "id": "savings",
+            "address": "claim/business/savings",
+            "text": "Expected annual savings: $120,000 for 10 stores.",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 203,
+                "y": 154,
+                "width": 395.265625,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "cost",
+            "address": "claim/business/cost",
+            "text": "All-in annual cost: $40,000, including support.",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 203,
+                "y": 188,
+                "width": 363.234375,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "net",
+            "address": "claim/business/net",
+            "text": "Expected net benefit: $80,000 per year.",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 203,
+                "y": 222,
+                "width": 331.15625,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "condition",
+            "address": "claim/business/condition",
+            "text": "Proceed only after the inventory join (matching product records) passes a 2-week pilot.",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 203,
+                "y": 256,
+                "width": 690.359375,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "downside",
+            "address": "claim/business/downside",
+            "text": "If savings fall to $30,000, the annual net loss is $10,000.",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 203,
+                "y": 290,
+                "width": 448.3125,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "approve",
+            "address": "component/decision/request-review",
+            "text": "Request pilot review",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 223,
+                "y": 340,
+                "width": 175.046875,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "disclosure",
+            "address": "component/decision/calculations",
+            "text": "How the estimates work",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 222.0625,
+                "y": 398,
+                "width": 191.078125,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "calculation",
+            "address": "claim/calculation/net",
+            "text": "$120,000 expected annual savings − $40,000 all-in annual cost = $80,000 expected annual net benefit.",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 203,
+                "y": 484.59375,
+                "width": 667.515625,
+                "height": 20
+              },
+              {
+                "x": 203,
+                "y": 511.59375,
+                "width": 148.125,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "denominator",
+            "address": "claim/calculation/denominator",
+            "text": "10 stores × $12,000 expected savings per store per year = $120,000 expected savings per year.",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 203,
+                "y": 545.59375,
+                "width": 690.453125,
+                "height": 20
+              },
+              {
+                "x": 203,
+                "y": 572.59375,
+                "width": 70.046875,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "forecast",
+            "address": "claim/calculation/uncertainty",
+            "text": "Expected savings are a forecast, not measured results.",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 203,
+                "y": 606.59375,
+                "width": 439.234375,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "sensitivity",
+            "address": "claim/calculation/sensitivity",
+            "text": "A sensitivity case checks how the decision changes when savings differ.",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 203,
+                "y": 640.59375,
+                "width": 573,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "downside-calculation",
+            "address": "claim/calculation/downside",
+            "text": "$30,000 downside annual savings − $40,000 all-in annual cost = a $10,000 annual net loss.",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 203,
+                "y": 674.59375,
+                "width": 686.53125,
+                "height": 20
+              },
+              {
+                "x": 203,
+                "y": 701.59375,
+                "width": 37.015625,
+                "height": 20
+              }
+            ]
+          }
+        ],
+        "scrollProbes": [
+          {
+            "requested": 0.25,
+            "observed": 0
+          },
+          {
+            "requested": 0.5,
+            "observed": 1
+          },
+          {
+            "requested": 0.75,
+            "observed": 1
+          },
+          {
+            "requested": 1.25,
+            "observed": 1
+          },
+          {
+            "requested": 1.5,
+            "observed": 2
+          },
+          {
+            "requested": 1.75,
+            "observed": 2
+          }
+        ],
+        "windows": [
+          {
+            "id": "viewport-0",
+            "scrollTop": 0,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-4",
+            "scrollTop": 4,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-8",
+            "scrollTop": 8,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-23",
+            "scrollTop": 23,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-39",
+            "scrollTop": 39,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          }
+        ],
+        "interactions": [
+          {
+            "id": "approve",
+            "method": "keyboard",
+            "reachable": true,
+            "focusVisible": true,
+            "activated": true,
+            "targetVisible": true,
+            "targetWidth": 215.046875,
+            "targetHeight": 49
+          },
+          {
+            "id": "disclosure",
+            "method": "keyboard",
+            "reachable": true,
+            "focusVisible": true,
+            "activated": true,
+            "targetVisible": true,
+            "targetWidth": 694,
+            "targetHeight": 51
+          }
+        ],
+        "defects": [],
+        "captures": [
+          {
+            "id": "viewport-0",
+            "scrollTop": 0,
+            "digest": "6245e428cb09ce38e03d5d691e78095c31b73a2da561586c5c7c022b1d5f3ee5",
+            "path": "wide-closed-keyboard-viewport-0.png"
+          },
+          {
+            "id": "viewport-8",
+            "scrollTop": 8,
+            "digest": "8e917a834777753cfd278990ec76678a919fc2317e909386eae7b8bffc165443",
+            "path": "wide-closed-keyboard-viewport-8.png"
+          },
+          {
+            "id": "viewport-39",
+            "scrollTop": 39,
+            "digest": "1d1ff88acbd5381882b5933ab8ada96cca3da0e0c18f01c1b3c6cba821821c28",
+            "path": "wide-closed-keyboard-viewport-39.png"
+          }
+        ]
+      },
+      {
+        "id": "wide/open/keyboard",
+        "route": "/decision",
+        "viewport": {
+          "width": 1100,
+          "height": 760
+        },
+        "input": "keyboard",
+        "interaction": "open",
+        "complete": true,
+        "unavailable": [],
+        "documentHeight": 799,
+        "chromeHeight": 56,
+        "anchors": [
+          {
+            "id": "main/0",
+            "top": 64
+          },
+          {
+            "id": "h1/1",
+            "top": 105
+          },
+          {
+            "id": "decision",
+            "top": 148
+          },
+          {
+            "id": "calculations",
+            "top": 383
+          },
+          {
+            "id": "estimates",
+            "top": 434
+          },
+          {
+            "id": "h2/5",
+            "top": 446
+          }
+        ],
+        "elements": [
+          {
+            "id": "savings",
+            "address": "claim/business/savings",
+            "text": "Expected annual savings: $120,000 for 10 stores.",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 203,
+                "y": 154,
+                "width": 395.265625,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "cost",
+            "address": "claim/business/cost",
+            "text": "All-in annual cost: $40,000, including support.",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 203,
+                "y": 188,
+                "width": 363.234375,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "net",
+            "address": "claim/business/net",
+            "text": "Expected net benefit: $80,000 per year.",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 203,
+                "y": 222,
+                "width": 331.15625,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "condition",
+            "address": "claim/business/condition",
+            "text": "Proceed only after the inventory join (matching product records) passes a 2-week pilot.",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 203,
+                "y": 256,
+                "width": 690.359375,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "downside",
+            "address": "claim/business/downside",
+            "text": "If savings fall to $30,000, the annual net loss is $10,000.",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 203,
+                "y": 290,
+                "width": 448.3125,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "approve",
+            "address": "component/decision/request-review",
+            "text": "Request pilot review",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 223,
+                "y": 340,
+                "width": 175.046875,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "disclosure",
+            "address": "component/decision/calculations",
+            "text": "How the estimates work",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 222.0625,
+                "y": 398,
+                "width": 191.078125,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "calculation",
+            "address": "claim/calculation/net",
+            "text": "$120,000 expected annual savings − $40,000 all-in annual cost = $80,000 expected annual net benefit.",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 203,
+                "y": 484.59375,
+                "width": 667.515625,
+                "height": 20
+              },
+              {
+                "x": 203,
+                "y": 511.59375,
+                "width": 148.125,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "denominator",
+            "address": "claim/calculation/denominator",
+            "text": "10 stores × $12,000 expected savings per store per year = $120,000 expected savings per year.",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 203,
+                "y": 545.59375,
+                "width": 690.453125,
+                "height": 20
+              },
+              {
+                "x": 203,
+                "y": 572.59375,
+                "width": 70.046875,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "forecast",
+            "address": "claim/calculation/uncertainty",
+            "text": "Expected savings are a forecast, not measured results.",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 203,
+                "y": 606.59375,
+                "width": 439.234375,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "sensitivity",
+            "address": "claim/calculation/sensitivity",
+            "text": "A sensitivity case checks how the decision changes when savings differ.",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 203,
+                "y": 640.59375,
+                "width": 573,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "downside-calculation",
+            "address": "claim/calculation/downside",
+            "text": "$30,000 downside annual savings − $40,000 all-in annual cost = a $10,000 annual net loss.",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 203,
+                "y": 674.59375,
+                "width": 686.53125,
+                "height": 20
+              },
+              {
+                "x": 203,
+                "y": 701.59375,
+                "width": 37.015625,
+                "height": 20
+              }
+            ]
+          }
+        ],
+        "scrollProbes": [
+          {
+            "requested": 0.25,
+            "observed": 0
+          },
+          {
+            "requested": 0.5,
+            "observed": 1
+          },
+          {
+            "requested": 0.75,
+            "observed": 1
+          },
+          {
+            "requested": 1.25,
+            "observed": 1
+          },
+          {
+            "requested": 1.5,
+            "observed": 2
+          },
+          {
+            "requested": 1.75,
+            "observed": 2
+          }
+        ],
+        "windows": [
+          {
+            "id": "viewport-0",
+            "scrollTop": 0,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-4",
+            "scrollTop": 4,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-8",
+            "scrollTop": 8,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-23",
+            "scrollTop": 23,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-39",
+            "scrollTop": 39,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          }
+        ],
+        "interactions": [
+          {
+            "id": "approve",
+            "method": "keyboard",
+            "reachable": true,
+            "focusVisible": true,
+            "activated": true,
+            "targetVisible": true,
+            "targetWidth": 215.046875,
+            "targetHeight": 49
+          },
+          {
+            "id": "disclosure",
+            "method": "keyboard",
+            "reachable": true,
+            "focusVisible": true,
+            "activated": true,
+            "targetVisible": true,
+            "targetWidth": 694,
+            "targetHeight": 51
+          }
+        ],
+        "defects": [],
+        "captures": [
+          {
+            "id": "viewport-0",
+            "scrollTop": 0,
+            "digest": "615fd71090e92fd8e6109d3475823557845088f4ab42af8136c9c59a26cd852f",
+            "path": "wide-open-keyboard-viewport-0.png"
+          },
+          {
+            "id": "viewport-8",
+            "scrollTop": 8,
+            "digest": "34de884f2a01ddf1ad3f509dd6541e7ce9f4dfc5441df76ade7e5b6c58137912",
+            "path": "wide-open-keyboard-viewport-8.png"
+          },
+          {
+            "id": "viewport-39",
+            "scrollTop": 39,
+            "digest": "b6641587af606f54c50e5a5ba7c032b47e03b504a0f865e15ccdd114e3b3d721",
+            "path": "wide-open-keyboard-viewport-39.png"
+          }
+        ]
+      },
+      {
+        "id": "narrow/closed/touch",
+        "route": "/decision",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "input": "touch",
+        "interaction": "closed",
+        "complete": true,
+        "unavailable": [],
+        "documentHeight": 1012,
+        "chromeHeight": 56,
+        "anchors": [
+          {
+            "id": "main/0",
+            "top": 64
+          },
+          {
+            "id": "h1/1",
+            "top": 105
+          },
+          {
+            "id": "decision",
+            "top": 144.25
+          },
+          {
+            "id": "estimates",
+            "top": 547.75
+          },
+          {
+            "id": "h2/4",
+            "top": 559.75
+          }
+        ],
+        "elements": [
+          {
+            "id": "savings",
+            "address": "claim/business/savings",
+            "text": "Expected annual savings: $120,000 for 10 stores.",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 31,
+                "y": 150.25,
+                "width": 317.578125,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 175.75,
+                "width": 51.03125,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "cost",
+            "address": "claim/business/cost",
+            "text": "All-in annual cost: $40,000, including support.",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 31,
+                "y": 208.25,
+                "width": 276.90625,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 233.75,
+                "width": 61.4375,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "net",
+            "address": "claim/business/net",
+            "text": "Expected net benefit: $80,000 per year.",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 31,
+                "y": 266.25,
+                "width": 312.765625,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "condition",
+            "address": "claim/business/condition",
+            "text": "Proceed only after the inventory join (matching product records) passes a 2-week pilot.",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 31,
+                "y": 298.75,
+                "width": 271.21875,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 324.25,
+                "width": 295.75,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 349.75,
+                "width": 80.328125,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "downside",
+            "address": "claim/business/downside",
+            "text": "If savings fall to $30,000, the annual net loss is $10,000.",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 31,
+                "y": 382.25,
+                "width": 300.546875,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 407.75,
+                "width": 118.140625,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "approve",
+            "address": "component/decision/request-review",
+            "text": "Request pilot review",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 51,
+                "y": 456.5,
+                "width": 165.328125,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "disclosure",
+            "address": "component/decision/calculations",
+            "text": "How the estimates work",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 49.015625,
+                "y": 513.25,
+                "width": 180.453125,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "calculation",
+            "address": "claim/calculation/net",
+            "text": "$120,000 expected annual savings − $40,000 all-in annual cost = $80,000 expected annual net benefit.",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 31,
+                "y": 598.34375,
+                "width": 277.421875,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 623.84375,
+                "width": 274.578125,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 649.34375,
+                "width": 213.625,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "denominator",
+            "address": "claim/calculation/denominator",
+            "text": "10 stores × $12,000 expected savings per store per year = $120,000 expected savings per year.",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 31,
+                "y": 681.84375,
+                "width": 316.140625,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 707.34375,
+                "width": 268.890625,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 732.84375,
+                "width": 128.515625,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "forecast",
+            "address": "claim/calculation/uncertainty",
+            "text": "Expected savings are a forecast, not measured results.",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 31,
+                "y": 765.34375,
+                "width": 275,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 790.84375,
+                "width": 135.125,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "sensitivity",
+            "address": "claim/calculation/sensitivity",
+            "text": "A sensitivity case checks how the decision changes when savings differ.",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 31,
+                "y": 823.34375,
+                "width": 318.4375,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 848.84375,
+                "width": 218,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "downside-calculation",
+            "address": "claim/calculation/downside",
+            "text": "$30,000 downside annual savings − $40,000 all-in annual cost = a $10,000 annual net loss.",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 31,
+                "y": 881.34375,
+                "width": 270.796875,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 906.84375,
+                "width": 288.765625,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 932.34375,
+                "width": 119.09375,
+                "height": 19
+              }
+            ]
+          }
+        ],
+        "scrollProbes": [
+          {
+            "requested": 0.25,
+            "observed": 0
+          },
+          {
+            "requested": 0.5,
+            "observed": 1
+          },
+          {
+            "requested": 0.75,
+            "observed": 1
+          },
+          {
+            "requested": 1.25,
+            "observed": 1
+          },
+          {
+            "requested": 1.5,
+            "observed": 2
+          },
+          {
+            "requested": 1.75,
+            "observed": 2
+          }
+        ],
+        "windows": [
+          {
+            "id": "viewport-0",
+            "scrollTop": 0,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-2",
+            "scrollTop": 2,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-4",
+            "scrollTop": 4,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-5",
+            "scrollTop": 5,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-6",
+            "scrollTop": 6,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-8",
+            "scrollTop": 8,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-22",
+            "scrollTop": 22,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-37",
+            "scrollTop": 37,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-38",
+            "scrollTop": 38,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-43",
+            "scrollTop": 43,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-49",
+            "scrollTop": 49,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-55",
+            "scrollTop": 55,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-62",
+            "scrollTop": 62,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-63",
+            "scrollTop": 63,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-75",
+            "scrollTop": 75,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-88",
+            "scrollTop": 88,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-89",
+            "scrollTop": 89,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-101",
+            "scrollTop": 101,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-113",
+            "scrollTop": 113,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-114",
+            "scrollTop": 114,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-126",
+            "scrollTop": 126,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-138",
+            "scrollTop": 138,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-139",
+            "scrollTop": 139,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-153",
+            "scrollTop": 153,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-168",
+            "scrollTop": 168,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "sensitivity"
+            ]
+          }
+        ],
+        "interactions": [
+          {
+            "id": "approve",
+            "method": "touch",
+            "reachable": true,
+            "focusVisible": false,
+            "activated": true,
+            "targetVisible": true,
+            "targetWidth": 205.328125,
+            "targetHeight": 48
+          },
+          {
+            "id": "disclosure",
+            "method": "touch",
+            "reachable": true,
+            "focusVisible": false,
+            "activated": true,
+            "targetVisible": true,
+            "targetWidth": 328,
+            "targetHeight": 49.5
+          }
+        ],
+        "defects": [],
+        "captures": [
+          {
+            "id": "viewport-0",
+            "scrollTop": 0,
+            "digest": "f904b27edf939cee048b6a795e4a360663423fc5a6ebbf76f8012cea476ded2e",
+            "path": "narrow-closed-touch-viewport-0.png"
+          },
+          {
+            "id": "viewport-8",
+            "scrollTop": 8,
+            "digest": "721db20fd493aa2311f4dcfc30cd131ecfa96eaa46ee57db50d84d6815f6564f",
+            "path": "narrow-closed-touch-viewport-8.png"
+          },
+          {
+            "id": "viewport-38",
+            "scrollTop": 38,
+            "digest": "2152fe3b23ea872751b2956a1eb232d3438db96bed67df37811151b453426ab7",
+            "path": "narrow-closed-touch-viewport-38.png"
+          },
+          {
+            "id": "viewport-49",
+            "scrollTop": 49,
+            "digest": "36b3295d50aba21d9cc06c0bb732af7f93ee7b625cf98605fad6bfd4f1f88a2e",
+            "path": "narrow-closed-touch-viewport-49.png"
+          },
+          {
+            "id": "viewport-88",
+            "scrollTop": 88,
+            "digest": "19d18b80c68b5992fd1e80a99391fe776cd1a18959f0fb137d20728c97f973f6",
+            "path": "narrow-closed-touch-viewport-88.png"
+          },
+          {
+            "id": "viewport-139",
+            "scrollTop": 139,
+            "digest": "115afe695814345faaabda6f7e54a9c04773ba9752afa298152845e75b1ef5d1",
+            "path": "narrow-closed-touch-viewport-139.png"
+          },
+          {
+            "id": "viewport-168",
+            "scrollTop": 168,
+            "digest": "bd7f3896678465d1b2964732178c242e88da4422a5d7ebf41d7e110594195c0a",
+            "path": "narrow-closed-touch-viewport-168.png"
+          }
+        ]
+      },
+      {
+        "id": "narrow/open/touch",
+        "route": "/decision",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "input": "touch",
+        "interaction": "open",
+        "complete": true,
+        "unavailable": [],
+        "documentHeight": 1012,
+        "chromeHeight": 56,
+        "anchors": [
+          {
+            "id": "main/0",
+            "top": 64
+          },
+          {
+            "id": "h1/1",
+            "top": 105
+          },
+          {
+            "id": "decision",
+            "top": 144.25
+          },
+          {
+            "id": "calculations",
+            "top": 498.25
+          },
+          {
+            "id": "estimates",
+            "top": 547.75
+          },
+          {
+            "id": "h2/5",
+            "top": 559.75
+          }
+        ],
+        "elements": [
+          {
+            "id": "savings",
+            "address": "claim/business/savings",
+            "text": "Expected annual savings: $120,000 for 10 stores.",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 31,
+                "y": 150.25,
+                "width": 317.578125,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 175.75,
+                "width": 51.03125,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "cost",
+            "address": "claim/business/cost",
+            "text": "All-in annual cost: $40,000, including support.",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 31,
+                "y": 208.25,
+                "width": 276.90625,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 233.75,
+                "width": 61.4375,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "net",
+            "address": "claim/business/net",
+            "text": "Expected net benefit: $80,000 per year.",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 31,
+                "y": 266.25,
+                "width": 312.765625,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "condition",
+            "address": "claim/business/condition",
+            "text": "Proceed only after the inventory join (matching product records) passes a 2-week pilot.",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 31,
+                "y": 298.75,
+                "width": 271.21875,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 324.25,
+                "width": 295.75,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 349.75,
+                "width": 80.328125,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "downside",
+            "address": "claim/business/downside",
+            "text": "If savings fall to $30,000, the annual net loss is $10,000.",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 31,
+                "y": 382.25,
+                "width": 300.546875,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 407.75,
+                "width": 118.140625,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "approve",
+            "address": "component/decision/request-review",
+            "text": "Request pilot review",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 51,
+                "y": 456.5,
+                "width": 165.328125,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "disclosure",
+            "address": "component/decision/calculations",
+            "text": "How the estimates work",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 49.015625,
+                "y": 513.25,
+                "width": 180.453125,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "calculation",
+            "address": "claim/calculation/net",
+            "text": "$120,000 expected annual savings − $40,000 all-in annual cost = $80,000 expected annual net benefit.",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 31,
+                "y": 598.34375,
+                "width": 277.421875,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 623.84375,
+                "width": 274.578125,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 649.34375,
+                "width": 213.625,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "denominator",
+            "address": "claim/calculation/denominator",
+            "text": "10 stores × $12,000 expected savings per store per year = $120,000 expected savings per year.",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 31,
+                "y": 681.84375,
+                "width": 316.140625,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 707.34375,
+                "width": 268.890625,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 732.84375,
+                "width": 128.515625,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "forecast",
+            "address": "claim/calculation/uncertainty",
+            "text": "Expected savings are a forecast, not measured results.",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 31,
+                "y": 765.34375,
+                "width": 275,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 790.84375,
+                "width": 135.125,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "sensitivity",
+            "address": "claim/calculation/sensitivity",
+            "text": "A sensitivity case checks how the decision changes when savings differ.",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 31,
+                "y": 823.34375,
+                "width": 318.4375,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 848.84375,
+                "width": 218,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "downside-calculation",
+            "address": "claim/calculation/downside",
+            "text": "$30,000 downside annual savings − $40,000 all-in annual cost = a $10,000 annual net loss.",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 31,
+                "y": 881.34375,
+                "width": 270.796875,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 906.84375,
+                "width": 288.765625,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 932.34375,
+                "width": 119.09375,
+                "height": 19
+              }
+            ]
+          }
+        ],
+        "scrollProbes": [
+          {
+            "requested": 0.25,
+            "observed": 0
+          },
+          {
+            "requested": 0.5,
+            "observed": 1
+          },
+          {
+            "requested": 0.75,
+            "observed": 1
+          },
+          {
+            "requested": 1.25,
+            "observed": 1
+          },
+          {
+            "requested": 1.5,
+            "observed": 2
+          },
+          {
+            "requested": 1.75,
+            "observed": 2
+          }
+        ],
+        "windows": [
+          {
+            "id": "viewport-0",
+            "scrollTop": 0,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-2",
+            "scrollTop": 2,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-4",
+            "scrollTop": 4,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-5",
+            "scrollTop": 5,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-6",
+            "scrollTop": 6,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-8",
+            "scrollTop": 8,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-22",
+            "scrollTop": 22,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-37",
+            "scrollTop": 37,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-38",
+            "scrollTop": 38,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-43",
+            "scrollTop": 43,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-49",
+            "scrollTop": 49,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-55",
+            "scrollTop": 55,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-62",
+            "scrollTop": 62,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-63",
+            "scrollTop": 63,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-75",
+            "scrollTop": 75,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-88",
+            "scrollTop": 88,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-89",
+            "scrollTop": 89,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-101",
+            "scrollTop": 101,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-113",
+            "scrollTop": 113,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-114",
+            "scrollTop": 114,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-126",
+            "scrollTop": 126,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-138",
+            "scrollTop": 138,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-139",
+            "scrollTop": 139,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-153",
+            "scrollTop": 153,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-168",
+            "scrollTop": 168,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "sensitivity"
+            ]
+          }
+        ],
+        "interactions": [
+          {
+            "id": "approve",
+            "method": "touch",
+            "reachable": true,
+            "focusVisible": false,
+            "activated": true,
+            "targetVisible": true,
+            "targetWidth": 205.328125,
+            "targetHeight": 48
+          },
+          {
+            "id": "disclosure",
+            "method": "touch",
+            "reachable": true,
+            "focusVisible": false,
+            "activated": true,
+            "targetVisible": true,
+            "targetWidth": 328,
+            "targetHeight": 49.5
+          }
+        ],
+        "defects": [],
+        "captures": [
+          {
+            "id": "viewport-0",
+            "scrollTop": 0,
+            "digest": "5da45e0fd2a84468d80f5290d4cfb842b782766ab32a396a8ff61bf4bc5a2ef0",
+            "path": "narrow-open-touch-viewport-0.png"
+          },
+          {
+            "id": "viewport-8",
+            "scrollTop": 8,
+            "digest": "a1e8d6c884a8d48a4caaea91a80ac9889d35d8866c87db43101afcb93685f6e4",
+            "path": "narrow-open-touch-viewport-8.png"
+          },
+          {
+            "id": "viewport-38",
+            "scrollTop": 38,
+            "digest": "385bf304de1685264ab9f070339ed9cdb74b287b6258f0d96a8d2419e89d6523",
+            "path": "narrow-open-touch-viewport-38.png"
+          },
+          {
+            "id": "viewport-49",
+            "scrollTop": 49,
+            "digest": "e238527dee5fdc91c100e4a8d6be51ade8461641b308e040a4cc7c3a3eac54a9",
+            "path": "narrow-open-touch-viewport-49.png"
+          },
+          {
+            "id": "viewport-88",
+            "scrollTop": 88,
+            "digest": "218d3dadb942f57a489ed39f0561661421ce91050e51856454e1af619fabf340",
+            "path": "narrow-open-touch-viewport-88.png"
+          },
+          {
+            "id": "viewport-139",
+            "scrollTop": 139,
+            "digest": "e03c7e2c0a131d6cd75928eefb8b7da0225f62fa84c0de70c67d0a2c4861d10a",
+            "path": "narrow-open-touch-viewport-139.png"
+          },
+          {
+            "id": "viewport-168",
+            "scrollTop": 168,
+            "digest": "0cec34cf40d48cad393505707ac25bd98295b6dd49d05d78aa24282924dd92ca",
+            "path": "narrow-open-touch-viewport-168.png"
+          }
+        ]
+      },
+      {
+        "id": "wide/entry/keyboard",
+        "route": "/decision?disclosure=calculations",
+        "viewport": {
+          "width": 1100,
+          "height": 760
+        },
+        "input": "keyboard",
+        "interaction": "open",
+        "complete": true,
+        "unavailable": [],
+        "documentHeight": 799,
+        "chromeHeight": 56,
+        "anchors": [
+          {
+            "id": "main/0",
+            "top": 64
+          },
+          {
+            "id": "h1/1",
+            "top": 105
+          },
+          {
+            "id": "decision",
+            "top": 148
+          },
+          {
+            "id": "calculations",
+            "top": 383
+          },
+          {
+            "id": "estimates",
+            "top": 434
+          },
+          {
+            "id": "h2/5",
+            "top": 446
+          }
+        ],
+        "elements": [
+          {
+            "id": "savings",
+            "address": "claim/business/savings",
+            "text": "Expected annual savings: $120,000 for 10 stores.",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 203,
+                "y": 154,
+                "width": 395.265625,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "cost",
+            "address": "claim/business/cost",
+            "text": "All-in annual cost: $40,000, including support.",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 203,
+                "y": 188,
+                "width": 363.234375,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "net",
+            "address": "claim/business/net",
+            "text": "Expected net benefit: $80,000 per year.",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 203,
+                "y": 222,
+                "width": 331.15625,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "condition",
+            "address": "claim/business/condition",
+            "text": "Proceed only after the inventory join (matching product records) passes a 2-week pilot.",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 203,
+                "y": 256,
+                "width": 690.359375,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "downside",
+            "address": "claim/business/downside",
+            "text": "If savings fall to $30,000, the annual net loss is $10,000.",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 203,
+                "y": 290,
+                "width": 448.3125,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "approve",
+            "address": "component/decision/request-review",
+            "text": "Request pilot review",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 223,
+                "y": 340,
+                "width": 175.046875,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "disclosure",
+            "address": "component/decision/calculations",
+            "text": "How the estimates work",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 222.0625,
+                "y": 398,
+                "width": 191.078125,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "calculation",
+            "address": "claim/calculation/net",
+            "text": "$120,000 expected annual savings − $40,000 all-in annual cost = $80,000 expected annual net benefit.",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 203,
+                "y": 484.59375,
+                "width": 667.515625,
+                "height": 20
+              },
+              {
+                "x": 203,
+                "y": 511.59375,
+                "width": 148.125,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "denominator",
+            "address": "claim/calculation/denominator",
+            "text": "10 stores × $12,000 expected savings per store per year = $120,000 expected savings per year.",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 203,
+                "y": 545.59375,
+                "width": 690.453125,
+                "height": 20
+              },
+              {
+                "x": 203,
+                "y": 572.59375,
+                "width": 70.046875,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "forecast",
+            "address": "claim/calculation/uncertainty",
+            "text": "Expected savings are a forecast, not measured results.",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 203,
+                "y": 606.59375,
+                "width": 439.234375,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "sensitivity",
+            "address": "claim/calculation/sensitivity",
+            "text": "A sensitivity case checks how the decision changes when savings differ.",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 203,
+                "y": 640.59375,
+                "width": 573,
+                "height": 20
+              }
+            ]
+          },
+          {
+            "id": "downside-calculation",
+            "address": "claim/calculation/downside",
+            "text": "$30,000 downside annual savings − $40,000 all-in annual cost = a $10,000 annual net loss.",
+            "fontPx": 18,
+            "rects": [
+              {
+                "x": 203,
+                "y": 674.59375,
+                "width": 686.53125,
+                "height": 20
+              },
+              {
+                "x": 203,
+                "y": 701.59375,
+                "width": 37.015625,
+                "height": 20
+              }
+            ]
+          }
+        ],
+        "scrollProbes": [
+          {
+            "requested": 0.25,
+            "observed": 0
+          },
+          {
+            "requested": 0.5,
+            "observed": 1
+          },
+          {
+            "requested": 0.75,
+            "observed": 1
+          },
+          {
+            "requested": 1.25,
+            "observed": 1
+          },
+          {
+            "requested": 1.5,
+            "observed": 2
+          },
+          {
+            "requested": 1.75,
+            "observed": 2
+          }
+        ],
+        "windows": [
+          {
+            "id": "viewport-0",
+            "scrollTop": 0,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-4",
+            "scrollTop": 4,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-8",
+            "scrollTop": 8,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-23",
+            "scrollTop": 23,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-39",
+            "scrollTop": 39,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          }
+        ],
+        "interactions": [
+          {
+            "id": "approve",
+            "method": "keyboard",
+            "reachable": true,
+            "focusVisible": true,
+            "activated": true,
+            "targetVisible": true,
+            "targetWidth": 215.046875,
+            "targetHeight": 49
+          },
+          {
+            "id": "disclosure",
+            "method": "keyboard",
+            "reachable": true,
+            "focusVisible": true,
+            "activated": true,
+            "targetVisible": true,
+            "targetWidth": 694,
+            "targetHeight": 51
+          }
+        ],
+        "defects": [],
+        "captures": [
+          {
+            "id": "viewport-0",
+            "scrollTop": 0,
+            "digest": "916bbac4ed3443f93d1b2bbb3670cf21b562fd875c0d255bed6ddf59499876b7",
+            "path": "wide-entry-keyboard-viewport-0.png"
+          },
+          {
+            "id": "viewport-8",
+            "scrollTop": 8,
+            "digest": "af602d6bec5609a6393b752a27ebd6c8f67df3755a73c55ee5b6086dcc25027b",
+            "path": "wide-entry-keyboard-viewport-8.png"
+          },
+          {
+            "id": "viewport-39",
+            "scrollTop": 39,
+            "digest": "198e6bb222c75d4be5e54d9bb986be1d530098ef63060e959ac41975e5b18327",
+            "path": "wide-entry-keyboard-viewport-39.png"
+          }
+        ]
+      },
+      {
+        "id": "narrow/entry/touch",
+        "route": "/decision?disclosure=calculations",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "input": "touch",
+        "interaction": "open",
+        "complete": true,
+        "unavailable": [],
+        "documentHeight": 1012,
+        "chromeHeight": 56,
+        "anchors": [
+          {
+            "id": "main/0",
+            "top": 64
+          },
+          {
+            "id": "h1/1",
+            "top": 105
+          },
+          {
+            "id": "decision",
+            "top": 144.25
+          },
+          {
+            "id": "calculations",
+            "top": 498.25
+          },
+          {
+            "id": "estimates",
+            "top": 547.75
+          },
+          {
+            "id": "h2/5",
+            "top": 559.75
+          }
+        ],
+        "elements": [
+          {
+            "id": "savings",
+            "address": "claim/business/savings",
+            "text": "Expected annual savings: $120,000 for 10 stores.",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 31,
+                "y": 150.25,
+                "width": 317.578125,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 175.75,
+                "width": 51.03125,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "cost",
+            "address": "claim/business/cost",
+            "text": "All-in annual cost: $40,000, including support.",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 31,
+                "y": 208.25,
+                "width": 276.90625,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 233.75,
+                "width": 61.4375,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "net",
+            "address": "claim/business/net",
+            "text": "Expected net benefit: $80,000 per year.",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 31,
+                "y": 266.25,
+                "width": 312.765625,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "condition",
+            "address": "claim/business/condition",
+            "text": "Proceed only after the inventory join (matching product records) passes a 2-week pilot.",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 31,
+                "y": 298.75,
+                "width": 271.21875,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 324.25,
+                "width": 295.75,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 349.75,
+                "width": 80.328125,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "downside",
+            "address": "claim/business/downside",
+            "text": "If savings fall to $30,000, the annual net loss is $10,000.",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 31,
+                "y": 382.25,
+                "width": 300.546875,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 407.75,
+                "width": 118.140625,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "approve",
+            "address": "component/decision/request-review",
+            "text": "Request pilot review",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 51,
+                "y": 456.5,
+                "width": 165.328125,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "disclosure",
+            "address": "component/decision/calculations",
+            "text": "How the estimates work",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 49.015625,
+                "y": 513.25,
+                "width": 180.453125,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "calculation",
+            "address": "claim/calculation/net",
+            "text": "$120,000 expected annual savings − $40,000 all-in annual cost = $80,000 expected annual net benefit.",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 31,
+                "y": 598.34375,
+                "width": 277.421875,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 623.84375,
+                "width": 274.578125,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 649.34375,
+                "width": 213.625,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "denominator",
+            "address": "claim/calculation/denominator",
+            "text": "10 stores × $12,000 expected savings per store per year = $120,000 expected savings per year.",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 31,
+                "y": 681.84375,
+                "width": 316.140625,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 707.34375,
+                "width": 268.890625,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 732.84375,
+                "width": 128.515625,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "forecast",
+            "address": "claim/calculation/uncertainty",
+            "text": "Expected savings are a forecast, not measured results.",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 31,
+                "y": 765.34375,
+                "width": 275,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 790.84375,
+                "width": 135.125,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "sensitivity",
+            "address": "claim/calculation/sensitivity",
+            "text": "A sensitivity case checks how the decision changes when savings differ.",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 31,
+                "y": 823.34375,
+                "width": 318.4375,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 848.84375,
+                "width": 218,
+                "height": 19
+              }
+            ]
+          },
+          {
+            "id": "downside-calculation",
+            "address": "claim/calculation/downside",
+            "text": "$30,000 downside annual savings − $40,000 all-in annual cost = a $10,000 annual net loss.",
+            "fontPx": 17,
+            "rects": [
+              {
+                "x": 31,
+                "y": 881.34375,
+                "width": 270.796875,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 906.84375,
+                "width": 288.765625,
+                "height": 19
+              },
+              {
+                "x": 31,
+                "y": 932.34375,
+                "width": 119.09375,
+                "height": 19
+              }
+            ]
+          }
+        ],
+        "scrollProbes": [
+          {
+            "requested": 0.25,
+            "observed": 0
+          },
+          {
+            "requested": 0.5,
+            "observed": 1
+          },
+          {
+            "requested": 0.75,
+            "observed": 1
+          },
+          {
+            "requested": 1.25,
+            "observed": 1
+          },
+          {
+            "requested": 1.5,
+            "observed": 2
+          },
+          {
+            "requested": 1.75,
+            "observed": 2
+          }
+        ],
+        "windows": [
+          {
+            "id": "viewport-0",
+            "scrollTop": 0,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-2",
+            "scrollTop": 2,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-4",
+            "scrollTop": 4,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-5",
+            "scrollTop": 5,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-6",
+            "scrollTop": 6,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-8",
+            "scrollTop": 8,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-22",
+            "scrollTop": 22,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-37",
+            "scrollTop": 37,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-38",
+            "scrollTop": 38,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-43",
+            "scrollTop": 43,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-49",
+            "scrollTop": 49,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-55",
+            "scrollTop": 55,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-62",
+            "scrollTop": 62,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-63",
+            "scrollTop": 63,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-75",
+            "scrollTop": 75,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-88",
+            "scrollTop": 88,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-89",
+            "scrollTop": 89,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-101",
+            "scrollTop": 101,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-113",
+            "scrollTop": 113,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-114",
+            "scrollTop": 114,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-126",
+            "scrollTop": 126,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-138",
+            "scrollTop": 138,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "savings",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-139",
+            "scrollTop": 139,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-153",
+            "scrollTop": 153,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "sensitivity"
+            ]
+          },
+          {
+            "id": "viewport-168",
+            "scrollTop": 168,
+            "visible": [
+              "approve",
+              "calculation",
+              "condition",
+              "cost",
+              "denominator",
+              "disclosure",
+              "downside",
+              "downside-calculation",
+              "forecast",
+              "net",
+              "sensitivity"
+            ]
+          }
+        ],
+        "interactions": [
+          {
+            "id": "approve",
+            "method": "touch",
+            "reachable": true,
+            "focusVisible": false,
+            "activated": true,
+            "targetVisible": true,
+            "targetWidth": 205.328125,
+            "targetHeight": 48
+          },
+          {
+            "id": "disclosure",
+            "method": "touch",
+            "reachable": true,
+            "focusVisible": false,
+            "activated": true,
+            "targetVisible": true,
+            "targetWidth": 328,
+            "targetHeight": 49.5
+          }
+        ],
+        "defects": [],
+        "captures": [
+          {
+            "id": "viewport-0",
+            "scrollTop": 0,
+            "digest": "313a231becc0adf462f288557fb8531bc7f5ebd820261668b889c26914b556e3",
+            "path": "narrow-entry-touch-viewport-0.png"
+          },
+          {
+            "id": "viewport-8",
+            "scrollTop": 8,
+            "digest": "859285838ea22a31f1d09094ebbfe54e23afd64346e05417aba0aed269df3a41",
+            "path": "narrow-entry-touch-viewport-8.png"
+          },
+          {
+            "id": "viewport-38",
+            "scrollTop": 38,
+            "digest": "70fa1f9b13203974cf0344617c9d4688f9234e90b43ce8bb79772f1a3a1bf7bb",
+            "path": "narrow-entry-touch-viewport-38.png"
+          },
+          {
+            "id": "viewport-49",
+            "scrollTop": 49,
+            "digest": "e238527dee5fdc91c100e4a8d6be51ade8461641b308e040a4cc7c3a3eac54a9",
+            "path": "narrow-entry-touch-viewport-49.png"
+          },
+          {
+            "id": "viewport-88",
+            "scrollTop": 88,
+            "digest": "218d3dadb942f57a489ed39f0561661421ce91050e51856454e1af619fabf340",
+            "path": "narrow-entry-touch-viewport-88.png"
+          },
+          {
+            "id": "viewport-139",
+            "scrollTop": 139,
+            "digest": "e03c7e2c0a131d6cd75928eefb8b7da0225f62fa84c0de70c67d0a2c4861d10a",
+            "path": "narrow-entry-touch-viewport-139.png"
+          },
+          {
+            "id": "viewport-168",
+            "scrollTop": 168,
+            "digest": "0cec34cf40d48cad393505707ac25bd98295b6dd49d05d78aa24282924dd92ca",
+            "path": "narrow-entry-touch-viewport-168.png"
+          }
+        ]
+      }
+    ],
+    "renderDigest": "0bb48a7ef9ec02271cc8b7baeb2207055cb523ec5f6b9e2898def924d4fc2d48"
+  }
+}

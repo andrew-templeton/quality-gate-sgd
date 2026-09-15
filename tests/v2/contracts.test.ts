@@ -106,6 +106,13 @@ describe('portable execution contracts', () => {
     expect(() => compile({ ...original, card: { ...original.card, claim: 'A different claim.' } })).toThrow('statement changed');
     expect(() => compile({ ...original, card: { ...original.card, input: { ...original.card.input, capabilities: [] } } })).toThrow('capabilities disagree');
   });
+
+  it.each(['output', 'prerequisites'])('rejects explicit null %s in public descriptors and definitions', field => {
+    const original = defineAssertion(definition());
+    expect(() => compile({ ...original, contract: { ...original.contract, [field]: null } as typeof original.contract })).toThrow();
+    expect(() => defineAssertion(Object.assign(definition(), { [field]: null }))).toThrow();
+    expect(() => defineAssertion(Object.assign(definition(), { [field]: undefined }))).toThrow();
+  });
 });
 
 describe('pre-dispatch input validation and discovery', () => {

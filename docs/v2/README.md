@@ -2,7 +2,9 @@
 
 An operator needs a result that satisfies a particular set of requirements. V2 makes those requirements inspectable modules, composes them into a gate, accounts for evaluation and repair costs, and admits edits only when the selected evidence supports them.
 
-This is development version `2.0.0-dev.2`. The generic library is exported directly and as `v2`, with the `quality-gate-v2` CLI. The legacy software root API and `quality-gate` CLI now belong to [quality-sgd-software](https://github.com/andrew-templeton/quality-sgd-software); see the [migration guide](MIGRATION.md). Core has no runtime package dependency or automatic publishing step.
+This is development version `2.0.0-dev.3`. The generic library is exported directly and as `v2`, with the `quality-gate-v2` CLI. The legacy software root API and `quality-gate` CLI now belong to [quality-sgd-software](https://github.com/andrew-templeton/quality-sgd-software); see the [migration guide](MIGRATION.md). Core has no runtime package dependency or automatic publishing step.
+
+The [combined API audit](STABLE-API-AUDIT.md) maps the earlier contract gaps to implementation and acceptance evidence. [Workflow proposals](WORKFLOWS.md) expose exact matching reasons, typed handoffs, missing inputs and costs; [assertion context](ASSERTION-CONTEXT.md) explains each selected claim's assumptions and limits. [Evidence lineage](LINEAGE.md) connects dependent source, render and judgment revisions.
 
 ```sh
 npm ci
@@ -116,6 +118,6 @@ Repair harnesses and the bounded loop are optional library integrations; see [th
 
 ## Scope of the development release
 
-The core provides contracts, composition, input discovery, cost accounting, finite assessment value, partial conflict handling, candidate admission, calibration utilities and report adapters. It does not claim an empirically optimal quality policy, a validated universal semantic judge, a browser measurement collector, a learned causal effect model, or automatic deployment of accepted edits.
+The core provides contracts, composition, input discovery, cost accounting, finite assessment value, partial conflict handling, candidate admission, calibration utilities and report adapters. The optional [rendered example collector](SURFACES.md) measures a bounded stationary-DOM model; it introduces no browser runtime dependency into the engine. The [communication conjunction](COMMUNICATION.md) binds actual surface measurements to authored source and audience/task contracts. The [finite program](DECISION-PROGRAM.md) records exact constructed-population results and literal iteration costs. Human comprehension, semantic-judge reliability beyond qualified scopes, globally optimal quality policies and learned business causal effects require their own evidence. Accepted edits are not automatically deployed.
 
 The design follows the distinction between information and utility in Shannon's [communication theory](https://www.nokia.com/bell-labs/publications-and-media/publications/a-mathematical-theory-of-communication/), the need for assumptions when moving from observation to intervention in Pearl's [causal-inference overview](https://ftp.cs.ucla.edu/pub/stat_ser/SS-2009-57-Sup.pdf), and explicit scope/evaluation reporting in [Model Cards for Model Reporting](https://arxiv.org/abs/1810.03993). These sources motivate the reporting discipline; they do not validate this implementation or its domain-specific verifiers.

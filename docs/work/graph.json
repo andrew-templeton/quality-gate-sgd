@@ -377,7 +377,7 @@
       "title": "Run independent module conformance",
       "owner": "core",
       "track": "stable-api",
-      "status": "active",
+      "status": "done",
       "dependsOn": [
         "migration-package-conformance",
         "isogloss-example",
@@ -389,7 +389,12 @@
         "Cover valid/invalid/version-mismatched inputs, unavailable evidence, identity changes, qualification invalidation and prerequisite blocking.",
         "Record compatible module/host revisions and migration behavior; a passing protocol check makes no new domain-validity claim."
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "label": "Independent public package protocol verification",
+          "url": "../v2/EXTERNAL-CONFORMANCE.md"
+        }
+      ],
       "links": [
         {
           "label": "Consumer API review",
@@ -543,7 +548,7 @@
       "title": "Review the minimum stable API contract",
       "owner": "core",
       "track": "stable-api",
-      "status": "planned",
+      "status": "active",
       "dependsOn": [
         "external-conformance",
         "loop-costing-hysteresis"
@@ -596,7 +601,7 @@
       "title": "Make guarantees and assertion context discoverable",
       "owner": "core",
       "track": "later",
-      "status": "planned",
+      "status": "done",
       "dependsOn": [
         "implementation-identity",
         "input-bindings"
@@ -607,7 +612,12 @@
         "Document conflicts and context needed to choose a module without promoting an unqualified match as a validated verifier.",
         "Expose machine-readable hierarchy, input/output contracts and documentation-card examples for selected assertion subsets; a composed card preserves component assumptions, scope and excluded guarantees without inventing aggregate confidence."
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "label": "Assertion vocabulary, per-module context and composition cards",
+          "url": "../v2/ASSERTION-CONTEXT.md"
+        }
+      ],
       "links": [
         {
           "label": "V2 guide",
@@ -624,7 +634,7 @@
       "title": "Establish software collection completeness",
       "owner": "software",
       "track": "later",
-      "status": "active",
+      "status": "done",
       "dependsOn": [
         "software-publication",
         "input-bindings"
@@ -634,7 +644,12 @@
         "Missing commands/reports/metrics, partial scans and stale revisions remain unavailable instead of satisfying a required ceiling through omission.",
         "Test actual subprocess failure and incomplete scope cases; preserve the distinction between legacy compatibility and the stronger v2 contract."
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "label": "Published complete collectors and path-order regression",
+          "url": "https://github.com/andrew-templeton/quality-sgd-software/blob/13308ba/docs/VALIDATION.md"
+        }
+      ],
       "links": [
         {
           "label": "Consumer API review",
@@ -651,7 +666,7 @@
       "title": "Qualify software gates as v2 modules",
       "owner": "software",
       "track": "later",
-      "status": "active",
+      "status": "done",
       "dependsOn": [
         "software-evidence-completeness",
         "qualification-invalidation"
@@ -661,7 +676,12 @@
         "Bind qualification to implementation, scope and evidence provenance; use relevant labeled cases or established deterministic report predicates.",
         "Demonstrate host conformance and document unqualified legacy features rather than granting qualification to the entire extraction."
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "label": "Scoped deterministic v2 predicates and installed host evidence",
+          "url": "https://github.com/andrew-templeton/quality-sgd-software/blob/13308ba/docs/V2-QUALIFICATION.md"
+        }
+      ],
       "links": [
         {
           "label": "Calibration contract",
@@ -678,7 +698,7 @@
       "title": "Strengthen Sonar report provenance and scope",
       "owner": "sonarqube",
       "track": "later",
-      "status": "active",
+      "status": "done",
       "dependsOn": [
         "sonarqube-publication",
         "input-bindings"
@@ -687,7 +707,12 @@
         "Define optional authenticated collection evidence binding a server analysis and complete pagination/scope to the assessed artifact revision.",
         "Test truncated, stale, mismatched and unavailable reports; keep the existing report-only predicate accurately labeled when stronger collection evidence is absent."
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "label": "Published authenticated Sonar collection and actual live evidence",
+          "url": "https://github.com/andrew-templeton/quality-sgd-sonarqube/blob/b5fd533/docs/PROVENANCE.md"
+        }
+      ],
       "links": [
         {
           "label": "SonarQube repository",
@@ -730,7 +755,7 @@
       "title": "Collect scoped verifier validity evidence",
       "owner": "core",
       "track": "later",
-      "status": "planned",
+      "status": "done",
       "dependsOn": [
         "qualification-invalidation"
       ],
@@ -739,7 +764,16 @@
         "Prespecify sampling, dependence assumptions, evidence use and acceptance thresholds; report bounds and incomplete evidence without converting preference wins to correctness claims.",
         "Publish a reusable evidence record example tied to evaluator identity, while each external verifier owns its substantive validity claim."
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "label": "Executed finite census, scoped error rates and missingness bounds",
+          "url": "../v2/DECISION-PROGRAM.md"
+        },
+        {
+          "label": "Independent mathematical and accounting review",
+          "url": "../v2/DECISION-REVIEW.md"
+        }
+      ],
       "links": [
         {
           "label": "Calibration contract",
@@ -752,7 +786,7 @@
       "title": "Validate conflicting nudge decisions",
       "owner": "core",
       "track": "later",
-      "status": "planned",
+      "status": "done",
       "dependsOn": [
         "foundation"
       ],
@@ -762,7 +796,12 @@
         "Document where conservative interval dominance and one-assessment expected value apply, without claiming global causal optimization.",
         "Return an inspectable partial resolution trace with preferred, deferred and unresolved nudges, conflict reasons and required follow-up evidence; optional issue remedies remain separate from authorization to execute them."
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "label": "Finite interventions, partial conflict traces and actual loop outcomes",
+          "url": "../v2/DECISION-PROGRAM.md"
+        }
+      ],
       "links": [
         {
           "label": "V2 guide",
@@ -775,7 +814,7 @@
       "title": "Validate optional repair and verification",
       "owner": "core",
       "track": "later",
-      "status": "planned",
+      "status": "done",
       "dependsOn": [
         "foundation"
       ],
@@ -784,7 +823,12 @@
         "Show that an assertion-provided remediation prompt cannot enable execution or grant its own candidate admission.",
         "Evaluate repairs on representative module issues with failures preserved as evidence, including cases where a superficially clean result changes intended behavior."
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "label": "Executed isolated repairs and full-gate rejection/admission",
+          "url": "../../examples/v2/repair-validation/README.md"
+        }
+      ],
       "links": [
         {
           "label": "Remediation contract",
@@ -797,7 +841,7 @@
       "title": "Evaluate composed gates against baseline",
       "owner": "core",
       "track": "later",
-      "status": "planned",
+      "status": "active",
       "dependsOn": [
         "audience-calibration",
         "verifier-calibration",
@@ -829,7 +873,7 @@
       "title": "Preserve source meaning and business arithmetic",
       "owner": "core",
       "track": "later",
-      "status": "planned",
+      "status": "done",
       "dependsOn": [
         "implementation-identity",
         "input-bindings",
@@ -841,7 +885,12 @@
         "Exercise faithful rewrites and counterexamples that change a denominator, omit a condition or unfavorable scenario, strengthen a causal claim, alter a population, misstate all-in cost or remove the action; a lower complexity score cannot override a required fidelity failure.",
         "State which structured predicates are deterministic and which semantic judgments need scoped qualification; missing source coverage or required judgment evidence remains unavailable."
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "label": "Structured fidelity, explicit source corrections and business arithmetic",
+          "url": "../v2/COMMITMENTS.md"
+        }
+      ],
       "links": [
         {
           "label": "Scope and evidence traceability",
@@ -854,7 +903,7 @@
       "title": "Collect inspectable rendered fold evidence",
       "owner": "core",
       "track": "later",
-      "status": "planned",
+      "status": "done",
       "dependsOn": [
         "input-bindings",
         "implementation-identity"
@@ -865,7 +914,12 @@
         "Use trusted policy for view/state coverage and per-view caps; test padding, bin-boundary movement, candidate-provided limits and unverified diagram grouping so they cannot manufacture a passing result.",
         "Collect rendered geometry and interaction evidence for overlap, clipping, overflow, action visibility, focus, keyboard and touch access; missing required renders or states remain unavailable rather than inferred from a text proxy."
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "label": "Actual browser collection, typed facet receipts and retained pixels",
+          "url": "../v2/SURFACES.md"
+        }
+      ],
       "links": [
         {
           "label": "Scope and evidence traceability",
@@ -878,7 +932,7 @@
       "title": "Preserve useful decisions within fold budgets",
       "owner": "core",
       "track": "later",
-      "status": "planned",
+      "status": "done",
       "dependsOn": [
         "semantic-commitments",
         "rendered-fold-evidence",
@@ -890,7 +944,12 @@
         "Keep the main view sufficient for value, material conditions and the next action; make supporting calculations and first-use definitions discoverable at the point of need through progressive disclosure, with independent entry routes and supported input methods exercised.",
         "Demonstrate a targeted addressed nudge and full-gate admission, including rejected candidates that hide a material cost, remove an unfavorable scenario, add filler or shrink text; report the observed improvement and remaining alternatives without claiming a universal capacity bound or global optimum."
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "label": "Audience/task/view contract and executed conjunctive communication cases",
+          "url": "../v2/COMMUNICATION.md"
+        }
+      ],
       "links": [
         {
           "label": "Scope and evidence traceability",
@@ -903,7 +962,7 @@
       "title": "Invalidate evidence through shared dependency addresses",
       "owner": "core",
       "track": "later",
-      "status": "active",
+      "status": "done",
       "dependsOn": [
         "implementation-identity",
         "typed-prerequisite-outputs",
@@ -914,7 +973,12 @@
         "Invalidate affected evidence and its transitive dependents when child assets, source values, view/state configuration, audience or evaluator identity changes, even when a parent file is unchanged.",
         "Verify unchanged independent evidence can be reused only under matching declared identities, while missing dependencies, stale renders, cycles and resumed stale observations cannot satisfy required assertions."
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "label": "Dependency revisions, receipts and durable stale-evidence rejection",
+          "url": "../v2/LINEAGE.md"
+        }
+      ],
       "links": [
         {
           "label": "Scope and evidence traceability",
@@ -927,7 +991,7 @@
       "title": "Propose reviewable workflow module compositions",
       "owner": "core",
       "track": "later",
-      "status": "planned",
+      "status": "done",
       "dependsOn": [
         "discovery-consistency",
         "typed-prerequisite-outputs",
@@ -939,7 +1003,12 @@
         "Expose matching reasons, assumptions, missing inputs/capabilities, alternative modules, output handoffs, costs and unsupported requirements; proposed compatibility must use the same runtime contracts as execution.",
         "Exercise a broader communication composition with the independently installed Isogloss facet and a software composition using external modules; configuration remains explicit and proposals cannot grant themselves qualification or execution authority."
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "label": "Public workflow contract and installed external composition checks",
+          "url": "../v2/WORKFLOWS.md"
+        }
+      ],
       "links": [
         {
           "label": "Scope and evidence traceability",
@@ -952,7 +1021,7 @@
       "title": "Make blinded operator calibration runnable",
       "owner": "core",
       "track": "later",
-      "status": "active",
+      "status": "done",
       "dependsOn": [
         "qualification-invalidation",
         "workflow-composition"
@@ -963,7 +1032,12 @@
         "Accept partial ballots and report incomplete or inconclusive evidence honestly; reject incompatible, duplicated or improperly reused evidence, and separate preference alignment from correctness and comprehension.",
         "Exercise the complete prepare, play, record, reveal and assess workflow with clearly labeled test participants; provide the real operator command without fabricating a human ballot or a superiority verdict."
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "label": "Staged blinded reader workflow and explicit test-actor boundaries",
+          "url": "https://github.com/andrew-templeton/isogloss/tree/5947611/studies/reader-alignment"
+        }
+      ],
       "links": [
         {
           "label": "Scope and evidence traceability",
@@ -976,7 +1050,7 @@
       "title": "Validate decision value and assessment spending",
       "owner": "core",
       "track": "later",
-      "status": "planned",
+      "status": "done",
       "dependsOn": [
         "loop-costing-hysteresis",
         "causal-conflict-validation",
@@ -988,7 +1062,12 @@
         "Meter proposal, assessment and repair rounds in each configured resource unit and document any operator-supplied conversion into utility; reject unsupported unit comparisons and expose uncertainty, sensitivity and the no-assessment option.",
         "Record actual outcomes for bounded scenarios and preserve unresolved tradeoffs, rather than inferring global optimality or identified causal effects from local scores."
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "label": "Independent finite policy enumeration, stopping and literal resource costs",
+          "url": "../v2/DECISION-PROGRAM.md"
+        }
+      ],
       "links": [
         {
           "label": "Scope and evidence traceability",
@@ -1001,7 +1080,7 @@
       "title": "Demonstrate complete externally composed workflows",
       "owner": "core",
       "track": "later",
-      "status": "planned",
+      "status": "active",
       "dependsOn": [
         "stable-api-review",
         "evidence-lineage",
@@ -1028,7 +1107,7 @@
       "title": "Verify and publish every work-graph outcome",
       "owner": "core",
       "track": "later",
-      "status": "planned",
+      "status": "active",
       "dependsOn": [
         "foundation",
         "api-audit",

@@ -1,0 +1,284 @@
+{
+  "summary": {
+    "variant": "improved",
+    "status": "pass",
+    "artifactDigest": "2c1d955c816e1806f6fd3913240ece124290f9c84c849bb6b8123b6db7481d1e",
+    "renderDigest": "9053b194b529a72599812cf5fdbfe81145991cf8f8026bb54ce6209c0b89a94c",
+    "facets": [
+      {
+        "id": "surface.geometry",
+        "status": "pass",
+        "findings": []
+      },
+      {
+        "id": "surface.inventory",
+        "status": "pass",
+        "findings": []
+      },
+      {
+        "id": "surface.total-budget",
+        "status": "pass",
+        "findings": []
+      },
+      {
+        "id": "surface.novel-budget",
+        "status": "pass",
+        "findings": []
+      }
+    ],
+    "states": [
+      {
+        "id": "wide/closed/keyboard",
+        "complete": true,
+        "unavailable": [],
+        "windows": 1,
+        "captures": 1,
+        "documentHeight": 760,
+        "peakTotal": 7,
+        "peakNovel": 1
+      },
+      {
+        "id": "wide/open/keyboard",
+        "complete": true,
+        "unavailable": [],
+        "windows": 40,
+        "captures": 14,
+        "documentHeight": 1263,
+        "peakTotal": 9,
+        "peakNovel": 2
+      },
+      {
+        "id": "narrow/closed/touch",
+        "complete": true,
+        "unavailable": [],
+        "windows": 1,
+        "captures": 1,
+        "documentHeight": 844,
+        "peakTotal": 7,
+        "peakNovel": 1
+      },
+      {
+        "id": "narrow/open/touch",
+        "complete": true,
+        "unavailable": [],
+        "windows": 66,
+        "captures": 15,
+        "documentHeight": 1390,
+        "peakTotal": 9,
+        "peakNovel": 2
+      },
+      {
+        "id": "wide/entry/keyboard",
+        "complete": true,
+        "unavailable": [],
+        "windows": 40,
+        "captures": 14,
+        "documentHeight": 1263,
+        "peakTotal": 9,
+        "peakNovel": 2
+      },
+      {
+        "id": "narrow/entry/touch",
+        "complete": true,
+        "unavailable": [],
+        "windows": 66,
+        "captures": 15,
+        "documentHeight": 1390,
+        "peakTotal": 9,
+        "peakNovel": 2
+      }
+    ]
+  },
+  "evaluation": {
+    "artifactDigest": "2c1d955c816e1806f6fd3913240ece124290f9c84c849bb6b8123b6db7481d1e",
+    "inputDigest": "334da0055152a2bdf1c5967b5a03cbf8a8e9ba3313543f309e93744775187113",
+    "requiredAssertions": [
+      "surface.geometry",
+      "surface.inventory",
+      "surface.total-budget",
+      "surface.novel-budget"
+    ],
+    "contractDigest": "378c9fcb02ec1d22bab76ed8dfebdfd81a194f0deff79440b2858b0104653f2c",
+    "status": "pass",
+    "results": [
+      {
+        "status": "pass",
+        "findings": [],
+        "evidence": [
+          "surface:9053b194b529a72599812cf5fdbfe81145991cf8f8026bb54ce6209c0b89a94c",
+          "policy:07b169c1324b88d4175c94de1fa545ae447aee4c39236cfd1deffd4fed09edd3",
+          "collector:5a31ecd195dded51f2851702f2309d04e82a8e738ce92d419f0f05dc6d5a0092"
+        ],
+        "actualCost": {
+          "evaluations": 1
+        },
+        "loss": {
+          "lower": 0,
+          "upper": 0,
+          "unit": "violations"
+        },
+        "output": {
+          "artifactDigest": "2c1d955c816e1806f6fd3913240ece124290f9c84c849bb6b8123b6db7481d1e",
+          "environmentDigest": "e9108bdb96b6bb1bcc4f2e5b96db73e2bfc313a7f2464824f459cd013d1a7d0e",
+          "renderDigest": "9053b194b529a72599812cf5fdbfe81145991cf8f8026bb54ce6209c0b89a94c",
+          "policyDigest": "07b169c1324b88d4175c94de1fa545ae447aee4c39236cfd1deffd4fed09edd3",
+          "collectorDigest": "5a31ecd195dded51f2851702f2309d04e82a8e738ce92d419f0f05dc6d5a0092"
+        },
+        "outputEvidence": {
+          "assertionId": "surface.geometry",
+          "evaluatorDigest": "4d941d0fc87b8d7bc15a522f74f0f92f08aa406c227f8348d2c271332e256aaa",
+          "inputDigest": "334da0055152a2bdf1c5967b5a03cbf8a8e9ba3313543f309e93744775187113",
+          "schemaDigest": "05fe4842761332cf95dced645533f3652a972b12a7fbcd9a7dff9f2aa3fd3ace",
+          "valueDigest": "05f125763d6904f4c2aedb1f54ee57684f445ba5075cd1bf50848ab4032371af",
+          "value": {
+            "artifactDigest": "2c1d955c816e1806f6fd3913240ece124290f9c84c849bb6b8123b6db7481d1e",
+            "environmentDigest": "e9108bdb96b6bb1bcc4f2e5b96db73e2bfc313a7f2464824f459cd013d1a7d0e",
+            "renderDigest": "9053b194b529a72599812cf5fdbfe81145991cf8f8026bb54ce6209c0b89a94c",
+            "policyDigest": "07b169c1324b88d4175c94de1fa545ae447aee4c39236cfd1deffd4fed09edd3",
+            "collectorDigest": "5a31ecd195dded51f2851702f2309d04e82a8e738ce92d419f0f05dc6d5a0092"
+          },
+          "dependencies": [],
+          "digest": "48a09b9d90b8dcf89abe7f7e0f705deb2a2c93c8f95f8ed2de66df1c209a72ed"
+        },
+        "assertionId": "surface.geometry",
+        "inputDigest": "334da0055152a2bdf1c5967b5a03cbf8a8e9ba3313543f309e93744775187113"
+      },
+      {
+        "status": "pass",
+        "findings": [],
+        "evidence": [
+          "surface:9053b194b529a72599812cf5fdbfe81145991cf8f8026bb54ce6209c0b89a94c",
+          "policy:07b169c1324b88d4175c94de1fa545ae447aee4c39236cfd1deffd4fed09edd3",
+          "collector:5a31ecd195dded51f2851702f2309d04e82a8e738ce92d419f0f05dc6d5a0092"
+        ],
+        "actualCost": {
+          "evaluations": 1
+        },
+        "loss": {
+          "lower": 0,
+          "upper": 0,
+          "unit": "violations"
+        },
+        "output": {
+          "artifactDigest": "2c1d955c816e1806f6fd3913240ece124290f9c84c849bb6b8123b6db7481d1e",
+          "environmentDigest": "e9108bdb96b6bb1bcc4f2e5b96db73e2bfc313a7f2464824f459cd013d1a7d0e",
+          "renderDigest": "9053b194b529a72599812cf5fdbfe81145991cf8f8026bb54ce6209c0b89a94c",
+          "policyDigest": "07b169c1324b88d4175c94de1fa545ae447aee4c39236cfd1deffd4fed09edd3",
+          "collectorDigest": "5a31ecd195dded51f2851702f2309d04e82a8e738ce92d419f0f05dc6d5a0092"
+        },
+        "outputEvidence": {
+          "assertionId": "surface.inventory",
+          "evaluatorDigest": "58eb019dece6c813f93f29073d33400ca9018543cd064a25e895956abce4895f",
+          "inputDigest": "334da0055152a2bdf1c5967b5a03cbf8a8e9ba3313543f309e93744775187113",
+          "schemaDigest": "05fe4842761332cf95dced645533f3652a972b12a7fbcd9a7dff9f2aa3fd3ace",
+          "valueDigest": "05f125763d6904f4c2aedb1f54ee57684f445ba5075cd1bf50848ab4032371af",
+          "value": {
+            "artifactDigest": "2c1d955c816e1806f6fd3913240ece124290f9c84c849bb6b8123b6db7481d1e",
+            "environmentDigest": "e9108bdb96b6bb1bcc4f2e5b96db73e2bfc313a7f2464824f459cd013d1a7d0e",
+            "renderDigest": "9053b194b529a72599812cf5fdbfe81145991cf8f8026bb54ce6209c0b89a94c",
+            "policyDigest": "07b169c1324b88d4175c94de1fa545ae447aee4c39236cfd1deffd4fed09edd3",
+            "collectorDigest": "5a31ecd195dded51f2851702f2309d04e82a8e738ce92d419f0f05dc6d5a0092"
+          },
+          "dependencies": [],
+          "digest": "065eeaf309943fb5ee8b24ad5d143f27e86273048891199e4daba19ed2baa8c4"
+        },
+        "assertionId": "surface.inventory",
+        "inputDigest": "334da0055152a2bdf1c5967b5a03cbf8a8e9ba3313543f309e93744775187113"
+      },
+      {
+        "status": "pass",
+        "findings": [],
+        "evidence": [
+          "surface:9053b194b529a72599812cf5fdbfe81145991cf8f8026bb54ce6209c0b89a94c",
+          "policy:07b169c1324b88d4175c94de1fa545ae447aee4c39236cfd1deffd4fed09edd3",
+          "collector:5a31ecd195dded51f2851702f2309d04e82a8e738ce92d419f0f05dc6d5a0092"
+        ],
+        "actualCost": {
+          "evaluations": 1
+        },
+        "loss": {
+          "lower": 0,
+          "upper": 0,
+          "unit": "violations"
+        },
+        "output": {
+          "artifactDigest": "2c1d955c816e1806f6fd3913240ece124290f9c84c849bb6b8123b6db7481d1e",
+          "environmentDigest": "e9108bdb96b6bb1bcc4f2e5b96db73e2bfc313a7f2464824f459cd013d1a7d0e",
+          "renderDigest": "9053b194b529a72599812cf5fdbfe81145991cf8f8026bb54ce6209c0b89a94c",
+          "policyDigest": "07b169c1324b88d4175c94de1fa545ae447aee4c39236cfd1deffd4fed09edd3",
+          "collectorDigest": "5a31ecd195dded51f2851702f2309d04e82a8e738ce92d419f0f05dc6d5a0092"
+        },
+        "outputEvidence": {
+          "assertionId": "surface.total-budget",
+          "evaluatorDigest": "77e515b9417758bdd3be4b2b035dffa50f5d0e7ee0d056aaa800ea04ec25433d",
+          "inputDigest": "334da0055152a2bdf1c5967b5a03cbf8a8e9ba3313543f309e93744775187113",
+          "schemaDigest": "05fe4842761332cf95dced645533f3652a972b12a7fbcd9a7dff9f2aa3fd3ace",
+          "valueDigest": "05f125763d6904f4c2aedb1f54ee57684f445ba5075cd1bf50848ab4032371af",
+          "value": {
+            "artifactDigest": "2c1d955c816e1806f6fd3913240ece124290f9c84c849bb6b8123b6db7481d1e",
+            "environmentDigest": "e9108bdb96b6bb1bcc4f2e5b96db73e2bfc313a7f2464824f459cd013d1a7d0e",
+            "renderDigest": "9053b194b529a72599812cf5fdbfe81145991cf8f8026bb54ce6209c0b89a94c",
+            "policyDigest": "07b169c1324b88d4175c94de1fa545ae447aee4c39236cfd1deffd4fed09edd3",
+            "collectorDigest": "5a31ecd195dded51f2851702f2309d04e82a8e738ce92d419f0f05dc6d5a0092"
+          },
+          "dependencies": [],
+          "digest": "17ac4d0edfd6215220ed543c7f80d987ef48b774b3196b9b9482343b342dbb02"
+        },
+        "assertionId": "surface.total-budget",
+        "inputDigest": "334da0055152a2bdf1c5967b5a03cbf8a8e9ba3313543f309e93744775187113"
+      },
+      {
+        "status": "pass",
+        "findings": [],
+        "evidence": [
+          "surface:9053b194b529a72599812cf5fdbfe81145991cf8f8026bb54ce6209c0b89a94c",
+          "policy:07b169c1324b88d4175c94de1fa545ae447aee4c39236cfd1deffd4fed09edd3",
+          "collector:5a31ecd195dded51f2851702f2309d04e82a8e738ce92d419f0f05dc6d5a0092"
+        ],
+        "actualCost": {
+          "evaluations": 1
+        },
+        "loss": {
+          "lower": 0,
+          "upper": 0,
+          "unit": "violations"
+        },
+        "output": {
+          "artifactDigest": "2c1d955c816e1806f6fd3913240ece124290f9c84c849bb6b8123b6db7481d1e",
+          "environmentDigest": "e9108bdb96b6bb1bcc4f2e5b96db73e2bfc313a7f2464824f459cd013d1a7d0e",
+          "renderDigest": "9053b194b529a72599812cf5fdbfe81145991cf8f8026bb54ce6209c0b89a94c",
+          "policyDigest": "07b169c1324b88d4175c94de1fa545ae447aee4c39236cfd1deffd4fed09edd3",
+          "collectorDigest": "5a31ecd195dded51f2851702f2309d04e82a8e738ce92d419f0f05dc6d5a0092"
+        },
+        "outputEvidence": {
+          "assertionId": "surface.novel-budget",
+          "evaluatorDigest": "be5f9de8c75ad583fd4bc6e6557f61b3401c906fd2bfd6d357a5ea325486c892",
+          "inputDigest": "334da0055152a2bdf1c5967b5a03cbf8a8e9ba3313543f309e93744775187113",
+          "schemaDigest": "05fe4842761332cf95dced645533f3652a972b12a7fbcd9a7dff9f2aa3fd3ace",
+          "valueDigest": "05f125763d6904f4c2aedb1f54ee57684f445ba5075cd1bf50848ab4032371af",
+          "value": {
+            "artifactDigest": "2c1d955c816e1806f6fd3913240ece124290f9c84c849bb6b8123b6db7481d1e",
+            "environmentDigest": "e9108bdb96b6bb1bcc4f2e5b96db73e2bfc313a7f2464824f459cd013d1a7d0e",
+            "renderDigest": "9053b194b529a72599812cf5fdbfe81145991cf8f8026bb54ce6209c0b89a94c",
+            "policyDigest": "07b169c1324b88d4175c94de1fa545ae447aee4c39236cfd1deffd4fed09edd3",
+            "collectorDigest": "5a31ecd195dded51f2851702f2309d04e82a8e738ce92d419f0f05dc6d5a0092"
+          },
+          "dependencies": [],
+          "digest": "5640fca93eeaed3ef178e23e8b7ad87cb551dad2291c2ee5be732b8759ba9796"
+        },
+        "assertionId": "surface.novel-budget",
+        "inputDigest": "334da0055152a2bdf1c5967b5a03cbf8a8e9ba3313543f309e93744775187113"
+      }
+    ],
+    "budget": {
+      "limits": {
+        "evaluations": 4
+      },
+      "spent": {
+        "evaluations": 4
+      },
+      "reserved": {},
+      "exceeded": false
+    }
+  }
+}

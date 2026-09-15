@@ -6,7 +6,7 @@ Composable quality assertions, documented guarantees, and budgeted improvement l
 
 The core composes independently maintained assertion modules into required/advisory gates. It provides assertion cards, a discoverable taxonomy, independent cost units, finite decision-value calculations, conservative nudge conflict handling, admission with deadbands/cooldowns/cycle detection, calibration primitives, and optional repair orchestration.
 
-The API is experimental (`2.0.0-dev.2`). The [consumer API review](docs/v2/API-REVIEW.md) records remaining requirements before stabilization. The [directed work graph](docs/work/README.md) links implementation, validation and release dependencies; [graph.json](docs/work/graph.json) is its machine-readable source.
+The API is a development release (`2.0.0-dev.3`). The [combined API audit](docs/v2/STABLE-API-AUDIT.md) records the hardened public contracts, verified execution scope and compatibility policy. The [directed work graph](docs/work/README.md) links implementation, validation and release dependencies; [graph.json](docs/work/graph.json) is its machine-readable source.
 
 ```sh
 npm ci
@@ -35,6 +35,6 @@ The communication example is a synthetic integration fixture. A passing fixture 
 
 The core does not install or re-export these external implementations. Software-specific imports and the old `quality-gate` CLI move to their owner; see the [migration guide](docs/v2/MIGRATION.md). Public Git repositories are available as source checkouts; this change does not publish new npm registry versions.
 
-Start with the [v2 guide](docs/v2/README.md), [calibration protocol](docs/v2/CALIBRATION.md), [repair orchestration](docs/v2/REMEDIATION.md), and [validation record](docs/v2/VALIDATION.md). The [legacy software documentation](https://github.com/andrew-templeton/quality-sgd-software) explains the original metric and rule APIs.
+Start with the [v2 guide](docs/v2/README.md), [workflow composition](docs/v2/WORKFLOWS.md), [assertion context](docs/v2/ASSERTION-CONTEXT.md), and [validation record](docs/v2/VALIDATION.md). The [communication example](docs/v2/COMMUNICATION.md) combines source, browser and audience/task contracts; the [finite decision program](docs/v2/DECISION-PROGRAM.md) records bounded calibration, conflicts and costs. The [legacy software documentation](https://github.com/andrew-templeton/quality-sgd-software) explains the original metric and rule APIs.
 
 A composed pass means that the required predicates and their prerequisites passed under their declared assumptions. It does not establish universal adequacy, independent confidence, or guaranteed convergence. The historical [theory](docs/theory/CLAIMS.md) and [paper](paper/quality-gate-sgd.tex) remain research context; software implementation references now belong to the external software repository.

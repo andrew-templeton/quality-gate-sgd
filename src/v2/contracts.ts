@@ -186,7 +186,7 @@ export interface AssertionContract {
 }
 export function evaluatorIdentity(contract: Omit<AssertionContract, 'evaluatorDigest'> | AssertionContract): string {
   return digest({ protocol: contract.protocol, implementation: contract.implementation, configuration: contract.configuration, applicability: contract.applicability, statementDigest: contract.statementDigest, input: contract.input,
-    ...(contract.output ? { output: contract.output } : {}), ...(contract.prerequisites ? { prerequisites: contract.prerequisites } : {}) });
+    ...(Object.hasOwn(contract, 'output') ? { output: contract.output } : {}), ...(Object.hasOwn(contract, 'prerequisites') ? { prerequisites: contract.prerequisites } : {}) });
 }
 export function assertionStatement(card: AssertionCard): string {
   return digest({ id: card.id, claim: card.claim, evidenceKind: card.evidenceKind, assumptions: card.assumptions,
@@ -201,9 +201,9 @@ export function validateAssertionContract(contract: AssertionContract): void {
   requireThat(/^[a-f0-9]{64}$/.test(contract.implementation.digest), 'Implementation digest must be SHA-256');
   requireThat(/^[a-f0-9]{64}$/.test(contract.statementDigest), 'Statement digest must be SHA-256');
   validateInputContract(contract.input);
-  if (contract.output) validateOutputContract(contract.output);
-  if (contract.prerequisites) {
-    requireThat(typeof contract.prerequisites === 'object' && !Array.isArray(contract.prerequisites), 'Prerequisite bindings must be a record');
+  if (Object.hasOwn(contract, 'output')) validateOutputContract(contract.output as OutputContract);
+  if (Object.hasOwn(contract, 'prerequisites')) {
+    requireThat(contract.prerequisites !== null && typeof contract.prerequisites === 'object' && !Array.isArray(contract.prerequisites), 'Prerequisite bindings must be a record');
     for (const [name, prerequisite] of Object.entries(contract.prerequisites)) {
       text(name, 'Prerequisite binding name'); fields(prerequisite, ['assertionId', 'output'], 'Prerequisite binding');
       text(prerequisite.assertionId, 'Prerequisite assertion'); validateOutputContract(prerequisite.output);
@@ -230,7 +230,7 @@ export function defineAssertion<C, I, O = unknown, P extends Record<string, Prer
   digest(definition.card);
   const supplied = { protocol: 'quality-sgd.assertion/v1' as const, implementation: definition.implementation,
     configuration: definition.configuration, applicability: definition.applicability, statementDigest: assertionStatement(definition.card), input: definition.input,
-    ...(definition.output ? { output: definition.output } : {}), ...(definition.prerequisites ? { prerequisites: definition.prerequisites } : {}) };
+    ...(Object.hasOwn(definition, 'output') ? { output: definition.output } : {}), ...(Object.hasOwn(definition, 'prerequisites') ? { prerequisites: definition.prerequisites } : {}) };
   digest(supplied); // Validate before cloning can erase unsupported metadata or execute accessors.
   const body = freezeJson(structuredClone(supplied));
   const contract = freezeJson({ ...body, evaluatorDigest: evaluatorIdentity(body) });
@@ -251,8 +251,12 @@ export function defineAssertion<C, I, O = unknown, P extends Record<string, Prer
 
 export function validateOutputEvidence(evidence: OutputEvidence): void {
   digest(evidence);
+  fields(evidence, ['assertionId', 'evaluatorDigest', 'inputDigest', 'schemaDigest', 'valueDigest', 'dependencies', 'value', 'digest'], 'Output evidence');
   const { digest: expected, ...body } = evidence;
   requireThat(expected === digest(body) && evidence.valueDigest === digest(evidence.value), 'Output evidence integrity mismatch');
   for (const name of ['assertionId', 'evaluatorDigest', 'inputDigest', 'schemaDigest'] as const) text(evidence[name], `Output ${name}`);
   unique(evidence.dependencies, 'Output dependency digests');
+  for (const value of [evidence.evaluatorDigest, evidence.inputDigest, evidence.schemaDigest, evidence.valueDigest, ...evidence.dependencies]) {
+    requireThat(/^[a-f0-9]{64}$/.test(value), 'Output identities must be SHA-256 digests');
+  }
 }

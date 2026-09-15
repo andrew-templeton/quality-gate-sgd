@@ -1,0 +1,86 @@
+{
+  "scope": "Controlled synthetic JavaScript patches, actual ESLint and behavior subprocesses. No model repair or human study.",
+  "hostContractDigest": "26e1c8c4e6a6939450467772f388c86e91d596e8031743231ce12155edb0f2cc",
+  "disabledWithoutExplicitEnablement": "disabled",
+  "independentCandidateWorkspaces": 2,
+  "baselineUnchanged": true,
+  "diagnosticTextExecuted": false,
+  "behaviorCases": [
+    {
+      "sourceDigest": "1cc050d2c05c905c40c541436585642998b7860bed7be0b2c831ca0a9e1603d0",
+      "actual": [
+        20,
+        120,
+        220,
+        10020
+      ],
+      "expected": [
+        20,
+        120,
+        220,
+        10020
+      ],
+      "status": "pass"
+    },
+    {
+      "sourceDigest": "0b3810ee278a238b59b2f1b4eda720074313a964e4ff37d730c20bc45f5e31ad",
+      "actual": [
+        0,
+        100,
+        200,
+        10000
+      ],
+      "expected": [
+        20,
+        120,
+        220,
+        10020
+      ],
+      "status": "fail"
+    },
+    {
+      "sourceDigest": "b0b7b15acc0946287054f7bcdbe5a4ca7533cc50f8f2a7f2441945f7fdb89814",
+      "actual": [
+        20,
+        120,
+        220,
+        10020
+      ],
+      "expected": [
+        20,
+        120,
+        220,
+        10020
+      ],
+      "status": "pass"
+    }
+  ],
+  "admissions": [
+    {
+      "round": 1,
+      "phase": "admission",
+      "status": "rejected",
+      "reason": "Required assertion regressed: fixture.charge-behavior",
+      "artifactDigest": "ef27e1c54b8b3c101cd98a55bcf56d27713f2c743cbe344addd3f46cb9bb4e78",
+      "nudgeId": "superficial"
+    },
+    {
+      "round": 2,
+      "phase": "admission",
+      "status": "accepted",
+      "reason": "Hard defect repaired without required regressions",
+      "artifactDigest": "203d6a311e59d3e15e0c5c6526ae7dcaa162f42aad87b9a9a57af43b8fdb31a5",
+      "nudgeId": "faithful"
+    }
+  ],
+  "spent": {
+    "collections": 3,
+    "evaluations": 6,
+    "behaviorProcesses": 3,
+    "proposals": 2,
+    "repairProcesses": 2
+  },
+  "rounds": 2,
+  "finalVerdict": "pass",
+  "limitation": "Passing applies to the selected lint rule and four registered inputs; it is not whole-program correctness or an estimated repair success rate."
+}

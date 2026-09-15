@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { BudgetLedger, DurableRun, bindInput, compileGate, defineAssertion, defineOutput, digest, evaluateGate, fromAssertion, schema } from '../../src/v2/index.js';
+import { BudgetLedger, DurableRun, bindInput, compileGate, defineAssertion, defineOutput, digest, evaluateGate, fromAssertion, schema, validateOutputEvidence } from '../../src/v2/index.js';
 import type { Assertion, AssertionCard, Observation } from '../../src/v2/index.js';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -30,6 +30,13 @@ const compile = (assertions: Assertion[], required = ['double']) => compileGate(
 const context = (values = [2, 3]) => ({ artifact: { id: 'fixture', digest: digest(values), data: { values } }, environmentDigest: 'environment', available: { schemas: ['fixture.amounts@1'], capabilities: [] } });
 
 describe('typed prerequisite evidence', () => {
+  it('rejects self-consistent stored envelopes with undeclared fields or malformed identity types', () => {
+    const body = { assertionId: 'sum', evaluatorDigest: digest('evaluator'), inputDigest: digest('input'), schemaDigest: digest('schema'), valueDigest: digest(5), value: 5, dependencies: [] };
+    for (const changed of [{ ...body, ignored: 'extra' }, { ...body, evaluatorDigest: 'old-version' }, { ...body, dependencies: ['somewhere'] }]) {
+      expect(() => validateOutputEvidence({ ...changed, digest: digest(changed) })).toThrow();
+    }
+    expect(() => validateOutputEvidence({ ...body, digest: digest(body) })).not.toThrow();
+  });
   it('hands validated frozen data downstream with current producer, schema, input and dependency identities', async () => {
     const { first, second, produce, consume } = pair();
     const result = await evaluateGate(compile([first, second]), context(), new BudgetLedger({ evaluations: 2 }));
