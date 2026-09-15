@@ -1,10 +1,29 @@
 # quality-gate-sgd
 
-> Deterministic quality gates for stochastic gradient descent behavior from LLM agents
+> Composable quality assertions, documented guarantees, and budgeted improvement loops.
+
+## V2 development preview
+
+V2 composes versioned assertion modules into an explicit required/advisory gate. Each assertion carries an input contract, assumptions, guarantees, limits, calibration evidence, cost bounds and optional remediation. Isogloss can supply one legibility facet inside a broader communication composition; SonarQube can supply one code-quality facet.
+
+The new engine includes a discoverable assertion taxonomy, nested composition, independent cost units, decision-value calculations, partial resolution of conflicting nudges, deadbands/cooldowns/cycle detection, blinded calibration primitives and optional repair harnesses. Missing evidence never becomes a passing score. These mechanisms do not establish universal adequacy or guarantee convergence.
+
+Start with the [v2 guide](docs/v2/README.md), [calibration protocol](docs/v2/CALIBRATION.md), and [synthetic communication example](examples/v2/communication.mjs). The legacy API remains available; import `v2` from the root package or use the separate CLI:
+
+```sh
+npm ci
+npm run build
+npm run test:v2
+node dist/v2/cli.js zoo
+node dist/v2/cli.js card examples/v2/communication.mjs
+node dist/v2/cli.js run examples/v2/communication.mjs
+```
+
+The material below describes the original code-quality engine and its research motivation. Its gradient-descent analogy is a hypothesis about discrete guided search, not a proof that arbitrary LLM edits implement mathematical SGD.
 
 ## The Core Insight
 
-**The way to get deterministic results from a stochastic work unit (like an LLM) is to make the exit gate on the process (more) deterministic.**
+**A reproducible exit gate can constrain which stochastic proposals are accepted. It does not make the generated result deterministic.**
 
 This package provides quality gates that create **gradient descent-like behavior** for LLM coding agents. When an agent iteratively fixes code to pass quality gates, it naturally descends toward higher quality solutions-without explicit optimization algorithms.
 
@@ -24,7 +43,7 @@ For gradient descent behavior to emerge from deterministic gates, three properti
    - No discontinuous cliffs
    - Following feedback improves scores
 
-When these properties hold, an LLM agent iterating against quality gates exhibits **stochastic gradient descent** behavior-the agent's inherent randomness provides exploration, while the deterministic gates provide the descent direction.
+These properties motivate guided iterative search: the agent proposes changes and the gate measures their effects. Whether that improves real task outcomes, at what cost, and under which assumptions remains an empirical question.
 
 ## Installation
 

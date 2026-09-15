@@ -11,6 +11,8 @@
  * - Dependency graph analysis for test prioritization
  * - Priority computation for LLM agent guidance
  */
+/** Opt-in compositional assertion engine. Legacy API remains available. */
+export * as v2 from './v2/index.js';
 // =============================================================================
 // Configuration
 // =============================================================================

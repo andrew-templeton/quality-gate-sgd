@@ -7,12 +7,19 @@
 import { getAllDimensions } from '../dimensions/index.js';
 import { loadRules } from '../rules.js';
 import { getDefaultFitnessConfig } from '../fitness.js';
+import { ASSERTION_ZOO } from '../v2/catalog.js';
 
 // =============================================================================
 // Resource Definitions
 // =============================================================================
 
 export const RESOURCES = [
+  {
+    uri: 'quality://v2/assertion-zoo',
+    name: 'V2 Assertion Taxonomy and Composition Contract',
+    description: 'Discover assertion families and the guarantees required of interoperable quality modules.',
+    mimeType: 'application/json',
+  },
   {
     uri: 'quality://dimensions',
     name: 'Available Dimensions',
@@ -248,7 +255,7 @@ These define the feasible region. The fitness function guides within this region
 Monotonic rules create a partial ordering in quality space:
 - q₁ ≤ q₂ if all monotonic dimensions improve or stay same
 - Progress is irreversible (ratchet effect)
-- Guarantees convergence (no cycles)
+- Strict improvement under fixed metrics rules out repeating an observed quality state; it does not guarantee termination or semantic correctness
 
 ## Fitness Landscape
 
@@ -281,6 +288,13 @@ export function readResource(uri: string): {
   contents: Array<{ uri: string; mimeType: string; text: string }>;
 } | undefined {
   switch (uri) {
+    case 'quality://v2/assertion-zoo':
+      return { contents: [{ uri, mimeType: 'application/json', text: JSON.stringify({ schemaVersion: 2, families: ASSERTION_ZOO,
+        cardFields: ['id', 'version', 'path', 'input', 'claim', 'evidenceKind', 'assumptions', 'guarantees', 'doesNotGuarantee', 'requires', 'costUpperBound', 'calibration', 'remediation'],
+        outputSchema: 'quality-sgd Observation v2: status, addressed findings, evidence, optional loss bounds with unit, actual cost by unit',
+        composition: 'Required predicates and prerequisites form a conjunction. Advisory checks cannot offset a failure. Missing evidence is unavailable. No composite confidence is inferred.',
+        use: 'Use the v2 library compileGate/discoverAssertions/modelCard, or quality-gate-v2 zoo/card/run.',
+      }, null, 2) }] };
     case 'quality://dimensions':
       return handleDimensionsResource();
     case 'quality://rules':

@@ -11,6 +11,8 @@
  * - Dependency graph analysis for test prioritization
  * - Priority computation for LLM agent guidance
  */
+/** Opt-in compositional assertion engine. Legacy API remains available. */
+export * as v2 from './v2/index.js';
 export type { QualityGateCache, CacheEntry, Metrics, AllCoverageMetrics, CoverageMetrics, TypescriptMetrics, EslintMetrics, SonarqubeMetrics, BundleMetrics, RootCause, RootCauseGroup, QualityRules, MonotonicRule, EvaluationResult, FailedRule, FileInfo, OptimizationConfig, PriorityWeights, PrioritizedFile, } from './types.js';
 export { type QualityGateConfig, getConfig, loadConfig, resetConfig, getSonarAuthToken, getSonarCurlAuth, } from './config.js';
 export { loadRules, computeRulesHash, evaluateRules, isCacheValid, isUsingEmbeddedDefaults, type LoadRulesOptions, } from './rules.js';

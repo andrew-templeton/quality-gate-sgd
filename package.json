@@ -1,12 +1,13 @@
 {
   "name": "quality-gate-sgd",
-  "version": "0.1.0",
-  "description": "Deterministic quality gates for stochastic gradient descent behavior from LLM agents",
+  "version": "2.0.0-dev.0",
+  "description": "Composable quality assertions, calibrated comparisons, and budgeted improvement loops",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "quality-gate": "./dist/cli.js"
+    "quality-gate": "./dist/cli.js",
+    "quality-gate-v2": "./dist/v2/cli.js"
   },
   "scripts": {
     "build": "tsc",
@@ -17,7 +18,8 @@
     "lint:fix": "eslint src/ tests/ --fix",
     "prepublishOnly": "npm run build",
     "quality-gate": "tsx src/cli.ts",
-    "list-issues": "tsx src/list-issues.ts"
+    "list-issues": "tsx src/list-issues.ts",
+    "test:v2": "vitest run tests/v2"
   },
   "keywords": [
     "quality",
@@ -30,7 +32,11 @@
     "gradient-descent",
     "code-quality",
     "ci",
-    "testing"
+    "testing",
+    "assertions",
+    "evaluation",
+    "calibration",
+    "legibility"
   ],
   "author": "Andrew Templeton",
   "license": "Apache-2.0",
@@ -50,7 +56,9 @@
     "templates",
     "scripts",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "docs/v2",
+    "examples/v2"
   ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.2",
