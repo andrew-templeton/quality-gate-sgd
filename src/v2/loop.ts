@@ -68,6 +68,7 @@ export async function runQualityLoop(options: QualityLoopOptions): Promise<Quali
   requireThat(options.admission.gate.required.length === gate.policy.required.length && options.admission.gate.required.every(id => gate.policy.required.includes(id)), 'Admission required assertions must match the compiled gate');
   unique(options.admission.gate.required, 'Admission required assertions');
   validateCost(options.proposalCostUpperBound);
+  budget.assertCovered(options.proposalCostUpperBound);
   const proposalTimeoutMs = options.proposalTimeoutMs ?? 30_000;
   const repairTimeoutMs = options.repairTimeoutMs ?? 60_000;
   for (const value of [proposalTimeoutMs, repairTimeoutMs]) requireThat(Number.isInteger(value) && value > 0 && value <= 2_147_483_647, 'Invalid loop timeout');

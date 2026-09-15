@@ -16,6 +16,8 @@ export class BudgetLedger {
     validateCost(cost);
     for (const unit of Object.keys(cost)) requireThat(Object.hasOwn(this.limits, unit), `No budget declared for ${unit}`);
   }
+  /** Validate a planned operation before any dispatch; this does not reserve or spend. */
+  assertCovered(cost: Cost): void { this.validateUnits(cost); }
   reserve(id: string, upperBound: Cost): boolean {
     text(id, 'Reservation ID'); this.validateUnits(upperBound);
     requireThat(!this.reservations.has(id), `Duplicate reservation ${id}`);

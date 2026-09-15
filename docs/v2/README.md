@@ -16,9 +16,15 @@ node dist/v2/cli.js discover examples/v2/communication.mjs legibility
 
 The example is a **synthetic engine integration fixture**. Its supplied render report is not a real browser capture. Passing it checks composition and accounting, not real-world visual quality.
 
+## Repository and module ownership
+
+Quality-SGD owns the shared assertion contracts, composition, budgets, calibration primitives and candidate admission policy. Verifier implementations and their domain-specific integrations can be maintained and versioned independently. Their module cards describe the exact implementation version, input contract, guarantees and evidence that a composition relies on.
+
+[Isogloss](https://github.com/andrew-templeton/isogloss/tree/codex/quality-sgd-module-example/integrations/quality-sgd) is the default external module example. Its implementation and Quality-SGD integration belong in the Isogloss repository. The core does not bundle Isogloss, install it automatically or expose an Isogloss-specific API. A caller supplies external modules through the same `AssertionModule` contract as any other verifier. The linked integration is currently an [Isogloss draft PR](https://github.com/andrew-templeton/isogloss/pull/1); pin a reviewed commit when consuming it.
+
 ## A module is one facet, not the whole objective
 
-A communication gate might include source fidelity, numerical correctness, reader-specific language, rendered geometry, and comprehension. Isogloss is a useful language/legibility facet within that composition. Its text-fold counter does not replace the other assertions.
+A communication gate might include source fidelity, numerical correctness, reader-specific language, rendered geometry, and comprehension. An external Isogloss module can contribute a language/legibility facet within that composition. A text-fold counter does not replace the other assertions.
 
 Likewise, a SonarQube report contributes evidence about listed code issues. A successful scan is not proof of semantic correctness. A module's card states the precise predicate, assumptions, unsupported conclusions, scope, input contracts, prerequisites, cost bounds, evaluator qualification and optional remedy.
 
@@ -37,7 +43,7 @@ The taxonomy is hierarchical and extensible by adding subpaths under these famil
 | Decision / utility | Which assessment changes the best action enough to pay for itself? | Conditional on supplied states, priors, likelihoods and utility. |
 | Control / reliability | Is this evidence current and reliable enough to authorize an update? | Requires an appropriate population and calibration protocol. |
 
-These are kinds of assertions, not a ranking of proof strength. The initial executable adapters are rendered geometry/fold reports, Isogloss text folds and SonarQube reports. Other families are extension points; their existence in the taxonomy does not imply a shipped validated verifier.
+These are kinds of assertions, not a ranking of proof strength. The initial executable report adapters in this repository cover rendered geometry/fold reports and SonarQube reports. Other families are extension points; their existence in the taxonomy does not imply a shipped validated verifier.
 
 ## Composition and discoverability
 
@@ -48,7 +54,7 @@ import { v2 } from 'quality-gate-sgd';
 
 const gate = v2.compileGate(modules, ['communication'], {
   required: ['source.fidelity', 'render.geometry', 'render.fold-budget'],
-  advisory: ['isogloss.text-folds'],
+  advisory: ['reader.language'],
 });
 const card = v2.modelCard(gate);
 const result = await v2.evaluateGate(gate, {
@@ -57,7 +63,7 @@ const result = await v2.evaluateGate(gate, {
 }, new v2.BudgetLedger({ evaluations: 20, tokens: 100_000 }));
 ```
 
-The referenced IDs must exist in the supplied modules. `source.fidelity` above illustrates a caller-provided verifier, not a built-in semantic guarantee.
+The referenced IDs must exist in the supplied modules. `source.fidelity` and `reader.language` above illustrate caller-provided verifiers. The engine supplies neither a built-in semantic guarantee nor a language verifier under those IDs.
 
 `discoverAssertions` matches declared input schema IDs and capabilities and supports a local text query. It reports missing inputs explicitly. A signature match identifies a candidate module; the runner still has to validate the actual data, assumptions and scope. A card's fixed output contract is `Observation`: status, addressed findings, evidence, optional loss bounds with units, and actual cost.
 
@@ -93,17 +99,13 @@ These mechanisms prevent several forms of chattering and cycling. They do not gu
 
 ## Adapters and execution boundary
 
-`renderedLegibilityModule` consumes a current render report with exact required view/state coverage, screenshot identity, addressed geometry defects and total/novel fold inventories. It verifies the report's relationships and caps. The caller supplies the browser collector and semantic inventory; this package does not yet detect all overlaps or count concepts automatically.
+`renderedLegibilityModule(read, policy, cost?)` consumes a current render report with screenshot identity, addressed geometry defects and total/novel fold inventories. The operator supplies required views/states and their caps separately, as `{ version, views: [{ id, maxTotal, maxNovel }] }`. The factory snapshots that policy and binds it into module and assertion identities. Candidate measurements cannot supply caps or redefine required views. Changing a requirement changes the contract and requires rebaselining.
 
-`isoglossModule` accepts an injected engine exposing `foldReport`. Configuration and engine version are bound into the assertion version. The adapter uses the real implementation when provided, disables diagram absorption credit, and explicitly reports text-proxy limitations. To run the example with an existing local build:
+The adapter checks exact policy-required view coverage and the report's relationships and caps. The caller supplies the browser collector and semantic inventory; this package does not yet detect all overlaps or count concepts automatically. See the [consumer API review](API-REVIEW.md) for remaining interoperability requirements.
 
-```sh
-ISOGLOSS_MODULE=/absolute/path/to/isogloss/dist/index.js \
-ISOGLOSS_VERSION=your-build-version \
-node dist/v2/cli.js run examples/v2/communication.mjs
-```
+For the default external language/legibility example, see [Isogloss](https://github.com/andrew-templeton/isogloss/tree/codex/quality-sgd-module-example/integrations/quality-sgd). Follow that repository's integration instructions and supply its module alongside the other modules in your composition. An external module must bind its implementation version and relevant configuration into the assertion identity, state its text-proxy limitations, and preserve the engine's evidence and cost contracts.
 
-`sonarqubeModule` consumes an explicitly complete report bound to the current artifact. `sonarNudges` emits per-issue instructions and optional harness metadata. The report adapter does not silently launch a server scan. Callers can reuse the legacy scan client, fetch all required pages, and bind that result to the artifact revision.
+`sonarqubeModule` consumes an explicitly complete report bound to the current artifact. `sonarNudges` emits per-issue instructions and optional harness metadata. The caller must establish successful collection, fetch all required pages, and bind the report to the artifact revision before declaring it complete. Legacy collectors and ceiling rules are not qualified v2 evidence sources; their compatibility behavior must not be taken as proof of successful, complete collection.
 
 Repair harnesses and the bounded loop are optional library integrations; see [the executable loop and harness examples](REMEDIATION.md). Enabling a named harness is explicit; the default does not execute one. Repair output must be evaluated again before admission. Module configuration files are trusted executable local code, not sandboxed data. No assertion or remediation prompt should be allowed to enlarge its own execution privileges.
 

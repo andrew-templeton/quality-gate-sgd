@@ -29,7 +29,9 @@ export declare function runSonarqubeScan(): {
     success: boolean;
     error?: string;
 };
+/** Throws if the command did not complete or failed without usable TypeScript diagnostics. */
 export declare function extractTypescriptMetrics(): TypescriptMetrics;
+/** Throws on incomplete collection or malformed reports; exit 1 with valid diagnostics remains a measurement. */
 export declare function extractEslintMetrics(): EslintMetrics;
 export declare function runScript(script: string): 'pass' | 'fail';
 export declare function runScripts(scripts: string[]): Record<string, 'pass' | 'fail'>;

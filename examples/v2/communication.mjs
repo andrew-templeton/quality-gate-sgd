@@ -1,11 +1,12 @@
 // Synthetic plumbing demonstration. The supplied render report is a fixture, not a browser capture.
-import { pathToFileURL } from 'node:url';
-import { digest, renderedLegibilityModule, isoglossModule } from '../../dist/v2/index.js';
+import { digest, renderedLegibilityModule } from '../../dist/v2/index.js';
 
 const content = { text: 'Expected savings are $100. Implementation costs $20. Net benefit is $80 if the proposed change works.', savings: 100, cost: 20, net: 80 };
 const artifactDigest = digest(content);
 const environmentDigest = digest({ source: content, audience: 'synthetic business reader', view: 'fixture-only' });
-const render = { artifactDigest, environmentDigest, screenshotDigest: 'synthetic-fixture-not-a-browser-capture', requiredViews: ['overview/default'], views: [{ id: 'overview/default', defects: [], folds: [{ id: 'top', quanta: ['savings', 'cost', 'net', 'condition'], novel: [], unexplained: [], maxTotal: 4, maxNovel: 1 }] }] };
+const render = { artifactDigest, environmentDigest, screenshotDigest: 'synthetic-fixture-not-a-browser-capture', views: [{ id: 'overview/default', defects: [], folds: [{ id: 'top', quanta: ['savings', 'cost', 'net', 'condition'], novel: [], unexplained: [] }] }] };
+// Operator-owned requirements are outside the candidate artifact and become part of the gate contract.
+const renderPolicy = { version: 'synthetic-reader-v1', views: [{ id: 'overview/default', maxTotal: 4, maxNovel: 1 }] };
 
 const arithmetic = {
   id: 'business-arithmetic', version: '1', includes: [], assertions: [{
@@ -25,18 +26,12 @@ const arithmetic = {
     },
   }],
 };
-const modules = [arithmetic, renderedLegibilityModule(data => data.render)];
+const modules = [arithmetic, renderedLegibilityModule(data => data.render, renderPolicy)];
 const required = ['business.net', 'render.geometry', 'render.fold-budget'];
-// Optional local Isogloss build. Loading it invokes its real deterministic foldReport; no API calls.
-if (process.env.ISOGLOSS_MODULE) {
-  const engine = await import(pathToFileURL(process.env.ISOGLOSS_MODULE).href);
-  modules.push(isoglossModule(engine, { terms: [], cap: 4, foldWords: 180, engineVersion: process.env.ISOGLOSS_VERSION || 'local-explicit-build' }));
-  required.push('isogloss.text-folds');
-}
 modules.push({ id: 'communication', version: '1', includes: modules.map(module => module.id), assertions: [] });
 export default {
   modules, selected: ['communication'], policy: { required, advisory: [] },
   input: { artifact: { id: 'synthetic-business-case', digest: artifactDigest, data: { ...content, render } }, environmentDigest },
   budget: { evaluations: 8 },
-  available: { schemas: ['example.business-case/v1', 'quality-sgd.render-evidence/v2', 'quality-sgd.text/v1'], capabilities: ['render-capture', 'semantic-fold-inventory', 'audience-lexicon'] },
+  available: { schemas: ['example.business-case/v1', 'quality-sgd.render-evidence/v2'], capabilities: ['render-capture', 'semantic-fold-inventory'] },
 };

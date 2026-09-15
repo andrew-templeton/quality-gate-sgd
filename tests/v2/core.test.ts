@@ -6,7 +6,7 @@ import { evaluateGate } from '../../src/v2/evaluate.js';
 import { admitCandidate, initialLoopState, type AdmissionPolicy } from '../../src/v2/admission.js';
 import { assessExperiment, chooseAssessment, type DecisionModel, type AssessmentExperiment } from '../../src/v2/decision.js';
 import { planNudges } from '../../src/v2/nudges.js';
-import { isoglossModule, renderedLegibilityModule, sonarqubeModule, sonarNudges, type RenderEvidence, type SonarReport } from '../../src/v2/modules.js';
+import { renderedLegibilityModule, sonarqubeModule, sonarNudges, type RenderEvidence, type SonarReport } from '../../src/v2/modules.js';
 import { digest } from '../../src/v2/validation.js';
 import type { Assertion, AssertionCard, AssertionModule, Interval, Nudge, Observation } from '../../src/v2/types.js';
 
@@ -348,14 +348,15 @@ describe('finite decision value', () => {
 });
 
 describe('bundled assertion adapters', () => {
-  function render(): RenderEvidence { return { artifactDigest: 'rendered-artifact', environmentDigest: 'environment', screenshotDigest: 'screenshots', requiredViews: ['desktop:closed', 'mobile:expanded'], views: ['desktop:closed', 'mobile:expanded'].map(id => ({ id, defects: [], folds: [{ id: 'fold:0', quanta: ['price', 'condition'], novel: ['condition'], unexplained: [], maxTotal: 2, maxNovel: 1 }] })) }; }
+  function render(): RenderEvidence { return { artifactDigest: 'rendered-artifact', environmentDigest: 'environment', screenshotDigest: 'screenshots', views: ['desktop:closed', 'mobile:expanded'].map(id => ({ id, defects: [], folds: [{ id: 'fold:0', quanta: ['price', 'condition'], novel: ['condition'], unexplained: [] }] })) }; }
   async function evaluateRender(report: RenderEvidence) {
-    const compiled = compileGate([renderedLegibilityModule(() => report)], ['rendered-legibility'], { required: ['render.geometry', 'render.fold-budget'], advisory: [] });
+    const policy = { version: '1', views: ['desktop:closed', 'mobile:expanded'].map(id => ({ id, maxTotal: 2, maxNovel: 1 })) };
+    const compiled = compileGate([renderedLegibilityModule(() => report, policy)], ['rendered-legibility'], { required: ['render.geometry', 'render.fold-budget'], advisory: [] });
     return evaluateGate(compiled, { artifact: { id: 'page', digest: 'rendered-artifact', data: {} }, environmentDigest: 'environment' }, new BudgetLedger({ evaluations: 10 }));
   }
   it('checks all required rendered states and caps rather than only the first desktop view', async () => {
     const report = render(); expect((await evaluateRender(report)).status).toBe('pass');
-    report.views[1].folds[0].maxTotal = 1;
+    report.views[1].folds[0].quanta.push('risk');
     const overloaded = await evaluateRender(report); expect(overloaded.status).toBe('fail');
     expect(overloaded.results.flatMap(result => result.findings).map(finding => finding.address)).toContain('mobile:expanded/fold:0');
   });
@@ -368,19 +369,6 @@ describe('bundled assertion adapters', () => {
     const missing = render(); missing.views.pop(); expect((await evaluateRender(missing)).status).toBe('unavailable');
     const screenshot = render(); screenshot.screenshotDigest = ''; expect((await evaluateRender(screenshot)).status).toBe('unavailable');
     const invalid = render(); invalid.views[0].folds[0].novel = ['unlisted']; expect((await evaluateRender(invalid)).status).toBe('unavailable');
-  });
-  it('uses a versioned Isogloss engine and does not let mutable options change a compiled contract', async () => {
-    const options = { terms: ['entropy', 'causality'], cap: 1, foldWords: 100, engineVersion: '0.5.0' };
-    const engine = { foldReport: vi.fn((_text: string, terms: ReadonlySet<string>, config: { cap: number; foldWords: number }) => [{ index: 0, quanta: terms.size, cap: config.cap, overloaded: terms.size > config.cap }]) };
-    const compiled = compileGate([isoglossModule(engine, options)], ['isogloss'], { required: ['isogloss.text-folds'], advisory: [] });
-    options.cap = 100; options.terms.length = 0;
-    const result = await evaluateGate(compiled, input({ text: 'Entropy and causality.' }), new BudgetLedger({ evaluations: 10 }));
-    expect(result.status).toBe('fail'); expect(engine.foldReport).toHaveBeenCalledWith('Entropy and causality.', new Set(['entropy', 'causality']), { cap: 1, foldWords: 100 });
-    expect(compiled.assertions[0].card.doesNotGuarantee.join(' ')).toMatch(/comprehension/i);
-  });
-  it('rejects inconsistent Isogloss overload reports', async () => {
-    const compiled = compileGate([isoglossModule({ foldReport: () => [{ index: 0, quanta: 9, cap: 1, overloaded: false }] }, { terms: [], cap: 1, foldWords: 100, engineVersion: 'test' })], ['isogloss'], { required: ['isogloss.text-folds'], advisory: [] });
-    expect((await evaluateGate(compiled, input({ text: 'text' }), new BudgetLedger({ evaluations: 10 }))).status).toBe('unavailable');
   });
   it('converts current Sonar findings to addressed diagnostics and optional remediation metadata', async () => {
     const report: SonarReport = { artifactDigest: 'current', complete: true, issues: [{ key: 'issue-1', rule: 'typescript:S2259', component: 'src/order.ts', line: 12, message: 'Possible null dereference.' }] };

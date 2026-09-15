@@ -4,14 +4,11 @@ export interface FoldMeasurement {
     quanta: string[];
     novel: string[];
     unexplained: string[];
-    maxTotal: number;
-    maxNovel: number;
 }
 export interface RenderEvidence {
     artifactDigest: string;
     environmentDigest: string;
     screenshotDigest: string;
-    requiredViews: string[];
     views: {
         id: string;
         folds: FoldMeasurement[];
@@ -21,24 +18,16 @@ export interface RenderEvidence {
         }[];
     }[];
 }
-export declare function renderedLegibilityModule(read: (data: unknown) => RenderEvidence, suppliedCost?: Cost): AssertionModule;
-export interface IsoglossEngine {
-    foldReport(text: string, terms: ReadonlySet<string>, options: {
-        cap: number;
-        foldWords: number;
-    }): {
-        index: number;
-        quanta: number;
-        cap: number;
-        overloaded: boolean;
+/** Operator-owned requirements, supplied separately from candidate measurements. */
+export interface RenderPolicy {
+    version: string;
+    views: {
+        id: string;
+        maxTotal: number;
+        maxNovel: number;
     }[];
 }
-export declare function isoglossModule(engine: IsoglossEngine, supplied: {
-    terms: string[];
-    cap: number;
-    foldWords: number;
-    engineVersion: string;
-}, suppliedCost?: Cost): AssertionModule;
+export declare function renderedLegibilityModule(read: (data: unknown) => RenderEvidence, suppliedPolicy: RenderPolicy, suppliedCost?: Cost): AssertionModule;
 export interface SonarReport {
     artifactDigest: string;
     complete: boolean;

@@ -4,11 +4,15 @@
 
 ## V2 development preview
 
-V2 composes versioned assertion modules into an explicit required/advisory gate. Each assertion carries an input contract, assumptions, guarantees, limits, calibration evidence, cost bounds and optional remediation. Isogloss can supply one legibility facet inside a broader communication composition; SonarQube can supply one code-quality facet.
+V2 composes versioned assertion modules into an explicit required/advisory gate. Each assertion carries an input contract, assumptions, guarantees, limits, calibration evidence, cost bounds and optional remediation.
+
+This repository owns the engine's contracts, composition, budgets and candidate admission. Verifier implementations can live in independently versioned repositories. [Isogloss](https://github.com/andrew-templeton/isogloss/tree/codex/quality-sgd-module-example/integrations/quality-sgd) is the default external example: an audience-specific language/legibility tool that can contribute one facet to a broader communication gate. Its implementation and module integration belong in the Isogloss repository; they are not bundled here. SonarQube reports illustrate a code-quality facet.
 
 The new engine includes a discoverable assertion taxonomy, nested composition, independent cost units, decision-value calculations, partial resolution of conflicting nudges, deadbands/cooldowns/cycle detection, blinded calibration primitives and optional repair harnesses. Missing evidence never becomes a passing score. These mechanisms do not establish universal adequacy or guarantee convergence.
 
-Start with the [v2 guide](docs/v2/README.md), [calibration protocol](docs/v2/CALIBRATION.md), and [synthetic communication example](examples/v2/communication.mjs). The legacy API remains available; import `v2` from the root package or use the separate CLI:
+The API is experimental. The [consumer API review](docs/v2/API-REVIEW.md) records the tested boundaries and remaining requirements for stable interoperability: explicit implementation/configuration identity, executable typed inputs and durable run recovery.
+
+Start with the [v2 guide](docs/v2/README.md), [calibration protocol](docs/v2/CALIBRATION.md), and [synthetic communication example](examples/v2/communication.mjs). The legacy API remains available for compatibility, with the limitations recorded in the review; import `v2` from the root package or use the separate CLI:
 
 ```sh
 npm ci

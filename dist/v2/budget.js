@@ -15,6 +15,8 @@ export class BudgetLedger {
         for (const unit of Object.keys(cost))
             requireThat(Object.hasOwn(this.limits, unit), `No budget declared for ${unit}`);
     }
+    /** Validate a planned operation before any dispatch; this does not reserve or spend. */
+    assertCovered(cost) { this.validateUnits(cost); }
     reserve(id, upperBound) {
         text(id, 'Reservation ID');
         this.validateUnits(upperBound);

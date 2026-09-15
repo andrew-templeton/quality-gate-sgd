@@ -7,6 +7,8 @@ export declare class BudgetLedger {
     private overrun;
     constructor(limits: Cost);
     private validateUnits;
+    /** Validate a planned operation before any dispatch; this does not reserve or spend. */
+    assertCovered(cost: Cost): void;
     reserve(id: string, upperBound: Cost): boolean;
     settle(id: string, actual: Cost): void;
     /** Failed/unmetered work does not get a free refund. */

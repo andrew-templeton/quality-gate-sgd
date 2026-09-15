@@ -51,6 +51,14 @@ describe('bounded proposal/repair/evaluate/admit loop', () => {
     expect(result.stopReason).toBe('pass'); expect(result.rounds).toBe(0); expect(propose).not.toHaveBeenCalled(); expect(candidateGenerator).not.toHaveBeenCalled();
   });
 
+  it('rejects an undeclared proposal unit before spending on the baseline', async () => {
+    const propose = vi.fn();
+    const budget = new BudgetLedger({ evaluations: 20 });
+    await expect(runQualityLoop(fixture({ budget, propose }))).rejects.toThrow(/No budget declared for tokens/);
+    expect(budget.snapshot().spent).toEqual({});
+    expect(propose).not.toHaveBeenCalled();
+  });
+
   it('leaves registered external harnesses disabled and returns the proposed plan for review', async () => {
     const run = vi.fn(); const prepareWorkspace = vi.fn();
     const result = await runQualityLoop(fixture({ harnesses: [{ id: 'repairer', run }], prepareWorkspace }));

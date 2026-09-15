@@ -5,6 +5,7 @@
 import { spawnSync, execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
+import { stripVTControlCharacters } from 'node:util';
 import { getConfig, getSonarCurlAuth } from './config.js';
 import { extractAllCustomMetrics, registerCustomDimensions, } from './dimensions/index.js';
 /**
@@ -376,6 +377,17 @@ function countTypescriptRootCauses(errors) {
     }
     return rootCauses.size;
 }
+/** A failed collection is unavailable evidence, never an invented issue count. */
+function completedMetricProcess(collector, result) {
+    if (result.error) {
+        throw new Error(`${collector} metric collection failed: ${result.error.message}`, { cause: result.error });
+    }
+    if (result.signal || typeof result.status !== 'number' || !Number.isInteger(result.status) || result.status < 0) {
+        throw new Error(`${collector} metric collection did not complete${result.signal ? ` (${result.signal})` : ''}`);
+    }
+    return result.status;
+}
+/** Throws if the command did not complete or failed without usable TypeScript diagnostics. */
 export function extractTypescriptMetrics() {
     const config = getConfig();
     const result = spawnSync('npm', ['run', 'type-check'], {
@@ -384,16 +396,20 @@ export function extractTypescriptMetrics() {
         shell: true,
         timeout: 60000,
     });
-    const output = (result.stdout || '') + (result.stderr || '');
+    const status = completedMetricProcess('TypeScript', result);
+    const output = stripVTControlCharacters(`${result.stdout || ''}\n${result.stderr || ''}`);
     // Parse structured errors
     const errors = parseTypescriptErrors(output);
     // Also do simple regex count as fallback (for non-standard output formats)
-    const errorMatches = output.match(/error TS\d+/g) || [];
+    const errorMatches = output.match(/\berror TS\d+:\s*\S/g) || [];
     const rawCount = Math.max(errors.length, errorMatches.length);
+    if (status !== 0 && rawCount === 0) {
+        throw new Error(`TypeScript metric collection failed: npm run type-check exited with ${status} without usable TypeScript diagnostics`);
+    }
     return {
         errors: rawCount,
         warnings: 0, // TypeScript doesn't have warnings in strict mode
-        rootCauses: countTypescriptRootCauses(errors),
+        rootCauses: errors.length === rawCount ? countTypescriptRootCauses(errors) : undefined,
     };
 }
 /**
@@ -417,6 +433,26 @@ function countEslintRootCauses(results) {
     }
     return rootCauses.size;
 }
+function isEslintFileResult(value) {
+    if (!value || typeof value !== 'object' || Array.isArray(value))
+        return false;
+    const file = value;
+    if (typeof file.filePath !== 'string' || !file.filePath.trim()
+        || !Number.isSafeInteger(file.errorCount) || file.errorCount < 0
+        || !Number.isSafeInteger(file.warningCount) || file.warningCount < 0
+        || !Array.isArray(file.messages))
+        return false;
+    for (const message of file.messages) {
+        if (!message || typeof message !== 'object'
+            || !(message.ruleId === null || typeof message.ruleId === 'string')
+            || ![1, 2].includes(message.severity)
+            || typeof message.message !== 'string' || !message.message.trim())
+            return false;
+    }
+    return file.errorCount === file.messages.filter(message => message.severity === 2).length
+        && file.warningCount === file.messages.filter(message => message.severity === 1).length;
+}
+/** Throws on incomplete collection or malformed reports; exit 1 with valid diagnostics remains a measurement. */
 export function extractEslintMetrics() {
     const config = getConfig();
     const result = spawnSync('npx', ['eslint', '--format', 'json', 'src/'], {
@@ -425,29 +461,33 @@ export function extractEslintMetrics() {
         shell: true,
         timeout: 120000,
     });
+    const status = completedMetricProcess('ESLint', result);
+    if (status !== 0 && status !== 1) {
+        throw new Error(`ESLint metric collection failed: command exited with ${status}`);
+    }
+    if (typeof result.stdout !== 'string' || !result.stdout.trim()) {
+        throw new Error('ESLint metric collection failed: no JSON report was produced');
+    }
+    let parsed;
     try {
-        const output = result.stdout || '[]';
-        const results = JSON.parse(output);
-        let errors = 0;
-        let warnings = 0;
-        for (const r of results) {
-            errors += r.errorCount || 0;
-            warnings += r.warningCount || 0;
-        }
-        return {
-            errors,
-            warnings,
-            rootCauses: countEslintRootCauses(results),
-        };
+        parsed = JSON.parse(result.stdout);
     }
-    catch {
-        // If parsing fails, check exit code
-        return {
-            errors: result.status === 0 ? 0 : 1,
-            warnings: 0,
-            rootCauses: undefined, // Can't compute without parsed output
-        };
+    catch (error) {
+        throw new Error('ESLint metric collection failed: malformed JSON report', { cause: error });
     }
+    if (!Array.isArray(parsed) || parsed.length === 0 || !parsed.every(isEslintFileResult)) {
+        throw new Error('ESLint metric collection failed: expected a nonempty array of valid file reports with matching diagnostic counts');
+    }
+    const errors = parsed.reduce((sum, file) => sum + file.errorCount, 0);
+    const warnings = parsed.reduce((sum, file) => sum + file.warningCount, 0);
+    if (!Number.isSafeInteger(errors) || !Number.isSafeInteger(warnings)) {
+        throw new Error('ESLint metric collection failed: diagnostic totals exceed the supported integer range');
+    }
+    if (status === 1 && errors === 0 && warnings === 0) {
+        throw new Error('ESLint metric collection failed: command exited with 1 without lint diagnostics');
+    }
+    const hasUnattributedErrors = parsed.some(file => file.messages.some(message => message.severity === 2 && !message.ruleId));
+    return { errors, warnings, rootCauses: hasUnattributedErrors ? undefined : countEslintRootCauses(parsed) };
 }
 // =============================================================================
 // Script Execution

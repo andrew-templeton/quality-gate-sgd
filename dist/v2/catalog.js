@@ -83,8 +83,10 @@ export function compileGate(modules, selected, policy) {
     const moduleVersions = [...visited].map(id => `${id}@${registry.get(id)?.version}`);
     const copiedPolicy = freezeJson(structuredClone(policy));
     // Freeze metadata by copying it; registry callers cannot change a compiled contract after hashing.
-    const copied = order.map(assertion => ({ card: freezeJson(structuredClone(assertion.card)), evaluate: assertion.evaluate }));
-    return { modules: moduleVersions, assertions: copied, policy: copiedPolicy, digest: digest({ modules: moduleVersions, cards: copied.map(a => a.card), policy: copiedPolicy }) };
+    const copied = order.map(assertion => Object.freeze({ card: freezeJson(structuredClone(assertion.card)), evaluate: assertion.evaluate.bind(assertion) }));
+    Object.freeze(copied);
+    Object.freeze(moduleVersions);
+    return Object.freeze({ modules: moduleVersions, assertions: copied, policy: copiedPolicy, digest: digest({ modules: moduleVersions, cards: copied.map(a => a.card), policy: copiedPolicy }) });
 }
 /** Local metadata discovery. A declaration match is a candidate for validation, not proof of semantic compatibility. */
 export function discoverAssertions(modules, available, query = '') {

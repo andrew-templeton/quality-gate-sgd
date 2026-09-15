@@ -5,6 +5,7 @@ export async function evaluateGate(gate, input, budget, options = {}) {
     text(input.artifact.digest, 'Artifact digest');
     text(input.environmentDigest, 'Environment digest');
     requireThat(gate.digest === digest({ modules: gate.modules, cards: gate.assertions.map(a => a.card), policy: gate.policy }), 'Compiled contract mutated; recompile and rebaseline');
+    gate.assertions.forEach(assertion => budget.assertCovered(assertion.card.costUpperBound));
     const timeoutMs = options.timeoutMs ?? 30_000;
     requireThat(Number.isFinite(timeoutMs) && timeoutMs > 0 && timeoutMs <= 2_147_483_647, 'Invalid timeout');
     const contractDigest = digest({ gate: gate.digest, environment: input.environmentDigest });

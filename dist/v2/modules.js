@@ -1,4 +1,4 @@
-import { digest, requireThat } from './validation.js';
+import { digest, freezeJson, requireThat, text, unique } from './validation.js';
 function card(id, title, path, claim, limit, cost) {
     return { id, version: '2.0.0-1', title, path, claim, evidenceKind: 'deterministic',
         input: { schemas: ['quality-sgd.artifact/v2'], capabilities: [], description: 'Adapter-supplied artifact data; validated by the assertion runner.' },
@@ -11,61 +11,62 @@ function observed(failures, evidence, cost, unit = 'violations') {
     return { status: failures.length ? 'fail' : 'pass', findings: failures.map(failure => ({ ...failure, evidence: [evidence] })), evidence: [evidence],
         loss: { lower: failures.length, upper: failures.length, unit }, actualCost: { ...cost } };
 }
-export function renderedLegibilityModule(read, suppliedCost = { evaluations: 1 }) {
+export function renderedLegibilityModule(read, suppliedPolicy, suppliedCost = { evaluations: 1 }) {
+    text(suppliedPolicy.version, 'Render policy version');
+    requireThat(Array.isArray(suppliedPolicy.views) && suppliedPolicy.views.length > 0, 'Render policy requires views');
+    unique(suppliedPolicy.views.map(view => view.id), 'Render policy view IDs');
+    for (const view of suppliedPolicy.views) {
+        for (const cap of [view.maxTotal, view.maxNovel])
+            requireThat(Number.isSafeInteger(cap) && cap >= 0, 'Render policy caps must be nonnegative safe integers');
+    }
+    const policy = freezeJson({ version: suppliedPolicy.version, views: suppliedPolicy.views.map(view => ({ id: view.id, maxTotal: view.maxTotal, maxNovel: view.maxNovel })) });
+    const policyDigest = digest(policy);
+    const version = `2.0.0-2+policy.${policyDigest}`;
     const cost = { ...suppliedCost };
     const evidence = (data, artifact, environment) => {
         const report = read(data);
         requireThat(report.artifactDigest === artifact && report.environmentDigest === environment, 'Stale render identity');
         requireThat(typeof report.screenshotDigest === 'string' && report.screenshotDigest.length > 0, 'Screenshot evidence missing');
-        requireThat(report.requiredViews.length > 0 && new Set(report.requiredViews).size === report.requiredViews.length, 'Unique required views must be declared');
-        requireThat(report.views.length === report.requiredViews.length && new Set(report.views.map(view => view.id)).size === report.views.length && report.requiredViews.every(id => report.views.some(view => view.id === id)), 'Required view/state evidence incomplete');
+        requireThat(!Object.hasOwn(report, 'requiredViews'), 'Required views belong in the trusted render policy, not candidate evidence');
+        requireThat(Array.isArray(report.views) && report.views.length === policy.views.length && new Set(report.views.map(view => view.id)).size === report.views.length && policy.views.every(required => report.views.some(view => view.id === required.id)), 'Required view/state evidence incomplete');
+        for (const view of report.views) {
+            requireThat(Array.isArray(view.folds) && view.folds.length > 0, 'Each view requires measured folds');
+            unique(view.folds.map(fold => fold.id), 'Measured fold IDs');
+            for (const fold of view.folds)
+                requireThat(!Object.hasOwn(fold, 'maxTotal') && !Object.hasOwn(fold, 'maxNovel'), 'Fold caps belong in the trusted render policy, not candidate evidence');
+        }
         return report;
     };
     const geometry = {
         card: card('render.geometry', 'Rendered geometry', ['communication', 'geometry'], 'All required supplied rendered states have no reported geometry defects.', 'Does not capture the browser or attest that the measurement collector found every overlap.', cost),
         async evaluate(context) {
             const report = evidence(context.artifact.data, context.artifact.digest, context.environmentDigest);
-            return observed(report.views.flatMap(view => view.defects), `render:${report.screenshotDigest}`, cost);
+            return observed(report.views.flatMap(view => view.defects), `render:${report.screenshotDigest};policy:${policyDigest}`, cost);
         },
     };
     const folds = {
-        card: card('render.fold-budget', 'Total and novel fold budgets', ['communication', 'legibility'], 'Every supplied fold fits its total/novel caps and has no unexplained first-use concepts.', 'Does not establish cognitive capacity, audience knowledge, or completeness of semantic annotations.', cost),
+        card: card('render.fold-budget', 'Total and novel fold budgets', ['communication', 'legibility'], 'Every supplied fold fits the trusted policy total/novel caps for its required view and has no unexplained first-use concepts.', 'Does not establish cognitive capacity, audience knowledge, or completeness of semantic annotations.', cost),
         async evaluate(context) {
             const report = evidence(context.artifact.data, context.artifact.digest, context.environmentDigest);
             const failures = [];
             for (const view of report.views) {
-                requireThat(view.folds.length > 0 && new Set(view.folds.map(fold => fold.id)).size === view.folds.length, 'Each view requires unique measured folds');
+                const limits = policy.views.find(required => required.id === view.id);
                 for (const fold of view.folds) {
-                    for (const cap of [fold.maxTotal, fold.maxNovel])
-                        requireThat(Number.isInteger(cap) && cap >= 0, 'Fold caps must be nonnegative integers');
                     requireThat(new Set(fold.quanta).size === fold.quanta.length && new Set(fold.novel).size === fold.novel.length, 'Repeated IDs cannot inflate a fold inventory');
                     requireThat(fold.novel.every(id => fold.quanta.includes(id)) && fold.unexplained.every(id => fold.novel.includes(id)), 'Novel/unexplained inventories must be nested subsets');
-                    if (fold.quanta.length > fold.maxTotal || fold.novel.length > fold.maxNovel || fold.unexplained.length)
-                        failures.push({ address: `${view.id}/${fold.id}`, message: `Total ${fold.quanta.length}/${fold.maxTotal}; novel ${fold.novel.length}/${fold.maxNovel}; unexplained ${fold.unexplained.join(', ') || 'none'}` });
+                    if (fold.quanta.length > limits.maxTotal || fold.novel.length > limits.maxNovel || fold.unexplained.length)
+                        failures.push({ address: `${view.id}/${fold.id}`, message: `Total ${fold.quanta.length}/${limits.maxTotal}; novel ${fold.novel.length}/${limits.maxNovel}; unexplained ${fold.unexplained.join(', ') || 'none'}` });
                 }
             }
-            return observed(failures, `render:${report.screenshotDigest}`, cost);
+            return observed(failures, `render:${report.screenshotDigest};policy:${policyDigest}`, cost);
         },
     };
-    for (const assertion of [geometry, folds])
-        assertion.card.input = { schemas: ['quality-sgd.render-evidence/v2'], capabilities: ['render-capture', 'semantic-fold-inventory'], description: 'Current render identity, complete required views/states, addressed defects, and total/novel fold inventories.' };
-    return { id: 'rendered-legibility', version: '2.0.0-1', includes: [], assertions: [geometry, folds] };
-}
-export function isoglossModule(engine, supplied, suppliedCost = { evaluations: 1 }) {
-    const options = structuredClone(supplied);
-    const cost = { ...suppliedCost };
-    const foldReport = engine.foldReport.bind(engine);
-    requireThat(options.engineVersion.length > 0 && Number.isInteger(options.cap) && options.cap >= 0 && Number.isInteger(options.foldWords) && options.foldWords > 0, 'Versioned Isogloss configuration required');
-    const definition = card('isogloss.text-folds', 'Isogloss text-fold diagnostic', ['communication', 'legibility'], 'The configured Isogloss text-fold report contains no over-cap folds.', 'Word folds and lexical novelty are proxies; no rendered geometry, semantic fidelity, or reader-comprehension guarantee. Diagram compression credit is not enabled by this adapter.', cost);
-    definition.version += `:${options.engineVersion}:${digest(options)}`;
-    definition.input = { schemas: ['quality-sgd.text/v1'], capabilities: ['audience-lexicon'], description: 'Artifact data.text string, a configured audience lexicon, fold word count and cap.' };
-    return { id: 'isogloss', version: definition.version, includes: [], assertions: [{ card: definition, async evaluate(context) {
-                    requireThat(typeof context.artifact.data === 'object' && context.artifact.data !== null && 'text' in context.artifact.data && typeof context.artifact.data.text === 'string', 'Isogloss requires artifact.data.text');
-                    const report = foldReport(context.artifact.data.text, new Set(options.terms.map(term => term.toLowerCase())), { cap: options.cap, foldWords: options.foldWords });
-                    requireThat(Array.isArray(report) && report.length > 0, 'No text folds were measured');
-                    report.forEach(fold => requireThat(Number.isInteger(fold.quanta) && fold.quanta >= 0 && fold.cap === options.cap && fold.overloaded === (fold.quanta > fold.cap), 'Invalid Isogloss fold report'));
-                    return observed(report.filter(fold => fold.overloaded).map(fold => ({ address: `text/fold/${fold.index}`, message: `${fold.quanta} novel text quanta exceeds ${fold.cap}` })), `isogloss:${definition.version}:${digest(report)}`, cost);
-                } }] };
+    for (const assertion of [geometry, folds]) {
+        assertion.card.version = version;
+        assertion.card.input = { schemas: ['quality-sgd.render-evidence/v2'], capabilities: ['render-capture', 'semantic-fold-inventory'], description: 'Current render identity, complete policy-required views/states, addressed defects, and total/novel fold inventories. Requirements are supplied separately in the trusted render policy.' };
+        assertion.card.assumptions.push(`Trusted render policy ${JSON.stringify(policy)}; policy digest ${policyDigest}.`);
+    }
+    return { id: 'rendered-legibility', version, includes: [], assertions: [geometry, folds] };
 }
 export function sonarqubeModule(read, suppliedCost = { evaluations: 1 }) {
     const cost = { ...suppliedCost };

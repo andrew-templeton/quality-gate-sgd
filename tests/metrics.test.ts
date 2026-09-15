@@ -16,6 +16,10 @@ import {
   extractAllMetricsAsync,
 } from '../src/metrics.js'
 
+const cleanEslintReport = JSON.stringify([{
+  filePath: '/test/project/src/file.ts', errorCount: 0, warningCount: 0, messages: [],
+}])
+
 // Mock fs module
 vi.mock('fs', async () => {
   const actual = await vi.importActual<typeof fs>('fs')
@@ -780,6 +784,7 @@ error TS2339: Another weird format`,
 
     // Regex fallback should find 2 errors
     expect(result.errors).toBe(2)
+    expect(result.rootCauses).toBeUndefined()
   })
 
   it('uses max of parsed and regex counts', async () => {
@@ -799,9 +804,10 @@ error TS1234: Another unparseable error.`,
 
     // 1 parsed + 3 regex matches = max(1, 3) = 3
     expect(result.errors).toBe(3)
+    expect(result.rootCauses).toBeUndefined()
   })
 
-  it('handles empty output', async () => {
+  it('rejects a failed command with empty output', async () => {
     const { spawnSync } = await import('child_process')
     vi.mocked(spawnSync).mockReturnValue({
       status: 1,
@@ -812,13 +818,10 @@ error TS1234: Another unparseable error.`,
       output: [],
     })
 
-    const result = extractTypescriptMetrics()
-
-    expect(result.errors).toBe(0)
-    expect(result.rootCauses).toBe(0)
+    expect(() => extractTypescriptMetrics()).toThrow(/exited with 1 without usable TypeScript diagnostics/)
   })
 
-  it('handles null stdout/stderr', async () => {
+  it('rejects a failed command with null stdout/stderr', async () => {
     const { spawnSync } = await import('child_process')
     vi.mocked(spawnSync).mockReturnValue({
       status: 1,
@@ -829,9 +832,35 @@ error TS1234: Another unparseable error.`,
       output: [],
     })
 
-    const result = extractTypescriptMetrics()
+    expect(() => extractTypescriptMetrics()).toThrow(/TypeScript metric collection failed/)
+  })
 
-    expect(result.errors).toBe(0)
+  it.each([
+    ['missing npm script', 1, 'npm error Missing script: "type-check"'],
+    ['missing command', 127, '/bin/sh: tsc: command not found'],
+    ['unusable diagnostic mention', 1, 'could not parse error TS1234'],
+  ])('rejects %s instead of returning zero errors', async (_label, status, stderr) => {
+    const { spawnSync } = await import('child_process')
+    vi.mocked(spawnSync).mockReturnValue({ status, stdout: '', stderr, pid: 123, signal: null, output: [] })
+    expect(() => extractTypescriptMetrics()).toThrow(/without usable TypeScript diagnostics/)
+  })
+
+  it.each(['ENOENT', 'ETIMEDOUT', 'ENOBUFS'])('rejects process failure %s even with partial diagnostics', async code => {
+    const { spawnSync } = await import('child_process')
+    vi.mocked(spawnSync).mockReturnValue({ status: null, stdout: 'error TS2345: Partial diagnostic', stderr: '', pid: 123, signal: null, output: [], error: Object.assign(new Error(code), { code }) })
+    expect(() => extractTypescriptMetrics()).toThrow(new RegExp(code))
+  })
+
+  it('rejects a terminated process even if some diagnostics were printed', async () => {
+    const { spawnSync } = await import('child_process')
+    vi.mocked(spawnSync).mockReturnValue({ status: null, stdout: 'error TS2345: Partial diagnostic', stderr: '', pid: 123, signal: 'SIGTERM', output: [] })
+    expect(() => extractTypescriptMetrics()).toThrow(/did not complete/)
+  })
+
+  it('preserves diagnostics from a normal nonzero exit and strips terminal formatting', async () => {
+    const { spawnSync } = await import('child_process')
+    vi.mocked(spawnSync).mockReturnValue({ status: 2, stdout: '\u001b[91merror\u001b[0m\u001b[90m TS2345: \u001b[0mType mismatch', stderr: '', pid: 123, signal: null, output: [] })
+    expect(extractTypescriptMetrics().errors).toBe(1)
   })
 })
 
@@ -844,7 +873,7 @@ describe('ESLint Metrics', () => {
     const { spawnSync } = await import('child_process')
     vi.mocked(spawnSync).mockReturnValue({
       status: 0,
-      stdout: '[]',
+      stdout: cleanEslintReport,
       stderr: '',
       pid: 123,
       signal: null,
@@ -924,7 +953,7 @@ describe('ESLint Metrics', () => {
     expect(result.rootCauses).toBe(3)
   })
 
-  it('handles invalid JSON output', async () => {
+  it('rejects invalid JSON output instead of inventing an error count', async () => {
     const { spawnSync } = await import('child_process')
     vi.mocked(spawnSync).mockReturnValue({
       status: 1,
@@ -935,13 +964,10 @@ describe('ESLint Metrics', () => {
       output: [],
     })
 
-    const result = extractEslintMetrics()
-
-    expect(result.errors).toBe(1) // Falls back to exit code
-    expect(result.warnings).toBe(0)
+    expect(() => extractEslintMetrics()).toThrow(/malformed JSON report/)
   })
 
-  it('handles invalid JSON output with exit code 0', async () => {
+  it('rejects invalid JSON output even with exit code 0', async () => {
     const { spawnSync } = await import('child_process')
     vi.mocked(spawnSync).mockReturnValue({
       status: 0,
@@ -952,11 +978,59 @@ describe('ESLint Metrics', () => {
       output: [],
     })
 
-    const result = extractEslintMetrics()
+    expect(() => extractEslintMetrics()).toThrow(/malformed JSON report/)
+  })
 
-    expect(result.errors).toBe(0) // Exit code 0 = no errors
-    expect(result.warnings).toBe(0)
-    expect(result.rootCauses).toBeUndefined() // Can't compute without parsed output
+  it.each([0, 1])('rejects empty stdout with exit code %s', async status => {
+    const { spawnSync } = await import('child_process')
+    vi.mocked(spawnSync).mockReturnValue({ status, stdout: '', stderr: 'ESLint failed to load', pid: 123, signal: null, output: [] })
+    expect(() => extractEslintMetrics()).toThrow(/no JSON report/)
+  })
+
+  it.each([
+    ['no assessed files', []],
+    ['wrong top-level shape', {}],
+    ['missing file fields', [{}]],
+    ['string counts', [{ filePath: '/test/file.ts', errorCount: '0', warningCount: 0, messages: [] }]],
+    ['negative counts', [{ filePath: '/test/file.ts', errorCount: -1, warningCount: 0, messages: [] }]],
+    ['counts omitting a diagnostic', [{ filePath: '/test/file.ts', errorCount: 0, warningCount: 0, messages: [{ ruleId: 'no-undef', severity: 2, message: 'Undefined name' }] }]],
+    ['counts inventing a diagnostic', [{ filePath: '/test/file.ts', errorCount: 1, warningCount: 0, messages: [] }]],
+    ['malformed diagnostic', [{ filePath: '/test/file.ts', errorCount: 1, warningCount: 0, messages: [null] }]],
+  ])('rejects a report with %s even on successful exit', async (_label, report) => {
+    const { spawnSync } = await import('child_process')
+    vi.mocked(spawnSync).mockReturnValue({ status: 0, stdout: JSON.stringify(report), stderr: '', pid: 123, signal: null, output: [] })
+    expect(() => extractEslintMetrics()).toThrow(/valid file reports/)
+  })
+
+  it.each([2, 127])('rejects infrastructure exit %s even with a clean-looking report', async status => {
+    const { spawnSync } = await import('child_process')
+    vi.mocked(spawnSync).mockReturnValue({ status, stdout: cleanEslintReport, stderr: 'Configuration failed', pid: 123, signal: null, output: [] })
+    expect(() => extractEslintMetrics()).toThrow(new RegExp(`command exited with ${status}`))
+  })
+
+  it.each(['ENOENT', 'ETIMEDOUT'])('rejects process failure %s even with a clean-looking report', async code => {
+    const { spawnSync } = await import('child_process')
+    vi.mocked(spawnSync).mockReturnValue({ status: null, stdout: cleanEslintReport, stderr: '', pid: 123, signal: null, output: [], error: Object.assign(new Error(code), { code }) })
+    expect(() => extractEslintMetrics()).toThrow(new RegExp(code))
+  })
+
+  it('rejects a terminated process rather than accepting partial JSON', async () => {
+    const { spawnSync } = await import('child_process')
+    vi.mocked(spawnSync).mockReturnValue({ status: null, stdout: cleanEslintReport, stderr: '', pid: 123, signal: 'SIGTERM', output: [] })
+    expect(() => extractEslintMetrics()).toThrow(/did not complete/)
+  })
+
+  it('rejects exit 1 without lint diagnostics', async () => {
+    const { spawnSync } = await import('child_process')
+    vi.mocked(spawnSync).mockReturnValue({ status: 1, stdout: cleanEslintReport, stderr: '', pid: 123, signal: null, output: [] })
+    expect(() => extractEslintMetrics()).toThrow(/without lint diagnostics/)
+  })
+
+  it('preserves a valid warnings-only report with exit 1', async () => {
+    const { spawnSync } = await import('child_process')
+    const report = [{ filePath: '/test/file.ts', errorCount: 0, warningCount: 1, messages: [{ ruleId: 'no-console', severity: 1, message: 'Unexpected console statement' }] }]
+    vi.mocked(spawnSync).mockReturnValue({ status: 1, stdout: JSON.stringify(report), stderr: 'ESLint found too many warnings', pid: 123, signal: null, output: [] })
+    expect(extractEslintMetrics()).toEqual({ errors: 0, warnings: 1, rootCauses: 0 })
   })
 
   it('ignores warnings when counting root causes', async () => {
@@ -1010,7 +1084,7 @@ describe('ESLint Metrics', () => {
     const result = extractEslintMetrics()
 
     expect(result.errors).toBe(1)
-    expect(result.rootCauses).toBe(0) // null ruleId not counted as root cause
+    expect(result.rootCauses).toBeUndefined() // A parse error without a rule cannot establish zero causes
   })
 })
 
@@ -1438,7 +1512,7 @@ describe('extractAllMetrics', () => {
     // TypeScript/ESLint/scripts pass
     vi.mocked(spawnSync).mockReturnValue({
       status: 0,
-      stdout: '[]',
+      stdout: cleanEslintReport,
       stderr: '',
       pid: 123,
       signal: null,
@@ -1470,7 +1544,7 @@ describe('extractAllMetrics', () => {
     vi.mocked(fs.existsSync).mockReturnValue(false)
     vi.mocked(spawnSync).mockReturnValue({
       status: 0,
-      stdout: '[]',
+      stdout: cleanEslintReport,
       stderr: '',
       pid: 123,
       signal: null,
@@ -1492,7 +1566,7 @@ describe('extractAllMetrics', () => {
     vi.mocked(fs.existsSync).mockReturnValue(false)
     vi.mocked(spawnSync).mockReturnValue({
       status: 0,
-      stdout: '[]',
+      stdout: cleanEslintReport,
       stderr: '',
       pid: 123,
       signal: null,
@@ -1512,7 +1586,7 @@ describe('extractAllMetrics', () => {
     vi.mocked(fs.existsSync).mockReturnValue(false)
     vi.mocked(spawnSync).mockReturnValue({
       status: 0,
-      stdout: '[]',
+      stdout: cleanEslintReport,
       stderr: '',
       pid: 123,
       signal: null,
@@ -1554,7 +1628,7 @@ describe('extractAllMetrics', () => {
     vi.mocked(fs.existsSync).mockReturnValue(false)
     vi.mocked(spawnSync).mockReturnValue({
       status: 0,
-      stdout: '[]',
+      stdout: cleanEslintReport,
       stderr: '',
       pid: 123,
       signal: null,
@@ -1587,7 +1661,7 @@ describe('extractAllMetrics', () => {
     vi.mocked(fs.existsSync).mockReturnValue(false)
     vi.mocked(spawnSync).mockReturnValue({
       status: 0,
-      stdout: '[]',
+      stdout: cleanEslintReport,
       stderr: '',
       pid: 123,
       signal: null,
@@ -1614,7 +1688,7 @@ describe('extractAllMetricsAsync', () => {
     vi.mocked(fs.existsSync).mockReturnValue(false)
     vi.mocked(spawnSync).mockReturnValue({
       status: 0,
-      stdout: '[]',
+      stdout: cleanEslintReport,
       stderr: '',
       pid: 123,
       signal: null,
@@ -1635,7 +1709,7 @@ describe('extractAllMetricsAsync', () => {
     vi.mocked(fs.existsSync).mockReturnValue(false)
     vi.mocked(spawnSync).mockReturnValue({
       status: 0,
-      stdout: '[]',
+      stdout: cleanEslintReport,
       stderr: '',
       pid: 123,
       signal: null,
@@ -1656,7 +1730,7 @@ describe('extractAllMetricsAsync', () => {
     vi.mocked(fs.existsSync).mockReturnValue(false)
     vi.mocked(spawnSync).mockReturnValue({
       status: 0,
-      stdout: '[]',
+      stdout: cleanEslintReport,
       stderr: '',
       pid: 123,
       signal: null,
