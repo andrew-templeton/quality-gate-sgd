@@ -21,7 +21,7 @@ const assertion = defineAssertion({
     // @ts-expect-error Semantic configuration is readonly.
     configuration.maximum = 999;
     // @ts-expect-error Unknown prerequisite keys are not silently accepted.
-    prerequisites.missing.total;
+    prerequisites.missing.total.toFixed();
     return { status: 'pass', findings: [], evidence: ['type-fixture'], output: { total: 5 }, actualCost: { evaluations: 1 } };
   },
 });
