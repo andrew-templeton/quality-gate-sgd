@@ -16,6 +16,7 @@ export function unique(values: string[], label: string): void {
   requireThat(new Set(values).size === values.length, `${label} must be unique`);
 }
 export function validateCost(cost: Cost): void {
+  digest(cost);
   requireThat(cost !== null && typeof cost === 'object' && !Array.isArray(cost), 'Cost must be a unit/value record');
   for (const [unit, amount] of Object.entries(cost)) {
     text(unit, 'Cost unit');
@@ -26,14 +27,23 @@ export function validateInterval(value: Interval): void {
   finite(value.lower, 'Lower bound'); finite(value.upper, 'Upper bound'); text(value.unit, 'Interval unit');
   requireThat(value.lower <= value.upper, 'Interval bounds are reversed');
 }
-function canonical(value: unknown): unknown {
+function canonical(value: unknown, ancestors = new Set<object>()): unknown {
+  if (value && typeof value === 'object') {
+    requireThat(!ancestors.has(value), 'Digest inputs must not contain cycles');
+    ancestors = new Set(ancestors).add(value);
+    for (const key of Reflect.ownKeys(value)) {
+      const descriptor = Object.getOwnPropertyDescriptor(value, key);
+      requireThat(descriptor, 'Digest property descriptor missing');
+      requireThat(typeof key === 'string' && 'value' in descriptor && (descriptor.enumerable || Array.isArray(value) && key === 'length'), 'Digest inputs must have only enumerable JSON data properties');
+    }
+  }
   if (Array.isArray(value)) {
-    requireThat(Object.keys(value).length === value.length && value.every((_, index) => Object.hasOwn(value, index)) && Object.getOwnPropertySymbols(value).length === 0, 'Digest arrays must be dense JSON arrays');
-    return value.map(canonical);
+    requireThat(Object.keys(value).length === value.length && Array.from({ length: value.length }, (_, index) => Object.hasOwn(value, index)).every(Boolean), 'Digest arrays must be dense JSON arrays');
+    return value.map(entry => canonical(entry, ancestors));
   }
   if (value && typeof value === 'object') {
     requireThat([Object.prototype, null].includes(Object.getPrototypeOf(value)) && Object.getOwnPropertySymbols(value).length === 0, 'Digest inputs must be plain JSON objects');
-    return Object.fromEntries(Object.entries(value).sort(([a], [b]) => a.localeCompare(b)).map(([key, entry]) => [key, canonical(entry)]));
+    return Object.fromEntries(Object.entries(value).sort(([a], [b]) => a.localeCompare(b)).map(([key, entry]) => [key, canonical(entry, ancestors)]));
   }
   requireThat(value === null || ['string', 'boolean'].includes(typeof value) || (typeof value === 'number' && Number.isFinite(value)), 'Digest inputs must be finite JSON values');
   return value;

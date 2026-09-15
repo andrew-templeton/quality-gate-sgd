@@ -2,7 +2,7 @@
 
 An operator needs a result that satisfies a particular set of requirements. V2 makes those requirements inspectable modules, composes them into a gate, accounts for evaluation and repair costs, and admits edits only when the selected evidence supports them.
 
-This is development version `2.0.0-dev.1`. The generic library is exported directly and as `v2`, with the `quality-gate-v2` CLI. The legacy software root API and `quality-gate` CLI now belong to [quality-sgd-software](https://github.com/andrew-templeton/quality-sgd-software); see the [migration guide](MIGRATION.md). Core has no runtime package dependency or automatic publishing step.
+This is development version `2.0.0-dev.2`. The generic library is exported directly and as `v2`, with the `quality-gate-v2` CLI. The legacy software root API and `quality-gate` CLI now belong to [quality-sgd-software](https://github.com/andrew-templeton/quality-sgd-software); see the [migration guide](MIGRATION.md). Core has no runtime package dependency or automatic publishing step.
 
 ```sh
 npm ci
@@ -60,12 +60,15 @@ const card = v2.modelCard(gate);
 const result = await v2.evaluateGate(gate, {
   artifact: { id: 'proposal', digest: contentAndDependencyDigest, data },
   environmentDigest: sourceAudienceViewportAndPolicyDigest,
+  available: { schemas: declaredVersionedSchemas, capabilities: suppliedCapabilities },
 }, new v2.BudgetLedger({ evaluations: 20, tokens: 100_000 }));
 ```
 
 The referenced IDs must exist in the supplied modules. `source.fidelity` and `reader.language` above illustrate caller-provided verifiers. The engine supplies neither a built-in semantic guarantee nor a language verifier under those IDs.
 
-`discoverAssertions` matches declared input schema IDs and capabilities and supports a local text query. It reports missing inputs explicitly. A signature match identifies a candidate module; the runner still has to validate the actual data, assumptions and scope. A card's fixed output contract is `Observation`: status, addressed findings, evidence, optional loss bounds with units, and actual cost.
+`defineAssertion` binds a standard implementation digest, immutable semantic configuration, applicability and executable typed input schema. `compileGate` requires this protocol by default. See [execution contracts](CONTRACTS.md) for authoring, qualification invalidation and explicit legacy migration.
+
+`discoverAssertions` uses the same versioned schema and capability requirements as execution. It reports missing declarations explicitly. A declaration match identifies a candidate module; payload shape is checked before its evaluator dispatches. Freshness, collection completeness and semantic validity require additional evidence. A card's fixed output contract is `Observation`: status, addressed findings, evidence, optional loss bounds with units, and actual cost.
 
 The transport-neutral `RESOURCES` and `readResource` exports describe `quality://v2/assertion-zoo` for assertion-family context and card semantics. A caller may register them with its own server. The CLI also exposes the taxonomy through `zoo`; core does not bundle the legacy software MCP server.
 
@@ -73,7 +76,7 @@ The transport-neutral `RESOURCES` and `readResource` exports describe `quality:/
 
 Every required assertion and its prerequisite closure must report pass. A failed prerequisite blocks its dependents. Advisory scores cannot compensate for a failed requirement. Unavailable evidence, missing state coverage, timeouts, malformed observations and stale render identities cannot become a pass.
 
-Model-judgment assertions may run as advisory diagnostics while unqualified. Using one in a required gate, including as a prerequisite, requires a qualification record naming the current evaluator version and evidence. This is an enforced metadata boundary, not an independent audit that the cited study was valid. The operator remains responsible for the qualification's population and criteria.
+Model-judgment assertions may run as advisory diagnostics while unqualified. Using one in a required gate, including as a prerequisite, requires qualification naming the full current evaluator and applicability digests and evidence. Relevant changes require reassessment. This metadata boundary does not independently audit the cited study; the operator remains responsible for its population and criteria.
 
 The composed card enumerates selected requirements, dependencies and individual limitations. It does not multiply module confidences, infer independence, or promote a local predicate into a universal quality claim. [Calibration](CALIBRATION.md) provides separate primitives for preference comparisons and verifier error rates.
 
@@ -82,6 +85,8 @@ The composed card enumerates selected requirements, dependencies and individual 
 `BudgetLedger` reserves upper bounds before dispatch and settles actual costs afterward. Units remain independent: `evaluations`, `tokens`, `usd_micro`, `human_seconds`, or caller-defined units. An undeclared unit is rejected. Prefer integer minor units where exact financial accounting matters.
 
 Failed or malformed work is not refunded. Known expenditure survives malformed reports. Violated bounds or uncertain settlement quarantine further dispatch; the ledger's `exceeded` flag denotes that enforced spending-bound failure, not a claim that every limit was numerically exhausted. Metering is only as trustworthy as the runner/provider. An in-process timeout requests cancellation; it cannot undo external work already performed.
+
+For resumable work, [durable execution](DURABLE-EXECUTION.md) persists reservation identities, outcomes and loop phases with a local single-writer journal. Unknown external outcomes remain reserved and require explicit reconciliation. Reopening preserves spending, rejected candidates, cooldowns and stop conditions.
 
 `assessExperiment` computes finite one-assessment expected value of sample information under an explicit model. It reports posterior actions, gross/net decision value, and Shannon information gain separately. A perfectly informative observation can have zero decision value when it never changes the preferred action. `chooseAssessment` preserves ties and returns insufficient-model when no utility model is supplied. It does not learn priors or solve a globally optimal sequence of assessments.
 
@@ -99,7 +104,7 @@ These mechanisms prevent several forms of chattering and cycling. They do not gu
 
 ## Adapters and execution boundary
 
-`renderedLegibilityModule(read, policy, cost?)` consumes a current render report with screenshot identity, addressed geometry defects and total/novel fold inventories. The operator supplies required views/states and their caps separately, as `{ version, views: [{ id, maxTotal, maxNovel }] }`. The factory snapshots that policy and binds it into module and assertion identities. Candidate measurements cannot supply caps or redefine required views. Changing a requirement changes the contract and requires rebaselining.
+`renderedLegibilityModule({ policy, reportPath?, costUpperBound? })` consumes a current render report with screenshot identity, addressed geometry defects and total/novel fold inventories. The operator supplies required views/states and their caps separately, as `{ version, views: [{ id, maxTotal, maxNovel }] }`. The factory snapshots policy and the own-property report path and binds them into the evaluator contract. Supply `RENDER_INPUT` in the evaluation's available declarations. Candidate measurements cannot supply caps or redefine required views. Changing a requirement changes the contract and requires rebaselining.
 
 The adapter checks exact policy-required view coverage and the report's relationships and caps. The caller supplies the browser collector and semantic inventory; this package does not yet detect all overlaps or count concepts automatically. See the [consumer API review](API-REVIEW.md) for remaining interoperability requirements.
 

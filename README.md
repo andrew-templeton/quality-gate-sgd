@@ -6,7 +6,7 @@ Composable quality assertions, documented guarantees, and budgeted improvement l
 
 The core composes independently maintained assertion modules into required/advisory gates. It provides assertion cards, a discoverable taxonomy, independent cost units, finite decision-value calculations, conservative nudge conflict handling, admission with deadbands/cooldowns/cycle detection, calibration primitives, and optional repair orchestration.
 
-The API is experimental (`2.0.0-dev.1`). The [consumer API review](docs/v2/API-REVIEW.md) records remaining requirements before stabilization. The [directed work graph](docs/work/README.md) links implementation, validation and release dependencies; [graph.json](docs/work/graph.json) is its machine-readable source.
+The API is experimental (`2.0.0-dev.2`). The [consumer API review](docs/v2/API-REVIEW.md) records remaining requirements before stabilization. The [directed work graph](docs/work/README.md) links implementation, validation and release dependencies; [graph.json](docs/work/graph.json) is its machine-readable source.
 
 ```sh
 npm ci

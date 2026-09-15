@@ -1,6 +1,6 @@
 {
   "name": "quality-gate-sgd",
-  "version": "2.0.0-dev.1",
+  "version": "2.0.0-dev.2",
   "description": "Domain-independent quality assertions, calibrated comparisons, and budgeted improvement loops",
   "type": "module",
   "main": "dist/index.js",

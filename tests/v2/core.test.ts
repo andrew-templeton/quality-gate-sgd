@@ -1,14 +1,17 @@
 import { describe, expect, it, vi } from 'vitest';
 import { BudgetLedger } from '../../src/v2/budget.js';
-import { compileGate, discoverAssertions, modelCard } from '../../src/v2/catalog.js';
+import { compileGate as compileGateCore, discoverAssertions, modelCard } from '../../src/v2/catalog.js';
 import { readResource, RESOURCES } from '../../src/v2/resources.js';
 import { evaluateGate } from '../../src/v2/evaluate.js';
 import { admitCandidate, initialLoopState, type AdmissionPolicy } from '../../src/v2/admission.js';
 import { assessExperiment, chooseAssessment, type DecisionModel, type AssessmentExperiment } from '../../src/v2/decision.js';
 import { planNudges } from '../../src/v2/nudges.js';
-import { renderedLegibilityModule, type RenderEvidence } from '../../src/v2/modules.js';
+import { renderedLegibilityModule, RENDER_INPUT, type RenderEvidence } from '../../src/v2/modules.js';
 import { digest } from '../../src/v2/validation.js';
 import type { Assertion, AssertionCard, AssertionModule, Interval, Nudge, Observation } from '../../src/v2/types.js';
+
+// Explicit compatibility fixtures exercise legacy control mechanics; protocol tests use strict defaults.
+const compileGate = (...args: Parameters<typeof compileGateCore>) => compileGateCore(args[0], args[1], args[2], { ...args[3], allowLegacyAssertions: true });
 
 function observation(status: Observation['status'] = 'pass', cost = { evaluations: 1 }): Observation {
   return { status, findings: status === 'fail' ? [{ address: 'claim:offer', message: 'Condition was lost', evidence: ['source comparison'] }] : [], evidence: ['current assertion evidence'], actualCost: cost };
@@ -351,8 +354,8 @@ describe('bundled assertion adapters', () => {
   function render(): RenderEvidence { return { artifactDigest: 'rendered-artifact', environmentDigest: 'environment', screenshotDigest: 'screenshots', views: ['desktop:closed', 'mobile:expanded'].map(id => ({ id, defects: [], folds: [{ id: 'fold:0', quanta: ['price', 'condition'], novel: ['condition'], unexplained: [] }] })) }; }
   async function evaluateRender(report: RenderEvidence) {
     const policy = { version: '1', views: ['desktop:closed', 'mobile:expanded'].map(id => ({ id, maxTotal: 2, maxNovel: 1 })) };
-    const compiled = compileGate([renderedLegibilityModule(() => report, policy)], ['rendered-legibility'], { required: ['render.geometry', 'render.fold-budget'], advisory: [] });
-    return evaluateGate(compiled, { artifact: { id: 'page', digest: 'rendered-artifact', data: {} }, environmentDigest: 'environment' }, new BudgetLedger({ evaluations: 10 }));
+    const compiled = compileGate([renderedLegibilityModule({ policy })], ['rendered-legibility'], { required: ['render.geometry', 'render.fold-budget'], advisory: [] });
+    return evaluateGate(compiled, { artifact: { id: 'page', digest: 'rendered-artifact', data: report }, environmentDigest: 'environment', available: RENDER_INPUT }, new BudgetLedger({ evaluations: 10 }));
   }
   it('checks all required rendered states and caps rather than only the first desktop view', async () => {
     const report = render(); expect((await evaluateRender(report)).status).toBe('pass');

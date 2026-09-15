@@ -1,9 +1,10 @@
 import { spawn } from 'node:child_process';
 import { isAbsolute } from 'node:path';
 import { BudgetLedger } from './budget.js';
+import { DurableRun, isDurabilityInterruption } from './durability.js';
 import { validateNudge } from './nudges.js';
 import type { Artifact, Cost, Nudge } from './types.js';
-import { digest, requireThat, text, unique } from './validation.js';
+import { digest, freezeJson, requireThat, text, unique } from './validation.js';
 
 export interface RemediationRequest {
   artifact: Artifact;
@@ -12,6 +13,8 @@ export interface RemediationRequest {
   /** Caller-owned disposable checkout. Populate it from the baseline and never use the live workspace. */
   candidateWorkspace?: string;
   signal: AbortSignal;
+  /** Stable durable operation key; forward it to services that support idempotency. */
+  operationId?: string;
 }
 export interface RemediationOutput { artifact: Artifact; actualCost: Cost }
 export interface RemediationHarness {
@@ -33,11 +36,18 @@ export interface RemediationOptions {
   budget: BudgetLedger;
   reservationId: string;
   timeoutMs?: number;
+  durability?: DurableRun;
 }
 
 /** Produce an isolated candidate only; the complete gate still has to evaluate and admit it. */
 export async function executeRemediation(options: RemediationOptions): Promise<RemediationResult> {
-  const { request, budget } = options;
+  const { budget } = options;
+  const request = freezeJson(structuredClone(options.request));
+  if (options.durability) {
+    requireThat(options.durability.budget === budget, 'Remediation must use its durable ledger');
+    options.durability.assertIdentity(options.durability.snapshot().contractDigest, request.environmentDigest);
+    options.durability.assertOperationId(options.reservationId);
+  }
   validateNudge(request.nudge);
   unique(options.harnesses.map(harness => harness.id), 'Harness IDs');
   unique([...(options.enabledHarnessIds ?? [])], 'Enabled harness IDs');
@@ -45,6 +55,7 @@ export async function executeRemediation(options: RemediationOptions): Promise<R
   if (!harnessId || !(options.enabledHarnessIds ?? []).includes(harnessId)) return { status: 'disabled', reason: 'No explicitly enabled repair harness', actualCost: {} };
   const harness = options.harnesses.find(entry => entry.id === harnessId);
   if (!harness) return { status: 'unavailable', reason: `Enabled harness is not registered: ${harnessId}`, actualCost: {} };
+  const invoke = harness.run.bind(harness);
   const timeoutMs = options.timeoutMs ?? 60_000;
   requireThat(Number.isInteger(timeoutMs) && timeoutMs > 0 && timeoutMs <= 2_147_483_647, 'Invalid remediation timeout');
   text(request.artifact.id, 'Artifact ID'); text(request.artifact.digest, 'Artifact digest'); text(request.environmentDigest, 'Environment digest');
@@ -56,12 +67,15 @@ export async function executeRemediation(options: RemediationOptions): Promise<R
   let settled = false;
   let output: RemediationOutput | undefined;
   try {
-    output = await Promise.race([
-      Promise.resolve().then(() => harness.run({ ...structuredClone(request), signal: controller.signal })),
+    const dispatch = () => Promise.race([
+      Promise.resolve().then(() => invoke({ ...structuredClone(request), signal: controller.signal, operationId: options.reservationId })),
       new Promise<never>((_, reject) => {
         timer = setTimeout(() => { controller.abort(); reject(new Error('Remediation timeout; candidate was not evaluated or admitted')); }, timeoutMs);
       }),
     ]);
+    output = options.durability
+      ? await options.durability.operation(options.reservationId, { kind: 'repair', harnessId, request }, dispatch)
+      : await dispatch();
     output = structuredClone(output);
     // Meter before validating the artifact: malformed output still consumed the reported work.
     budget.settle(options.reservationId, output.actualCost); settled = true;
@@ -70,6 +84,7 @@ export async function executeRemediation(options: RemediationOptions): Promise<R
     if (budget.snapshot().exceeded) return { status: 'budget', reason: 'Repair exceeded its reserved cost; candidate was not admitted', actualCost: output.actualCost };
     return { status: 'candidate', artifact: output.artifact, actualCost: output.actualCost };
   } catch (error) {
+    if (isDurabilityInterruption(error)) throw error;
     if (!settled) budget.failReservation(options.reservationId, output?.actualCost);
     return { status: 'unavailable', reason: error instanceof Error ? error.message : String(error), actualCost: charged() };
   } finally { if (timer) clearTimeout(timer); }

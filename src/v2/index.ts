@@ -11,3 +11,5 @@ export * from './calibration.js';
 export * from './remediation.js';
 export * from './loop.js';
 export * from './resources.js';
+export * from './contracts.js';
+export * from './durability.js';

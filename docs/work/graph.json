@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "apiVersion": "2.0.0-dev.1",
+  "apiVersion": "2.0.0-dev.2",
   "title": "Quality-SGD work graph",
   "description": "A dependency-ordered plan for a reusable assertion engine and independently maintained quality modules. All tasks, including domain and empirical work outside the minimum stable API path, remain in the completion scope. The stable API milestone covers protocol and execution guarantees; application-specific validity remains a separate obligation. Scope and required evidence are mapped in docs/work/SCOPE.md.",
   "updatedAt": "2026-09-14",
@@ -247,7 +247,7 @@
       "title": "Bind implementation and semantic configuration",
       "owner": "core",
       "track": "stable-api",
-      "status": "active",
+      "status": "done",
       "dependsOn": [
         "api-audit"
       ],
@@ -256,7 +256,16 @@
         "Snapshot immutable semantic configuration; changing thresholds, audience, rubric, prompts or implementation changes the contract and requires rebaselining.",
         "Exercise nested and instance configuration mutation; document what integrity digests cannot establish about executable behavior or provenance."
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "label": "Development v2 protocol and crash verification record",
+          "url": "../v2/VALIDATION.md"
+        },
+        {
+          "label": "Execution contracts and direct tests",
+          "url": "../v2/CONTRACTS.md"
+        }
+      ],
       "links": [
         {
           "label": "Consumer API review",
@@ -269,7 +278,7 @@
       "title": "Bind and invalidate qualification evidence",
       "owner": "core",
       "track": "stable-api",
-      "status": "active",
+      "status": "done",
       "dependsOn": [
         "implementation-identity"
       ],
@@ -277,7 +286,16 @@
         "Bind calibration and qualification to full evaluator/configuration identity and applicability scope.",
         "A relevant identity change invalidates or explicitly reassesses qualification; tests distinguish irrelevant metadata from semantic changes."
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "label": "Development v2 protocol and crash verification record",
+          "url": "../v2/VALIDATION.md"
+        },
+        {
+          "label": "Execution contracts and direct tests",
+          "url": "../v2/CONTRACTS.md"
+        }
+      ],
       "links": [
         {
           "label": "Consumer API review",
@@ -294,7 +312,7 @@
       "title": "Validate typed inputs before evaluation",
       "owner": "core",
       "track": "stable-api",
-      "status": "active",
+      "status": "done",
       "dependsOn": [
         "api-audit"
       ],
@@ -303,7 +321,16 @@
         "Define required versus alternative schemas; missing inputs, incompatible versions and absent capabilities produce explicit unavailable/preflight outcomes before paid dispatch.",
         "Keep shape validation distinct from freshness, collection completeness and domain validity."
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "label": "Development v2 protocol and crash verification record",
+          "url": "../v2/VALIDATION.md"
+        },
+        {
+          "label": "Execution contracts and direct tests",
+          "url": "../v2/CONTRACTS.md"
+        }
+      ],
       "links": [
         {
           "label": "Consumer API review",
@@ -316,7 +343,7 @@
       "title": "Share input contracts with discovery",
       "owner": "core",
       "track": "stable-api",
-      "status": "active",
+      "status": "done",
       "dependsOn": [
         "input-bindings"
       ],
@@ -324,7 +351,16 @@
         "Use the execution input contract for schema/capability discovery and explain declared compatibility versus validated applicability.",
         "Test valid, malformed, missing and version-mismatched inputs so discovery cannot silently promise a composition execution rejects for an undocumented reason."
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "label": "Development v2 protocol and crash verification record",
+          "url": "../v2/VALIDATION.md"
+        },
+        {
+          "label": "Execution contracts and direct tests",
+          "url": "../v2/CONTRACTS.md"
+        }
+      ],
       "links": [
         {
           "label": "Consumer API review",
@@ -341,7 +377,7 @@
       "title": "Run independent module conformance",
       "owner": "core",
       "track": "stable-api",
-      "status": "planned",
+      "status": "active",
       "dependsOn": [
         "migration-package-conformance",
         "isogloss-example",
@@ -374,7 +410,7 @@
       "title": "Persist budgets and reservation identities",
       "owner": "core",
       "track": "stable-api",
-      "status": "active",
+      "status": "done",
       "dependsOn": [
         "api-audit"
       ],
@@ -383,7 +419,16 @@
         "Unknown external outcomes remain reserved or conservatively charged; restoration cannot refund uncertain expenditure or create a fresh implicit budget.",
         "State the supported writer/concurrency model and test invalid or inconsistent snapshots."
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "label": "Development v2 protocol and crash verification record",
+          "url": "../v2/VALIDATION.md"
+        },
+        {
+          "label": "Durable execution and actual process-crash evidence",
+          "url": "../v2/DURABLE-EXECUTION.md"
+        }
+      ],
       "links": [
         {
           "label": "Consumer API review",
@@ -396,7 +441,7 @@
       "title": "Restore complete loop checkpoints",
       "owner": "core",
       "track": "stable-api",
-      "status": "active",
+      "status": "done",
       "dependsOn": [
         "durable-ledger",
         "implementation-identity"
@@ -406,7 +451,16 @@
         "Write at defined boundaries before external dispatch and after recording outcomes; restoring preserves accounting, cooldowns and cycle history.",
         "Reject incompatible or corrupt checkpoints; explicit rebaselining preserves the accounting record."
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "label": "Development v2 protocol and crash verification record",
+          "url": "../v2/VALIDATION.md"
+        },
+        {
+          "label": "Durable execution and actual process-crash evidence",
+          "url": "../v2/DURABLE-EXECUTION.md"
+        }
+      ],
       "links": [
         {
           "label": "Consumer API review",
@@ -419,7 +473,7 @@
       "title": "Verify crash boundaries and idempotency",
       "owner": "core",
       "track": "stable-api",
-      "status": "active",
+      "status": "done",
       "dependsOn": [
         "checkpoint-resume"
       ],
@@ -428,7 +482,16 @@
         "Show that repeated resume cannot silently duplicate external repairs, erase rejection history or release unknown reservations.",
         "Document reconciliation, cancellation limits and the supported single-writer or concurrency guarantees."
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "label": "Development v2 protocol and crash verification record",
+          "url": "../v2/VALIDATION.md"
+        },
+        {
+          "label": "Durable execution and actual process-crash evidence",
+          "url": "../v2/DURABLE-EXECUTION.md"
+        }
+      ],
       "links": [
         {
           "label": "Consumer API review",
@@ -445,7 +508,7 @@
       "title": "Verify resumed spending and hysteresis",
       "owner": "core",
       "track": "stable-api",
-      "status": "active",
+      "status": "done",
       "dependsOn": [
         "crash-idempotency"
       ],
@@ -454,7 +517,16 @@
         "Verify deadbands, reversal cooldowns, cycle detection and stall limits survive resume and interact consistently with hard required assertions.",
         "Test exhausted budgets and interrupted reversals without claiming convergence or global optimality."
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "label": "Development v2 protocol and crash verification record",
+          "url": "../v2/VALIDATION.md"
+        },
+        {
+          "label": "Durable execution and actual process-crash evidence",
+          "url": "../v2/DURABLE-EXECUTION.md"
+        }
+      ],
       "links": [
         {
           "label": "Consumer API review",
@@ -547,7 +619,7 @@
       "title": "Establish software collection completeness",
       "owner": "software",
       "track": "later",
-      "status": "planned",
+      "status": "active",
       "dependsOn": [
         "software-publication",
         "input-bindings"
@@ -574,7 +646,7 @@
       "title": "Qualify software gates as v2 modules",
       "owner": "software",
       "track": "later",
-      "status": "planned",
+      "status": "active",
       "dependsOn": [
         "software-evidence-completeness",
         "qualification-invalidation"
@@ -601,7 +673,7 @@
       "title": "Strengthen Sonar report provenance and scope",
       "owner": "sonarqube",
       "track": "later",
-      "status": "planned",
+      "status": "active",
       "dependsOn": [
         "sonarqube-publication",
         "input-bindings"
@@ -623,7 +695,7 @@
       "title": "Evaluate audience-specific legibility",
       "owner": "isogloss",
       "track": "later",
-      "status": "planned",
+      "status": "active",
       "dependsOn": [
         "isogloss-example",
         "qualification-invalidation",
@@ -875,7 +947,7 @@
       "title": "Make blinded operator calibration runnable",
       "owner": "core",
       "track": "later",
-      "status": "planned",
+      "status": "active",
       "dependsOn": [
         "qualification-invalidation",
         "workflow-composition"

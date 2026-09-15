@@ -1,4 +1,5 @@
 import { digest, freezeJson, requireThat, text, unique, validateCost } from './validation.js';
+import { assertionStatement, inputCompatibility, inputSchemaKey, validateAssertionContract } from './contracts.js';
 export const ASSERTION_ZOO = [
     { path: ['structure', 'syntax'], meaning: 'Parse/type/schema predicates over supplied input.' },
     { path: ['structure', 'references'], meaning: 'Reference integrity and current dependency ancestry.' },
@@ -11,7 +12,10 @@ export const ASSERTION_ZOO = [
     { path: ['decision', 'utility'], meaning: 'Conditional decisions under a supplied utility and likelihood model.' },
     { path: ['control', 'reliability'], meaning: 'Evaluator calibration, freshness, budget and update eligibility.' },
 ];
-export function compileGate(modules, selected, policy) {
+export function compiledGateDigest(gate) {
+    return digest({ modules: gate.modules, assertions: gate.assertions.map(assertion => ({ card: assertion.card, contract: assertion.contract ?? null })), policy: gate.policy });
+}
+export function compileGate(modules, selected, policy, options = {}) {
     unique(selected, 'Selected modules');
     unique(policy.required, 'Required assertions');
     unique(policy.advisory, 'Advisory assertions');
@@ -38,6 +42,14 @@ export function compileGate(modules, selected, policy) {
         module.includes.forEach(visit);
         for (const assertion of module.assertions) {
             const card = assertion.card;
+            digest(card);
+            requireThat(assertion.contract || options.allowLegacyAssertions === true, `${card.id} needs an explicit assertion contract; migrate the module or explicitly opt into legacy assertions`);
+            if (assertion.contract) {
+                validateAssertionContract(assertion.contract);
+                requireThat(assertion.contract.statementDigest === assertionStatement(card), 'Assertion statement changed without rebuilding its identity');
+                requireThat(card.input.schemas.length === 1 && card.input.schemas[0] === inputSchemaKey(assertion.contract.input), 'Card and executable input schemas disagree');
+                requireThat(digest(card.input.capabilities) === digest(assertion.contract.input.capabilities), 'Card and executable capabilities disagree');
+            }
             for (const key of ['id', 'version', 'title', 'claim'])
                 text(card[key], key);
             requireThat(ASSERTION_ZOO.some(entry => entry.path.every((part, index) => card.path[index] === part)), `Unknown taxonomy path for ${card.id}`);
@@ -55,8 +67,14 @@ export function compileGate(modules, selected, policy) {
             requireThat(['not-applicable', 'unqualified', 'qualified'].includes(card.calibration.status), 'Invalid calibration status');
             text(card.calibration.scope, 'Calibration scope');
             card.calibration.evidence.forEach(value => text(value, 'Calibration evidence'));
-            if (card.calibration.status === 'qualified')
-                requireThat(card.calibration.evidence.length > 0 && card.calibration.evaluatorVersion === card.version, 'Qualification must cite evidence and the current evaluator version');
+            if (card.calibration.status === 'qualified') {
+                requireThat(card.calibration.evidence.length > 0, 'Qualification must cite evidence');
+                if (assertion.contract) {
+                    requireThat(card.calibration.evaluatorDigest === assertion.contract.evaluatorDigest && card.calibration.applicabilityDigest === digest(assertion.contract.applicability), 'Qualification must bind the complete current evaluator and applicability identity');
+                }
+                else
+                    requireThat(card.calibration.evaluatorVersion === card.version, 'Qualification must cite the current evaluator version');
+            }
             requireThat(!assertions.has(card.id), `Duplicate assertion ${card.id}`);
             assertions.set(card.id, assertion);
         }
@@ -83,10 +101,11 @@ export function compileGate(modules, selected, policy) {
     const moduleVersions = [...visited].map(id => `${id}@${registry.get(id)?.version}`);
     const copiedPolicy = freezeJson(structuredClone(policy));
     // Freeze metadata by copying it; registry callers cannot change a compiled contract after hashing.
-    const copied = order.map(assertion => Object.freeze({ card: freezeJson(structuredClone(assertion.card)), evaluate: assertion.evaluate.bind(assertion) }));
+    const copied = order.map(assertion => Object.freeze({ card: freezeJson(structuredClone(assertion.card)),
+        ...(assertion.contract ? { contract: freezeJson(structuredClone(assertion.contract)) } : {}), evaluate: assertion.evaluate.bind(assertion) }));
     Object.freeze(copied);
     Object.freeze(moduleVersions);
-    return Object.freeze({ modules: moduleVersions, assertions: copied, policy: copiedPolicy, digest: digest({ modules: moduleVersions, cards: copied.map(a => a.card), policy: copiedPolicy }) });
+    return Object.freeze({ modules: moduleVersions, assertions: copied, policy: copiedPolicy, digest: compiledGateDigest({ modules: moduleVersions, assertions: copied, policy: copiedPolicy }) });
 }
 /** Local metadata discovery. A declaration match is a candidate for validation, not proof of semantic compatibility. */
 export function discoverAssertions(modules, available, query = '') {
@@ -94,9 +113,12 @@ export function discoverAssertions(modules, available, query = '') {
     return modules.flatMap(module => module.assertions.map(assertion => {
         const card = assertion.card;
         const searchable = [card.id, card.title, card.claim, ...card.path, card.input.description].join(' ').toLowerCase();
-        return { moduleId: module.id, card, matchesQuery: words.every(word => searchable.includes(word)),
+        const compatibility = assertion.contract ? inputCompatibility(assertion.contract.input, available) : {
             missingSchemas: card.input.schemas.filter(schema => !available.schemas.includes(schema)),
             missingCapabilities: card.input.capabilities.filter(capability => !available.capabilities.includes(capability)),
+        };
+        return { moduleId: module.id, card, protocol: assertion.contract?.protocol ?? 'legacy', matchesQuery: words.every(word => searchable.includes(word)),
+            ...compatibility,
         };
     })).filter(entry => entry.matchesQuery).map(entry => ({ ...entry,
         declaredCompatible: entry.missingSchemas.length === 0 && entry.missingCapabilities.length === 0,
@@ -106,10 +128,11 @@ export function discoverAssertions(modules, available, query = '') {
 export function modelCard(gate) {
     return {
         schemaVersion: 2, contractDigest: gate.digest, modules: gate.modules,
+        legacyAssertions: gate.assertions.filter(assertion => !assertion.contract).map(assertion => assertion.card.id),
         selection: gate.policy, evaluatedClosure: gate.assertions.map(a => a.card.id),
         composition: 'Required assertions form a conjunction with their prerequisites; advisory assertions cannot cancel failures. No independence or probability multiplication is assumed.',
         interpretation: 'PASS means the required predicates reported pass for the supplied scope and current evidence. It is not proof of global quality, causal identification, calibrated confidence, or eventual convergence.',
-        assertions: gate.assertions.map(a => ({ ...a.card, role: gate.policy.required.includes(a.card.id) ? 'required' : gate.policy.advisory.includes(a.card.id) ? 'advisory' : 'prerequisite' })),
+        assertions: gate.assertions.map(a => ({ ...a.card, contract: a.contract ?? null, role: gate.policy.required.includes(a.card.id) ? 'required' : gate.policy.advisory.includes(a.card.id) ? 'advisory' : 'prerequisite' })),
     };
 }
 //# sourceMappingURL=catalog.js.map

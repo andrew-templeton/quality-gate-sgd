@@ -22,6 +22,9 @@ export interface AssertionCard {
     evidence: string[];
     /** Must equal this assertion's version to authorize a model-judgment hard gate. */
     evaluatorVersion?: string;
+    /** Full standard evaluator identity, including input contracts, configuration and applicability. */
+    evaluatorDigest?: string;
+    applicabilityDigest?: string;
     scope: string;
   };
   remediation?: { prompt: string; harnessId?: string; verification: string[] };
@@ -37,6 +40,10 @@ export interface EvaluationContext {
   /** Digest of source commitments, audience, policy inputs, viewport/state matrix and environment. */
   environmentDigest: string;
   signal: AbortSignal;
+  /** Engine-owned stable request ID; adapters may forward it for provider receipt/idempotency lookup. */
+  operationId?: string;
+  /** Explicit workflow declarations; matching these does not authenticate provenance. */
+  available?: { schemas: string[]; capabilities: string[] };
 }
 export interface Finding {
   address: string;
@@ -53,6 +60,8 @@ export interface Observation {
 }
 export interface Assertion {
   card: AssertionCard;
+  /** Standard, portable execution contract. Legacy assertions have no implicit qualification. */
+  contract?: import('./contracts.js').AssertionContract;
   evaluate(context: EvaluationContext): Promise<Observation>;
 }
 export interface AssertionModule { id: string; version: string; includes: string[]; assertions: Assertion[] }

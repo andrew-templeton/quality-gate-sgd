@@ -1,14 +1,16 @@
 import type { AdmissionPolicy, LoopState } from './admission.js';
 import { BudgetLedger } from './budget.js';
+import { DurableRun } from './durability.js';
 import { planNudges } from './nudges.js';
 import type { RemediationHarness, RemediationOutput, RemediationRequest } from './remediation.js';
-import type { Artifact, CompiledGate, Cost, Evaluation, Nudge } from './types.js';
+import type { Artifact, CompiledGate, Cost, Evaluation, EvaluationContext, Nudge } from './types.js';
 export interface ProposalContext {
     artifact: Artifact;
     evaluation: Evaluation;
     round: number;
     state: LoopState;
     signal: AbortSignal;
+    operationId?: string;
 }
 export interface NudgeProposal {
     nudges: Nudge[];
@@ -30,6 +32,7 @@ export interface QualityLoopOptions {
     gate: CompiledGate;
     artifact: Artifact;
     environmentDigest: string;
+    available?: EvaluationContext['available'];
     budget: BudgetLedger;
     admission: AdmissionPolicy;
     /** Counts attempted proposal/repair rounds independently of all monetary/token/evaluation budgets. */
@@ -52,6 +55,13 @@ export interface QualityLoopOptions {
     repairTimeoutMs?: number;
     /** False permits objective optimization after the required assertions pass. Defaults to true. */
     stopOnGatePass?: boolean;
+    durability?: DurableRun;
+    /** Caller-owned immutable versions for the proposal, repair and optional workspace implementation/configuration. */
+    executionIdentity?: {
+        proposal: string;
+        repair: string;
+        workspace?: string;
+    };
 }
 export interface QualityLoopResult {
     artifact: Artifact;
@@ -62,10 +72,26 @@ export interface QualityLoopResult {
     events: LoopEvent[];
     budget: ReturnType<BudgetLedger['snapshot']>;
 }
+export interface LoopCheckpoint {
+    version: 1;
+    optionsDigest: string;
+    phase: 'baseline' | 'ready' | 'proposal' | 'plan' | 'repair' | 'evaluation' | 'admission' | 'done';
+    artifact: Artifact;
+    evaluation?: Evaluation;
+    state?: LoopState;
+    events: LoopEvent[];
+    rounds: number;
+    attempted: string[];
+    proposal?: NudgeProposal;
+    nudge?: Nudge;
+    candidate?: Artifact;
+    candidateEvaluation?: Evaluation;
+    stopReason?: LoopStopReason;
+}
 /**
  * One intervention per round; re-plan after observing its complete gate evaluation.
- * Nudge effects are hypotheses, never substitutes for the admission evidence.
- * Callbacks must honor AbortSignal; timeout stops dispatch but cannot sandbox arbitrary JavaScript.
+ * A durable run persists each phase and each paid operation before advancing. Unknown outcomes
+ * stop with ReconciliationRequired; reopening never grants permission to repeat external work.
  */
 export declare function runQualityLoop(options: QualityLoopOptions): Promise<QualityLoopResult>;
 //# sourceMappingURL=loop.d.ts.map

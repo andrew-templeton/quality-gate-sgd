@@ -1,8 +1,11 @@
 import { expect, it, vi } from 'vitest';
 import { BudgetLedger } from '../../src/v2/budget.js';
-import { compileGate } from '../../src/v2/catalog.js';
+import { compileGate as compileGateCore } from '../../src/v2/catalog.js';
 import { evaluateGate } from '../../src/v2/evaluate.js';
 import type { Assertion, AssertionCard, Cost, Observation } from '../../src/v2/types.js';
+
+// Explicit compatibility fixtures exercise legacy control mechanics; protocol tests use strict defaults.
+const compileGate = (...args: Parameters<typeof compileGateCore>) => compileGateCore(args[0], args[1], args[2], { ...args[3], allowLegacyAssertions: true });
 
 const card = (id: string, cost: Cost = { evaluations: 1 }): AssertionCard => ({
   id, version: '1', title: id, path: ['measurement', 'regression'], claim: 'The supplied value is within the configured threshold.',

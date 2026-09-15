@@ -1,4 +1,5 @@
 import { BudgetLedger } from './budget.js';
+import { DurableRun } from './durability.js';
 import type { Artifact, Cost, Nudge } from './types.js';
 export interface RemediationRequest {
     artifact: Artifact;
@@ -7,6 +8,8 @@ export interface RemediationRequest {
     /** Caller-owned disposable checkout. Populate it from the baseline and never use the live workspace. */
     candidateWorkspace?: string;
     signal: AbortSignal;
+    /** Stable durable operation key; forward it to services that support idempotency. */
+    operationId?: string;
 }
 export interface RemediationOutput {
     artifact: Artifact;
@@ -36,6 +39,7 @@ export interface RemediationOptions {
     budget: BudgetLedger;
     reservationId: string;
     timeoutMs?: number;
+    durability?: DurableRun;
 }
 /** Produce an isolated candidate only; the complete gate still has to evaluate and admit it. */
 export declare function executeRemediation(options: RemediationOptions): Promise<RemediationResult>;

@@ -1,10 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
 import { BudgetLedger } from '../../src/v2/budget.js';
-import { compileGate } from '../../src/v2/catalog.js';
+import { compileGate as compileGateCore } from '../../src/v2/catalog.js';
 import { runQualityLoop } from '../../src/v2/loop.js';
 import type { QualityLoopOptions } from '../../src/v2/loop.js';
 import type { Artifact, Assertion, Nudge } from '../../src/v2/types.js';
 import { digest } from '../../src/v2/validation.js';
+
+// Explicit compatibility fixtures exercise legacy control mechanics; protocol tests use strict defaults.
+const compileGate = (...args: Parameters<typeof compileGateCore>) => compileGateCore(args[0], args[1], args[2], { ...args[3], allowLegacyAssertions: true });
 
 interface Data { loss: number; safe: boolean; nonce?: number }
 const artifact = (data: Data): Artifact => ({ id: 'fixture', digest: digest(data), data });

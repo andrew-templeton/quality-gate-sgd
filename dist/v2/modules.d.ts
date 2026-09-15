@@ -18,7 +18,6 @@ export interface RenderEvidence {
         }[];
     }[];
 }
-/** Operator-owned requirements, supplied separately from candidate measurements. */
 export interface RenderPolicy {
     version: string;
     views: {
@@ -27,5 +26,15 @@ export interface RenderPolicy {
         maxNovel: number;
     }[];
 }
-export declare function renderedLegibilityModule(read: (data: unknown) => RenderEvidence, suppliedPolicy: RenderPolicy, suppliedCost?: Cost): AssertionModule;
+export interface RenderModuleOptions {
+    policy: RenderPolicy;
+    reportPath?: string[];
+    costUpperBound?: Cost;
+}
+export declare const RENDER_INPUT: {
+    schemas: string[];
+    capabilities: string[];
+};
+/** Required views/caps and the report selector are snapshotted, versioned operator configuration. */
+export declare function renderedLegibilityModule(options: RenderModuleOptions): AssertionModule;
 //# sourceMappingURL=modules.d.ts.map

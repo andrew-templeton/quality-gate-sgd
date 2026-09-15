@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { BudgetLedger } from '../../src/v2/budget.js';
 import { compileGate } from '../../src/v2/catalog.js';
 import { evaluateGate } from '../../src/v2/evaluate.js';
-import { renderedLegibilityModule, type RenderEvidence, type RenderPolicy } from '../../src/v2/modules.js';
+import { renderedLegibilityModule, RENDER_INPUT, type RenderEvidence, type RenderPolicy } from '../../src/v2/modules.js';
 import type { CompiledGate } from '../../src/v2/types.js';
 
 function policy(): RenderPolicy {
@@ -21,14 +21,14 @@ function report(): RenderEvidence {
 }
 
 function compile(renderPolicy = policy()): CompiledGate {
-  return compileGate([renderedLegibilityModule(data => data as RenderEvidence, renderPolicy)], ['rendered-legibility'], {
+  return compileGate([renderedLegibilityModule({ policy: renderPolicy })], ['rendered-legibility'], {
     required: ['render.geometry', 'render.fold-budget'], advisory: [],
   });
 }
 
 function evaluate(gate: CompiledGate, measurements = report()) {
   return evaluateGate(gate, {
-    artifact: { id: 'proposal', digest: 'same-content', data: measurements }, environmentDigest: 'same-reader',
+    artifact: { id: 'proposal', digest: 'same-content', data: measurements }, environmentDigest: 'same-reader', available: RENDER_INPUT,
   }, new BudgetLedger({ evaluations: 10 }));
 }
 
@@ -59,7 +59,7 @@ describe('trusted render policy', () => {
     expect(candidate.status).toBe('unavailable');
     expect(candidate.contractDigest).toBe(baseline.contractDigest);
     expect(candidate.artifactDigest).toBe(baseline.artifactDigest);
-    expect(candidate.results.some(value => /trusted render policy/.test(value.reason ?? ''))).toBe(true);
+    expect(candidate.results.some(value => /unexpected property/.test(value.reason ?? ''))).toBe(true);
   });
 
   it('cannot turn the same content into a pass by dropping a failing view or redefining required views', async () => {
@@ -91,7 +91,7 @@ describe('trusted render policy', () => {
 
   it('captures policy independently of subsequent caller mutation', async () => {
     const supplied = policy();
-    const module = renderedLegibilityModule(data => data as RenderEvidence, supplied);
+    const module = renderedLegibilityModule({ policy: supplied });
     supplied.views[1].maxTotal = 100;
     const gate = compileGate([module], ['rendered-legibility'], {
       required: ['render.geometry', 'render.fold-budget'], advisory: [],
@@ -123,7 +123,7 @@ describe('trusted render policy', () => {
       const gate = compile(revised);
       expect(gate.digest).not.toBe(original.digest);
       expect(gate.modules).not.toEqual(original.modules);
-      expect(gate.assertions.map(value => value.card.version)).not.toEqual(original.assertions.map(value => value.card.version));
+      expect(gate.assertions.map(value => value.contract?.evaluatorDigest)).not.toEqual(original.assertions.map(value => value.contract?.evaluatorDigest));
       expect((await evaluate(gate)).contractDigest).not.toBe((await evaluate(original)).contractDigest);
     }
   });

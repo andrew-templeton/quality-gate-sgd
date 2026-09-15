@@ -30,19 +30,32 @@ export declare const ASSERTION_ZOO: readonly [{
     readonly path: readonly ["control", "reliability"];
     readonly meaning: "Evaluator calibration, freshness, budget and update eligibility.";
 }];
-export declare function compileGate(modules: AssertionModule[], selected: string[], policy: GatePolicy): CompiledGate;
+export declare function compiledGateDigest(gate: Pick<CompiledGate, 'modules' | 'assertions' | 'policy'>): string;
+export declare function compileGate(modules: AssertionModule[], selected: string[], policy: GatePolicy, options?: {
+    allowLegacyAssertions?: boolean;
+}): CompiledGate;
 /** Local metadata discovery. A declaration match is a candidate for validation, not proof of semantic compatibility. */
 export declare function discoverAssertions(modules: AssertionModule[], available: {
     schemas: string[];
     capabilities: string[];
-}, query?: string): {
+}, query?: string): ({
     declaredCompatible: boolean;
     limitation: string;
-    moduleId: string;
-    card: import("./types.js").AssertionCard;
-    matchesQuery: boolean;
     missingSchemas: string[];
     missingCapabilities: string[];
-}[];
+    moduleId: string;
+    card: import("./types.js").AssertionCard;
+    protocol: string;
+    matchesQuery: boolean;
+} | {
+    declaredCompatible: boolean;
+    limitation: string;
+    missingSchemas: string[];
+    missingCapabilities: string[];
+    moduleId: string;
+    card: import("./types.js").AssertionCard;
+    protocol: string;
+    matchesQuery: boolean;
+})[];
 export declare function modelCard(gate: CompiledGate): object;
 //# sourceMappingURL=catalog.d.ts.map

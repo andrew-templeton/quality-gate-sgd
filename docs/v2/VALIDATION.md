@@ -1,5 +1,19 @@
 # V2 validation record
 
+## Current contract and durability follow-up
+
+Development version `2.0.0-dev.2`, September 14, 2026, adds strict standard assertion identity, qualification invalidation, executable input bindings, shared discovery compatibility and optional local single-writer durable execution. Public source publication does not imply npm registry publication.
+
+The clean build and **191 core tests in 11 files passed**, including 28 strict protocol tests, 18 durable-ledger tests, 20 separate-process crash/resume tests and mutation-resistant loop settings. Package inspection found 87 intended files and no domain runtime dependencies, software implementation or obsolete CLI. ESLint reported no errors; nine existing/test non-null assertion warnings remain. The synthetic communication CLI passed all three required checks at a cost of three evaluations.
+
+The protocol tests change build identity, nested configuration, applicability, claims, assumptions, guarantees, input schemas, versions and capabilities; stale qualification is rejected. Missing/malformed inputs and declarations do not dispatch or charge their evaluators. The render report uses an explicit path and trusted policy. [CONTRACTS.md](CONTRACTS.md) states the supported schema algebra, migration and the limits of identity declarations.
+
+The crash tests kill actual Node processes around reservation, dispatch, recorded outcome, settlement, evaluation and admission. Their separate fsynced fixture ledger checks observed evaluations, tokens, cents and rounds against restored accounting. Unknown external outcomes remain reserved, repeated resume does not dispatch a second repair, and independently recovered fixture receipts permit reconciliation. The tests also preserve deadbands, cooldowns, required nonregression, stall/cycle/budget stops and attempted-artifact history. [DURABLE-EXECUTION.md](DURABLE-EXECUTION.md) states the supported local POSIX writer model and its limits.
+
+Independent strict-protocol external conformance, the combined stable API review and domain/reader validation remain open in the [36-task graph](../work/README.md). The earlier dev.1 external consumer results below apply to those recorded revisions; they are not evidence for strict dev.2 compatibility. No new real reader outcome, live server scan or empirical semantic qualification is claimed by this core batch.
+
+## Earlier extraction validation
+
 Development version `2.0.0-dev.1`, validated September 14, 2026 on Node.js 22.23.2. This revision externalizes the software implementations and adds the directed work graph. These are public Git source releases; no npm registry publication is claimed.
 
 | Check | Result |
@@ -28,4 +42,4 @@ Before extraction, development revision `30a4f6b` passed 1,169 combined core/sof
 
 The earlier consumer audit also exercised seven real TypeScript/ESLint subprocess cases, and the calibration examples ran successfully. Extraction preserves the collector failure hardening; it does not establish complete source coverage or change legacy optional-ceiling semantics.
 
-These checks establish deterministic control and integration behavior. Synthetic render reports do not validate an application's pixels, and a lexical fold diagnostic does not establish comprehension. No new reader study, live SonarQube scan, paid repair run, empirical semantic-verifier qualification or full Python research evaluation was performed. The [API review](API-REVIEW.md) and [work graph](../work/README.md) retain the unresolved identity, input-contract, durability and domain-validation work.
+These historical checks established deterministic control and integration behavior for dev.1. Synthetic render reports do not validate an application's pixels, and a lexical fold diagnostic does not establish comprehension. No new reader study, live SonarQube scan, paid repair run, empirical semantic-verifier qualification or full Python research evaluation was performed for that revision. The current follow-up and [work graph](../work/README.md) record subsequent implementation and unresolved domain-validation work separately.
