@@ -54,6 +54,8 @@ export interface EvaluationContext {
     signal: AbortSignal;
     /** Engine-owned stable request ID; adapters may forward it for provider receipt/idempotency lookup. */
     operationId?: string;
+    /** Host-validated outputs from this evaluation's declared passing prerequisites. */
+    prerequisites?: Record<string, import('./contracts.js').OutputEvidence>;
     /** Explicit workflow declarations; matching these does not authenticate provenance. */
     available?: {
         schemas: string[];
@@ -65,13 +67,15 @@ export interface Finding {
     message: string;
     evidence: string[];
 }
-export interface Observation {
+export interface Observation<T = unknown> {
     status: Status;
     findings: Finding[];
     evidence: string[];
     /** Lower is better. Bounds have caller-declared semantics; not automatically confidence intervals. */
     loss?: Interval;
     actualCost: Cost;
+    /** Optional typed data handoff; only a declared, validated passing output is eligible as evidence. */
+    output?: T;
 }
 export interface Assertion {
     card: AssertionCard;
@@ -98,6 +102,7 @@ export interface CompiledGate {
 export interface AssertionResult extends Observation {
     assertionId: string;
     inputDigest: string;
+    outputEvidence?: import('./contracts.js').OutputEvidence;
     reason?: string;
     reasonCode?: 'prerequisite-blocked';
 }

@@ -4,7 +4,7 @@
 
 A dependency-ordered plan for a reusable assertion engine and independently maintained quality modules. All tasks, including domain and empirical work outside the minimum stable API path, remain in the completion scope. The stable API milestone covers protocol and execution guarantees; application-specific validity remains a separate obligation. Scope and required evidence are mapped in docs/work/SCOPE.md.
 
-Updated 2026-09-14. Current development API: `2.0.0-dev.2`. 36 tasks: 15 planned, 6 active, 15 done.
+Updated 2026-09-14. Current development API: `2.0.0-dev.2`. 36 tasks: 13 planned, 7 active, 16 done.
 
 Edit [graph.json](./graph.json), then run `npm run plan:generate` and `npm run plan:check`. IDs are stable. `dependsOn` lists prerequisites; every arrow points from prerequisite to dependent. A done task requires evidence and done prerequisites. Evidence links are reviewable records, not automatically authenticated proofs.
 
@@ -26,14 +26,15 @@ Repository URLs identify intended ownership. Publication is established by the c
 These unfinished tasks have no unfinished prerequisites. Readiness does not imply implementation or approval of their eventual claims.
 
 - [`external-conformance`](#external-conformance) — Run independent module conformance (active; core).
-- [`typed-prerequisite-outputs`](#typed-prerequisite-outputs) — Compose typed prerequisite outputs (planned; core).
 - [`assertion-context`](#assertion-context) — Make guarantees and assertion context discoverable (planned; core).
 - [`software-evidence-completeness`](#software-evidence-completeness) — Establish software collection completeness (active; software).
 - [`sonar-provenance`](#sonar-provenance) — Strengthen Sonar report provenance and scope (active; sonarqube).
 - [`verifier-calibration`](#verifier-calibration) — Collect scoped verifier validity evidence (planned; core).
 - [`causal-conflict-validation`](#causal-conflict-validation) — Validate conflicting nudge decisions (planned; core).
 - [`remediation-validation`](#remediation-validation) — Validate optional repair and verification (planned; core).
+- [`semantic-commitments`](#semantic-commitments) — Preserve source meaning and business arithmetic (planned; core).
 - [`rendered-fold-evidence`](#rendered-fold-evidence) — Collect inspectable rendered fold evidence (planned; core).
+- [`evidence-lineage`](#evidence-lineage) — Invalidate evidence through shared dependency addresses (active; core).
 
 Active work still awaiting prerequisites:
 
@@ -75,7 +76,7 @@ flowchart TD
     task_stable_api_review["stable-api-review<br/>Review the minimum stable API contract"]:::planned
   end
   subgraph extensions["Examples and later domain or empirical work"]
-    task_typed_prerequisite_outputs["typed-prerequisite-outputs<br/>Compose typed prerequisite outputs"]:::planned
+    task_typed_prerequisite_outputs["typed-prerequisite-outputs<br/>Compose typed prerequisite outputs"]:::done
     task_assertion_context["assertion-context<br/>Make guarantees and assertion context discoverable"]:::planned
     task_software_evidence_completeness["software-evidence-completeness<br/>Establish software collection completeness"]:::active
     task_software_v2_qualification["software-v2-qualification<br/>Qualify software gates as v2 modules"]:::active
@@ -88,7 +89,7 @@ flowchart TD
     task_semantic_commitments["semantic-commitments<br/>Preserve source meaning and business arithmetic"]:::planned
     task_rendered_fold_evidence["rendered-fold-evidence<br/>Collect inspectable rendered fold evidence"]:::planned
     task_decision_density_disclosure["decision-density-disclosure<br/>Preserve useful decisions within fold budgets"]:::planned
-    task_evidence_lineage["evidence-lineage<br/>Invalidate evidence through shared dependency addresses"]:::planned
+    task_evidence_lineage["evidence-lineage<br/>Invalidate evidence through shared dependency addresses"]:::active
     task_workflow_composition["workflow-composition<br/>Propose reviewable workflow module compositions"]:::planned
     task_operator_alignment_game["operator-alignment-game<br/>Make blinded operator calibration runnable"]:::active
     task_assessment_selection_costing["assessment-selection-costing<br/>Validate decision value and assessment spending"]:::planned
@@ -492,7 +493,7 @@ Context: [Consumer API review](../v2/API-REVIEW.md).
 <a id="typed-prerequisite-outputs"></a>
 ### typed-prerequisite-outputs: Compose typed prerequisite outputs
 
-**planned** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
+**done** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
 
 Prerequisites: [`input-bindings`](#input-bindings).
 
@@ -501,7 +502,7 @@ Acceptance criteria:
 - Define explicit typed evidence/output handoffs between assertions beyond current execution ordering and eligibility.
 - Validate output identity, lineage, schema versions and missing upstream data; prevent a dependent assertion from treating an unavailable prerequisite as evidence.
 
-Evidence: not yet recorded.
+Evidence: [Typed handoff implementation, lineage and validation](../v2/EVIDENCE-HANDOFFS.md).
 
 Context: [V2 guide](../v2/README.md); [Consumer API review](../v2/API-REVIEW.md).
 
@@ -717,7 +718,7 @@ Context: [Scope and evidence traceability](./SCOPE.md).
 <a id="evidence-lineage"></a>
 ### evidence-lineage: Invalidate evidence through shared dependency addresses
 
-**planned** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
+**active** · [quality-gate-sgd](https://github.com/andrew-templeton/quality-gate-sgd) · later · outside minimum stable path
 
 Prerequisites: [`implementation-identity`](#implementation-identity), [`typed-prerequisite-outputs`](#typed-prerequisite-outputs), [`checkpoint-resume`](#checkpoint-resume).
 

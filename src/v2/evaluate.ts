@@ -2,15 +2,16 @@ import { BudgetLedger } from './budget.js';
 import type { AssertionResult, CompiledGate, Evaluation, EvaluationContext, Observation } from './types.js';
 import { digest, freezeJson, requireThat, text, validateObservation } from './validation.js';
 import { compiledGateDigest } from './catalog.js';
-import { prepareInput } from './contracts.js';
+import { parseSchema, prepareInput, validateOutputEvidence, type OutputEvidence } from './contracts.js';
 import { DurableRun, isDurabilityInterruption } from './durability.js';
 
 export async function evaluateGate(
   gate: CompiledGate,
-  input: Omit<EvaluationContext, 'signal' | 'operationId'>,
+  input: Omit<EvaluationContext, 'signal' | 'operationId' | 'prerequisites'>,
   budget: BudgetLedger,
   options: { timeoutMs?: number; durability?: DurableRun } = {},
 ): Promise<Evaluation> {
+  requireThat(!Object.hasOwn(input, 'prerequisites') && !Object.hasOwn(input, 'operationId'), 'Operation IDs and prerequisite evidence are engine-owned');
   digest(input);
   input = freezeJson(structuredClone(input));
   text(input.artifact.id, 'Artifact ID'); text(input.artifact.digest, 'Artifact digest'); text(input.environmentDigest, 'Environment digest');
@@ -48,6 +49,20 @@ export async function evaluateGate(
     if (card.requires.some(id => results.find(result => result.assertionId === id)?.status !== 'pass')) {
       unavailable('A prerequisite did not pass'); results[results.length - 1].reasonCode = 'prerequisite-blocked'; continue;
     }
+    const prerequisites: Record<string, OutputEvidence> = Object.create(null) as Record<string, OutputEvidence>;
+    let missingOutput: string | undefined;
+    for (const [name, binding] of Object.entries(assertion.contract?.prerequisites ?? {})) {
+      const source = results.find(result => result.assertionId === binding.assertionId);
+      const producer = gate.assertions.find(value => value.card.id === binding.assertionId);
+      const evidence = source?.outputEvidence;
+      try {
+        requireThat(source?.status === 'pass' && evidence && evidence.inputDigest === inputDigest && evidence.evaluatorDigest === producer?.contract?.evaluatorDigest && evidence.schemaDigest === digest(binding.output), `Required output missing or stale: ${name}`);
+        validateOutputEvidence(evidence);
+        prerequisites[name] = evidence;
+      } catch (error) { missingOutput = error instanceof Error ? error.message : String(error); break; }
+    }
+    if (missingOutput) { unavailable(missingOutput); results[results.length - 1].reasonCode = 'prerequisite-blocked'; continue; }
+    freezeJson(prerequisites);
     if (required.has(card.id) && card.evidenceKind === 'model-judgment' && card.calibration.status !== 'qualified') {
       unavailable('Model evaluator is not qualified for required-gate use'); continue;
     }
@@ -60,7 +75,7 @@ export async function evaluateGate(
     let reported: Observation | undefined;
     try {
       const dispatch = (): Promise<Observation> => Promise.race([
-        Promise.resolve().then(() => assertion.evaluate({ ...input, signal: controller.signal, operationId: reservation })),
+        Promise.resolve().then(() => assertion.evaluate({ ...input, signal: controller.signal, operationId: reservation, prerequisites })),
         new Promise<never>((_, reject) => {
           timer = setTimeout(() => { interrupted = true; controller.abort(); reject(new Error('Assertion timeout')); }, timeoutMs);
         }),
@@ -71,8 +86,18 @@ export async function evaluateGate(
       reported = observation;
       requireThat(gate.digest === compiledGateDigest(gate), 'Contract mutated during evaluation');
       validateObservation(observation);
+      digest(observation);
+      let outputEvidence: OutputEvidence | undefined;
+      if (assertion.contract?.output && observation.status === 'pass') {
+        requireThat(Object.hasOwn(observation, 'output'), 'Passing assertion omitted its declared output');
+        const value = parseSchema({ definition: assertion.contract.output.schema }, observation.output);
+        const body = { assertionId: card.id, evaluatorDigest: assertion.contract.evaluatorDigest, inputDigest, schemaDigest: digest(assertion.contract.output),
+          valueDigest: digest(value), value, dependencies: [...new Set(Object.values(prerequisites).map(value => value.digest))].sort() };
+        outputEvidence = freezeJson({ ...body, digest: digest(body) });
+      } else if (observation.status === 'pass') requireThat(!Object.hasOwn(observation, 'output'), 'Assertion output requires an explicit output contract');
       budget.settle(reservation, observation.actualCost); settled = true;
-      results.push({ ...observation, assertionId: card.id, inputDigest,
+      results.push({ status: observation.status, findings: freezeJson(structuredClone(observation.findings)), evidence: [...observation.evidence], actualCost: { ...observation.actualCost },
+        ...(observation.loss ? { loss: { ...observation.loss } } : {}), ...(outputEvidence ? { output: outputEvidence.value, outputEvidence } : {}), assertionId: card.id, inputDigest,
         ...(budget.snapshot().exceeded ? { status: 'unavailable' as const, reason: 'Runner exceeded its reserved cost; further spending disabled' } : {}),
       });
     } catch (error) {

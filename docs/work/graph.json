@@ -566,7 +566,7 @@
       "title": "Compose typed prerequisite outputs",
       "owner": "core",
       "track": "later",
-      "status": "planned",
+      "status": "done",
       "dependsOn": [
         "input-bindings"
       ],
@@ -574,7 +574,12 @@
         "Define explicit typed evidence/output handoffs between assertions beyond current execution ordering and eligibility.",
         "Validate output identity, lineage, schema versions and missing upstream data; prevent a dependent assertion from treating an unavailable prerequisite as evidence."
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "label": "Typed handoff implementation, lineage and validation",
+          "url": "../v2/EVIDENCE-HANDOFFS.md"
+        }
+      ],
       "links": [
         {
           "label": "V2 guide",
@@ -898,7 +903,7 @@
       "title": "Invalidate evidence through shared dependency addresses",
       "owner": "core",
       "track": "later",
-      "status": "planned",
+      "status": "active",
       "dependsOn": [
         "implementation-identity",
         "typed-prerequisite-outputs",

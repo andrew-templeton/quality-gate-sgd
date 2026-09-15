@@ -93,6 +93,11 @@ export function compileGate(modules, selected, policy, options = {}) {
         requireThat(assertion, `Unknown assertion ${id}`);
         pending.add(id);
         assertion.card.requires.forEach(visitAssertion);
+        for (const prerequisite of Object.values(assertion.contract?.prerequisites ?? {})) {
+            requireThat(assertion.card.requires.includes(prerequisite.assertionId), 'Typed output bindings must name explicit prerequisites');
+            const producer = assertions.get(prerequisite.assertionId);
+            requireThat(producer?.contract?.output && digest(producer.contract.output) === digest(prerequisite.output), `Prerequisite output contract mismatch: ${prerequisite.assertionId}`);
+        }
         pending.delete(id);
         done.add(id);
         order.push(assertion);

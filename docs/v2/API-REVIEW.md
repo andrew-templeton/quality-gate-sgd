@@ -14,7 +14,7 @@ This review considered actual consumer behavior, including a class-based asserti
 
 | Component | Assessment | Boundary to preserve or work required |
 | --- | --- | --- |
-| Required/advisory composition and prerequisite closure | Retain | Every required predicate and prerequisite must pass. Advisory results cannot compensate for a failure. Prerequisites currently control ordering and eligibility; they do not transfer typed intermediate outputs. |
+| Required/advisory composition and prerequisite closure | Retain | Every required predicate and prerequisite must pass. Advisory results cannot compensate for a failure. Optional typed output bindings now transfer validated current evidence in addition to ordering and eligibility; see [evidence handoffs](EVIDENCE-HANDOFFS.md). |
 | Assertion cards and composed cards | Retain, strengthen identity | Explicit claims, assumptions, guarantees, excluded conclusions and scope are valuable. A card is a declaration, not independent authentication of its evidence. |
 | Unavailable evidence and observation validation | Retain | Missing, malformed, stale or timed-out evidence must remain distinct from a measured pass or failure. |
 | Multi-unit budget ledger | Retain, add persistence | Reserve before work, preserve known expenditure and keep units separate. Process-local accounting is insufficient for resumable paid runs. |

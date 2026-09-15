@@ -12,6 +12,10 @@ The crash tests kill actual Node processes around reservation, dispatch, recorde
 
 Independent strict-protocol external conformance, the combined stable API review and domain/reader validation remain open in the [36-task graph](../work/README.md). The earlier dev.1 external consumer results below apply to those recorded revisions; they are not evidence for strict dev.2 compatibility. No new real reader outcome, live server scan or empirical semantic qualification is claimed by this core batch.
 
+## Typed output follow-up
+
+The optional typed-output extension passed all **200 core tests plus 12 graph tests**. Nine dedicated handoff tests cover malformed/missing upstream data, schema and version mismatch, host-owned output receipts, qualification invalidation and durable replay. The emitted public declarations passed `npm run check:types`, including deliberate negative type cases. CI now runs this public consumer check after building. External modules that omit output handoffs keep their existing standard identity representation.
+
 ## Earlier extraction validation
 
 Development version `2.0.0-dev.1`, validated September 14, 2026 on Node.js 22.23.2. This revision externalizes the software implementations and adds the directed work graph. These are public Git source releases; no npm registry publication is claimed.

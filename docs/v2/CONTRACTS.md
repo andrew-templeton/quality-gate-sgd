@@ -26,6 +26,8 @@ const assertion = defineAssertion({
 
 The complete runnable arithmetic example is [communication.mjs](../../examples/v2/communication.mjs). It deliberately uses synthetic data and makes only an arithmetic claim.
 
+Optional `output` and `prerequisites` contracts support [typed evidence handoffs](EVIDENCE-HANDOFFS.md). These fields enter evaluator identity when declared. Assertions with no data handoff retain the same identity representation.
+
 ## Semantic identity
 
 `implementation` includes an ID, version and 64-character lowercase SHA-256 build digest. A producer must cover all behaviorally relevant code, dependencies, prompts, rubric and model settings in its implementation/configuration declaration. The helper does not discover a JavaScript closure or automatically attest a build. Use explicit immutable configuration passed to the evaluator instead of consulting a mutable instance or closure.

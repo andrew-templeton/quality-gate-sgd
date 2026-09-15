@@ -19,7 +19,8 @@
     "test:v2": "vitest run tests/v2",
     "plan:generate": "node scripts/work-graph.mjs write",
     "plan:check": "node scripts/work-graph.mjs check",
-    "check:package": "node scripts/check-package.mjs"
+    "check:package": "node scripts/check-package.mjs",
+    "check:types": "tsc --noEmit --strict --skipLibCheck --module NodeNext --target ES2022 tests/public-contract-types.ts"
   },
   "keywords": [
     "quality",

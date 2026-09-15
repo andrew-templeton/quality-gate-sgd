@@ -66,6 +66,38 @@ export interface InputContract {
 export interface InputBinding<T> extends InputContract {
     readonly valueType?: T;
 }
+export interface OutputContract {
+    schemaId: string;
+    schemaVersion: string;
+    schema: SchemaNode;
+}
+export interface OutputBinding<T> extends OutputContract {
+    readonly valueType?: T;
+}
+export interface PrerequisiteBinding<T = unknown> {
+    assertionId: string;
+    output: OutputBinding<T>;
+}
+export type PrerequisiteValues<P extends Record<string, PrerequisiteBinding>> = {
+    [K in keyof P]: P[K] extends PrerequisiteBinding<infer T> ? T : never;
+};
+export interface OutputEvidence {
+    assertionId: string;
+    evaluatorDigest: string;
+    inputDigest: string;
+    schemaDigest: string;
+    valueDigest: string;
+    dependencies: string[];
+    value: unknown;
+    digest: string;
+}
+export declare function defineOutput<T>(options: {
+    schemaId: string;
+    schemaVersion: string;
+    schema: ValueSchema<T>;
+}): OutputBinding<T>;
+export declare function fromAssertion<T>(assertionId: string, output: OutputBinding<T>): PrerequisiteBinding<T>;
+export declare function validateOutputContract(output: OutputContract): void;
 export declare function bindInput<T>(options: {
     schemaId: string;
     schemaVersion: string;
@@ -92,6 +124,8 @@ export interface AssertionContract {
     applicability: unknown;
     statementDigest: string;
     input: InputContract;
+    output?: OutputContract;
+    prerequisites?: Record<string, PrerequisiteBinding>;
     evaluatorDigest: string;
 }
 export declare function evaluatorIdentity(contract: Omit<AssertionContract, 'evaluatorDigest'> | AssertionContract): string;
@@ -102,12 +136,15 @@ export declare function validateAssertionContract(contract: AssertionContract): 
  * Implementation identity is an integrity declaration, not attestation of honest JavaScript.
  * Evaluators must use the supplied configuration; undeclared mutable closure state violates this contract.
  */
-export declare function defineAssertion<C, I>(definition: {
+export declare function defineAssertion<C, I, O = unknown, P extends Record<string, PrerequisiteBinding> = Record<string, never>>(definition: {
     card: AssertionCard;
     implementation: AssertionContract['implementation'];
     configuration: C;
     applicability: unknown;
     input: InputBinding<I>;
-    evaluate(context: EvaluationContext, input: I, configuration: Readonly<C>): Promise<Observation>;
+    output?: OutputBinding<O>;
+    prerequisites?: P;
+    evaluate(context: EvaluationContext, input: I, configuration: Readonly<C>, prerequisites: PrerequisiteValues<P>): Promise<Observation<O>>;
 }): Assertion;
+export declare function validateOutputEvidence(evidence: OutputEvidence): void;
 //# sourceMappingURL=contracts.d.ts.map

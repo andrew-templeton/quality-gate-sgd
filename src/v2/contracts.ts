@@ -113,6 +113,35 @@ export interface InputContract {
   capabilities: string[];
 }
 export interface InputBinding<T> extends InputContract { readonly valueType?: T }
+export interface OutputContract { schemaId: string; schemaVersion: string; schema: SchemaNode }
+export interface OutputBinding<T> extends OutputContract { readonly valueType?: T }
+export interface PrerequisiteBinding<T = unknown> { assertionId: string; output: OutputBinding<T> }
+export type PrerequisiteValues<P extends Record<string, PrerequisiteBinding>> = {
+  [K in keyof P]: P[K] extends PrerequisiteBinding<infer T> ? T : never;
+};
+export interface OutputEvidence {
+  assertionId: string;
+  evaluatorDigest: string;
+  inputDigest: string;
+  schemaDigest: string;
+  valueDigest: string;
+  dependencies: string[];
+  value: unknown;
+  digest: string;
+}
+export function defineOutput<T>(options: { schemaId: string; schemaVersion: string; schema: ValueSchema<T> }): OutputBinding<T> {
+  const output = { schemaId: options.schemaId, schemaVersion: options.schemaVersion, schema: options.schema.definition };
+  validateOutputContract(output);
+  return freezeJson(structuredClone(output));
+}
+export function fromAssertion<T>(assertionId: string, output: OutputBinding<T>): PrerequisiteBinding<T> {
+  text(assertionId, 'Prerequisite assertion ID'); validateOutputContract(output);
+  return freezeJson(structuredClone({ assertionId, output }));
+}
+export function validateOutputContract(output: OutputContract): void {
+  digest(output); fields(output, ['schemaId', 'schemaVersion', 'schema'], 'Output contract');
+  validateInputContract({ ...output, path: [], capabilities: [] });
+}
 export function bindInput<T>(options: { schemaId: string; schemaVersion: string; schema: ValueSchema<T>; path?: string[]; capabilities?: string[] }): InputBinding<T> {
   const binding = { schemaId: options.schemaId, schemaVersion: options.schemaVersion, schema: options.schema.definition, path: options.path ?? [], capabilities: options.capabilities ?? [] };
   validateInputContract(binding);
@@ -151,23 +180,35 @@ export interface AssertionContract {
   applicability: unknown;
   statementDigest: string;
   input: InputContract;
+  output?: OutputContract;
+  prerequisites?: Record<string, PrerequisiteBinding>;
   evaluatorDigest: string;
 }
 export function evaluatorIdentity(contract: Omit<AssertionContract, 'evaluatorDigest'> | AssertionContract): string {
-  return digest({ protocol: contract.protocol, implementation: contract.implementation, configuration: contract.configuration, applicability: contract.applicability, statementDigest: contract.statementDigest, input: contract.input });
+  return digest({ protocol: contract.protocol, implementation: contract.implementation, configuration: contract.configuration, applicability: contract.applicability, statementDigest: contract.statementDigest, input: contract.input,
+    ...(contract.output ? { output: contract.output } : {}), ...(contract.prerequisites ? { prerequisites: contract.prerequisites } : {}) });
 }
 export function assertionStatement(card: AssertionCard): string {
   return digest({ id: card.id, claim: card.claim, evidenceKind: card.evidenceKind, assumptions: card.assumptions,
     guarantees: card.guarantees, doesNotGuarantee: card.doesNotGuarantee, requires: card.requires });
 }
 export function validateAssertionContract(contract: AssertionContract): void {
-  fields(contract, ['protocol', 'implementation', 'configuration', 'applicability', 'statementDigest', 'input', 'evaluatorDigest'], 'Assertion contract');
+  digest(contract);
+  fields(contract, ['protocol', 'implementation', 'configuration', 'applicability', 'statementDigest', 'input', 'output', 'prerequisites', 'evaluatorDigest'], 'Assertion contract');
   requireThat(contract.protocol === 'quality-sgd.assertion/v1', 'Unsupported assertion protocol');
   fields(contract.implementation, ['id', 'version', 'digest'], 'Implementation identity');
   for (const key of ['id', 'version', 'digest'] as const) text(contract.implementation[key], `Implementation ${key}`);
   requireThat(/^[a-f0-9]{64}$/.test(contract.implementation.digest), 'Implementation digest must be SHA-256');
   requireThat(/^[a-f0-9]{64}$/.test(contract.statementDigest), 'Statement digest must be SHA-256');
   validateInputContract(contract.input);
+  if (contract.output) validateOutputContract(contract.output);
+  if (contract.prerequisites) {
+    requireThat(typeof contract.prerequisites === 'object' && !Array.isArray(contract.prerequisites), 'Prerequisite bindings must be a record');
+    for (const [name, prerequisite] of Object.entries(contract.prerequisites)) {
+      text(name, 'Prerequisite binding name'); fields(prerequisite, ['assertionId', 'output'], 'Prerequisite binding');
+      text(prerequisite.assertionId, 'Prerequisite assertion'); validateOutputContract(prerequisite.output);
+    }
+  }
   requireThat(contract.evaluatorDigest === evaluatorIdentity(contract), 'Evaluator identity mismatch');
 }
 
@@ -176,17 +217,20 @@ export function validateAssertionContract(contract: AssertionContract): void {
  * Implementation identity is an integrity declaration, not attestation of honest JavaScript.
  * Evaluators must use the supplied configuration; undeclared mutable closure state violates this contract.
  */
-export function defineAssertion<C, I>(definition: {
+export function defineAssertion<C, I, O = unknown, P extends Record<string, PrerequisiteBinding> = Record<string, never>>(definition: {
   card: AssertionCard;
   implementation: AssertionContract['implementation'];
   configuration: C;
   applicability: unknown;
   input: InputBinding<I>;
-  evaluate(context: EvaluationContext, input: I, configuration: Readonly<C>): Promise<Observation>;
+  output?: OutputBinding<O>;
+  prerequisites?: P;
+  evaluate(context: EvaluationContext, input: I, configuration: Readonly<C>, prerequisites: PrerequisiteValues<P>): Promise<Observation<O>>;
 }): Assertion {
   digest(definition.card);
   const supplied = { protocol: 'quality-sgd.assertion/v1' as const, implementation: definition.implementation,
-    configuration: definition.configuration, applicability: definition.applicability, statementDigest: assertionStatement(definition.card), input: definition.input };
+    configuration: definition.configuration, applicability: definition.applicability, statementDigest: assertionStatement(definition.card), input: definition.input,
+    ...(definition.output ? { output: definition.output } : {}), ...(definition.prerequisites ? { prerequisites: definition.prerequisites } : {}) };
   digest(supplied); // Validate before cloning can erase unsupported metadata or execute accessors.
   const body = freezeJson(structuredClone(supplied));
   const contract = freezeJson({ ...body, evaluatorDigest: evaluatorIdentity(body) });
@@ -195,6 +239,20 @@ export function defineAssertion<C, I>(definition: {
     schemas: [inputSchemaKey(contract.input)], capabilities: contract.input.capabilities } }));
   const run = definition.evaluate.bind(undefined);
   return Object.freeze({ card, contract, async evaluate(context: EvaluationContext) {
-    return run(context, prepareInput<I>(contract.input, context), contract.configuration as Readonly<C>);
+    const values = Object.fromEntries(Object.entries(contract.prerequisites ?? {}).map(([name, prerequisite]) => {
+      const evidence = context.prerequisites?.[name];
+      requireThat(evidence && evidence.assertionId === prerequisite.assertionId && evidence.schemaDigest === digest(prerequisite.output), `Prerequisite evidence missing or incompatible: ${name}`);
+      validateOutputEvidence(evidence);
+      return [name, parseSchema({ definition: prerequisite.output.schema }, evidence.value)];
+    }));
+    return run(context, prepareInput<I>(contract.input, context), contract.configuration as Readonly<C>, freezeJson(values) as PrerequisiteValues<P>);
   } });
+}
+
+export function validateOutputEvidence(evidence: OutputEvidence): void {
+  digest(evidence);
+  const { digest: expected, ...body } = evidence;
+  requireThat(expected === digest(body) && evidence.valueDigest === digest(evidence.value), 'Output evidence integrity mismatch');
+  for (const name of ['assertionId', 'evaluatorDigest', 'inputDigest', 'schemaDigest'] as const) text(evidence[name], `Output ${name}`);
+  unique(evidence.dependencies, 'Output dependency digests');
 }
